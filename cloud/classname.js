@@ -1,0 +1,35 @@
+var CargoClass = "Cargo";
+var FlightClass = "Flight";
+var ShippingClass = "Shipping";
+var OrderClass = "Order";
+var PushMessageClass = "Message";
+var UserDetailsClass = "UserDetails";
+var ConfigClass = "Application";
+
+exports.GetCargoClass = function(){
+    return CargoClass;
+}
+
+exports.GetFlightClass = function(){
+    return FlightClass
+}
+
+exports.GetShippingClass = function(){
+    return ShippingClass
+}
+
+exports.GetOrderClass = function () {
+    return OrderClass
+}
+
+exports.GetPushMessageClass = function () {
+    return PushMessageClass
+}
+
+exports.GetUserDetailsClass = function () {
+    return UserDetailsClass;
+}
+
+exports.GetConfigClass = function () {
+	return ConfigClass;
+}
