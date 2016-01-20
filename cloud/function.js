@@ -536,3 +536,30 @@ AV.Cloud.define("StartNewConversition", function (request, response) {
 			});
 	  });
 })
+
+/*
+GetShuikeRegistrationList  
+Input:cargo
+
+Output:
+user list
+*/
+Parse.Cloud.define("GetShuikeRegistrationList", function (request, response) {
+    var UserDetails = AV.Object.extend(classnameModule.GetUserDetailsClass());
+    var userDetailsQuery = new AV.Query(UserDetails);
+    var status = request.params.status;
+
+    userDetailsQuery.include("owner");
+    userDetailsQuery.equalTo("status", status);
+    userDetailsQuery.find({
+        success: function (userDetails) {
+            // The object was retrieved successfully.
+            response.success(userDetails);
+        },
+        error: function ( error) {
+            // The object was not retrieved successfully.
+            console.log(error.message);
+            response.error(messageModule.errorMsg());
+        }
+    });
+})
