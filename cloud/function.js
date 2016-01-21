@@ -31,6 +31,8 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, response) {
     var flightQuery = new AV.Query(Flight);
 
     var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
+	succeedAssignCount = 0;
+	AssignTotalWeight = 0;
 	succeedAssignCount = cargoIds.length;
     for(var i=0; i<cargoIds.length; i++)
 	{
