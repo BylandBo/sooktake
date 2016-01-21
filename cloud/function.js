@@ -544,7 +544,7 @@ Input:cargo
 Output:
 user list
 */
-Parse.Cloud.define("GetShuikeRegistrationList", function (request, response) {
+AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
     var UserDetails = AV.Object.extend(classnameModule.GetUserDetailsClass());
     var userDetailsQuery = new AV.Query(UserDetails);
     var status = request.params.status;
