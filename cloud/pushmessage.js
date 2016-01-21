@@ -114,7 +114,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
     var flightUser = flight.get("owner");
 
     pushQuery.equalTo("user", flightUser);
-    //pushQuery.equalTo("appIdentifier", messageModule.appName());
+    pushQuery.equalTo("appIdentifier", messageModule.appName());
 
     AV.Push.send({
         where: pushQuery, // Set our Installation query
