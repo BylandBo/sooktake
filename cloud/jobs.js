@@ -6,7 +6,7 @@ var pushModule = require('./pushmessage');
 
 var AV = require('leanengine');
 
-AV.Cloud.job("CheckUpdateFlightJob", function(request, status) {
+AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
   var Flight = AV.Object.extend(classnameModule.GetFlightClass());
   var flightQuery = new AV.Query(Flight);
 	
