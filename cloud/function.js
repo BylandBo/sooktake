@@ -555,7 +555,7 @@ AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
     userDetailsQuery.include("owner");
     userDetailsQuery.equalTo("status", status);
 	
-    userDetailsQuery.find.then(function(results){
+    userDetailsQuery.find().then(function(results){
 			   response.success(results);
 			},function (error) {
 				console.log(error.message);
