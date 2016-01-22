@@ -551,13 +551,14 @@ AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
     var userDetailsQuery = new AV.Query(UserDetails);
     var status = request.params.status;
 
-	console.log("GetShuikeRegistrationList-> status: " + status);
+	console.log("GetShuikeRegistrationList-> status:" + status);
     userDetailsQuery.include("owner");
     userDetailsQuery.equalTo("status", status);
-    userDetailsQuery.find.then(function (userDetails){
-			 response.success(userDetails);
-		},function (error) {
-					console.log(error.message);
-					response.error(messageModule.errorMsg());
-		});
+	
+    userDetailsQuery.find.then(function(results){
+			   response.success(results);
+			},function (error) {
+				console.log(error.message);
+				response.error(messageModule.errorMsg());
+			});
 })
