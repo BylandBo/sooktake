@@ -12,17 +12,18 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
 	
   flightQuery.lessThan("time", new Date());
   flightQuery.notContainedIn("status",[messageModule.FlightStatus_Completed(), messageModule.FlightStatus_Full(), messageModule.FlightStatus_Overdue()]);
-
+	
+  console.log("Update overdue Flights....");
   flightQuery.each(function(flight) {
       // Set and save the change
+	  console.log("Update overdue Flight: "+flight.id);
       flight.set("status", messageModule.FlightStatus_Overdue());
       return flight.save();
   }).then(function() {
     // Set the job's success status
-    status.success("Flight Update completed successfully.");
+	console.log("Flight Update completed successfully");
   }, function(error) {
     // Set the job's error status
 	console.log(error.message);
-    status.error("Uh oh, something went wrong.");
   });
 });
