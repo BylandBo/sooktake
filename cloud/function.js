@@ -451,7 +451,7 @@ AV.Cloud.define("SMSwithTwilio", function(request, response) {
 
 var SMSInformation = function (phoneNumber, content, response){
   console.log("SMS to " + phoneNumber + ", content: "+ content);
-  twilio.sendSMS({
+  twilio.messages.create({
     From: "+18446126401",
     To: phoneNumber,
     Body: '【SoonTake客服】'+content
