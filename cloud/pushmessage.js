@@ -36,12 +36,12 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 					myPushMessage.set("sendFrom", flight.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
-					myPushMessage.set("count", 1);
+					myPushMessage.set("counter", 1);
 					myPushMessage.save();
 				}
 				else{
 					message[0].set("text", content);
-					message[0].set("count", message[0].get("count")+1);
+					message[0].set("counter", message[0].get("counter")+1);
 					message[0].save();
 				}
 			},function (error) {
@@ -96,13 +96,13 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
 					myPushMessage.set("sendFrom", cargo.get("owner"));
 					myPushMessage.set("sendTo", flight.get("owner"));
-					myPushMessage.set("count",1);
+					myPushMessage.set("counter",1);
 					myPushMessage.save();
 				}
 				else
 				{
 					message[0].set("text", content);
-					message[0].set("count", message[0].get("count")+1);
+					message[0].set("counter", message[0].get("counter")+1);
 					message[0].save();
 				}
 			},function (error) {
@@ -154,7 +154,7 @@ exports.PushUserDetailVerifyStatus = function (userDetail) {
     myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_SYSTEM);
     myPushMessage.set("sendFrom", userDetail.get("owner"));
     myPushMessage.set("sendTo", userDetail.get("owner"));
-	myPushMessage.set("count", 1);
+	myPushMessage.set("counter", 1);
     myPushMessage.save();
 
 
@@ -210,12 +210,12 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 					myPushMessage.set("sendFrom", flight.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
-					myPushMessage.set("count", 1);
+					myPushMessage.set("counter", 1);
 					myPushMessage.save();
 				}
 				else{
 					message[0].set("text", content);
-					message[0].set("count", message[0].get("count")+1);
+					message[0].set("counter", message[0].get("counter")+1);
 					message[0].save();
 				}
 			},function (error) {
@@ -270,12 +270,12 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 					myPushMessage.set("sendFrom", cargo.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
-					myPushMessage.set("count", 1);
+					myPushMessage.set("counter", 1);
 					myPushMessage.save();
 				}
 				else{
 					message[0].set("text", content);
-					message[0].set("count", message[0].get("count")+1);
+					message[0].set("counter", message[0].get("counter")+1);
 					message[0].save();
 				}
 			},function (error) {
