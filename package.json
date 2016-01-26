@@ -20,9 +20,5 @@
     "express": "4.12.3",
     "leanengine": "^0.2.0"
   },
-  "name": "cloud-code-test", 
-  "description": "Cloud Code test project.", 
-  "version": "0.0.1", 
-  "private": true, 
   "dependencies": { "twilio": "1.7.0" } 
 }
