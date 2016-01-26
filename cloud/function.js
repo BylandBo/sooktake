@@ -436,6 +436,30 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		});
 })
 
+// Include the Twilio Cloud Module and initialize it
+var twilio = require("twilio");
+twilio.initialize("AC05051a3183e935f8a6d2a2c94da971dd","8668f086109349d554688600c3ff8e90");
+
+// Create the Cloud Function
+AV.Cloud.define("SMSwithTwilio", function(request, response) {
+  // Use the Twilio Cloud Module to send an SMS
+  var phoneNumber = request.phoneNumber; 
+  var content = request.content; 
+  SMSInformation(phoneNumber, content,response);
+});
+
+var SMSInformation = function (phoneNumber, content, response){
+  console.log("SMS to " + phoneNumber + ", content: "+ content);
+  twilio.sendSMS({
+    From: "+18446126401",
+    To: phoneNumber,
+    Body: '【SoonTake客服】'+content
+  }, {
+    success: function(httpResponse) { response.success("SMS sent!"); },
+    error: function(httpResponse) { response.error("Uh oh, something went wrong"); }
+  });
+}
+
 /*
 ResetUserPassword  
 Input:userId
