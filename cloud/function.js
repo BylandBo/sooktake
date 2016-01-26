@@ -4,8 +4,12 @@ var messageModule = require('./message');
 var messageModule = require('./message');
 var pushModule = require('./pushmessage');
 
+
 var AV = require('leanengine');
 
+// Include the Twilio Cloud Module and initialize it
+var twilio = require("twilio");
+twilio.initialize("AC05051a3183e935f8a6d2a2c94da971dd","8668f086109349d554688600c3ff8e90");
 //******Functions Definition******//
 
 /*
@@ -436,9 +440,6 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		});
 })
 
-// Include the Twilio Cloud Module and initialize it
-var twilio = require("twilio");
-twilio.initialize("AC05051a3183e935f8a6d2a2c94da971dd","8668f086109349d554688600c3ff8e90");
 
 // Create the Cloud Function
 AV.Cloud.define("SMSwithTwilio", function(request, response) {
