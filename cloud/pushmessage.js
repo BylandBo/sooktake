@@ -198,8 +198,9 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达，感谢您的支持！"
 	
 	var messageQuery = new AV.Query(PushMessage);
-	messageQuery.equalTo("groupId", shipping.id);
-	messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_SYSTEM);
+	//messageQuery.equalTo("groupId", shipping.id);
+	messageQuery.equalTo("groupId", cargo.id);
+	messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 	messageQuery.find().then(function (message) {
 				if(message == null || message.length <= 0)
 				{
