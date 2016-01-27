@@ -54,18 +54,21 @@ AV.Cloud.afterSave(classnameModule.GetPushMessageClass(), function(request) {
 		var userToQuery = new AV.Query(AV.User); 
 		console.log("Send to User Id: " + request.object.get("sendTo").id);
 		userToQuery.equalTo("objectId", request.object.get("sendTo").id);
-		AV.Cloud.useMasterKey();
-			userToQuery.find().then(function (userTo) {
-				if(userTo.length <= 0)
-					console.log(messageModule.UserNotFound());
-				else
-				{
-					console.log("Hook function: update message "+request.object.id+" to User: " + userTo[0].id);
-					var messageToRelation = userTo[0].relation('existMessages');
-					messageToRelation.add(request.object);
-					userTo[0].save();
-				}
-			},function (error) {
-					console.log(error.message);
-			});
+		if( request.object.get("type") != "system")
+		{
+			AV.Cloud.useMasterKey();
+				userToQuery.find().then(function (userTo) {
+					if(userTo.length <= 0)
+						console.log(messageModule.UserNotFound());
+					else
+					{
+						console.log("Hook function: update message "+request.object.id+" to User: " + userTo[0].id);
+						var messageToRelation = userTo[0].relation('existMessages');
+						messageToRelation.add(request.object);
+						userTo[0].save();
+					}
+				},function (error) {
+						console.log(error.message);
+				});
+	    }
 });

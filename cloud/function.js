@@ -198,6 +198,8 @@ AV.Cloud.define("CancelShipping", function(request, response) {
 			var addSpace = shipping.get("weight");
 			
 			 flight.set("leftSpace",flight.get("leftSpace") + addSpace);
+			 if(flight.get("status") == messageModule.FlightStatus_Full())
+				flight.set("status",messageModule.FlightStatus_Pending());
 			 flight.remove("shippingList",shipping);
 			 flight.save().then(function(f){
 				    cargo.set("status",messageModule.CargoStatus_Pending());
