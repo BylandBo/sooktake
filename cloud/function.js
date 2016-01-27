@@ -604,14 +604,17 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
 	  console.log("Update overdue Flight: "+flight.id);
       flight.set("status", messageModule.FlightStatus_Overdue());
       flight.save().then(function(result){
-	     for(var i=0; i<result.shippingList.length;i++)
+	     if(result.shippingList != null)
 		 {
-			var cargo = result.shippingList[i].get("cargo");
-			if(cargo.get("status") == messageModule.CargoStatus_Pending())
+			 for(var i=0; i<result.shippingList.length;i++)
 			 {
-				cargo.set("status",messageModule.CargoStatus_Cancel());
-				cargo.save();
-		     }
+				var cargo = result.shippingList[i].get("cargo");
+				if(cargo.get("status") == messageModule.CargoStatus_Pending())
+				 {
+					cargo.set("status",messageModule.CargoStatus_Cancel());
+					cargo.save();
+				 }
+			 }
 		 }
 	  });
   }).then(function() {
