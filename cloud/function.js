@@ -616,6 +616,7 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
 				 }
 			 }
 		 }
+		 return true;
 	  });
   }).then(function() {
     // Set the job's success status
@@ -623,5 +624,6 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
   }, function(error) {
     // Set the job's error status
 	console.log(error.message);
+	return false;
   });
 });
