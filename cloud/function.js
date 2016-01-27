@@ -603,7 +603,17 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
       // Set and save the change
 	  console.log("Update overdue Flight: "+flight.id);
       flight.set("status", messageModule.FlightStatus_Overdue());
-      return flight.save();
+      flight.save().then(function(result){
+	     for(int i=0; i<result.shippingList.length;i++)
+		 {
+			var cargo = result.shippingList[i].get("cargo");
+			if(cargo.get("status") == messageModule.CargoStatus_Pending())
+			 {
+				cargo.set("status",messageModule.CargoStatus_Cancel());
+				cargo.save();
+		     }
+		 }
+	  });
   }).then(function() {
     // Set the job's success status
 	console.log("Flight Update completed successfully");
