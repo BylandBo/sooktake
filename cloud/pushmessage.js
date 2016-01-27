@@ -42,6 +42,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 				else{
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
+					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
 					message[0].save();
 				}
 			},function (error) {
@@ -103,6 +104,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 				{
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
+					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
 					message[0].save();
 				}
 			},function (error) {
@@ -217,6 +219,7 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 				else{
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
+					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
 					message[0].save();
 				}
 			},function (error) {
@@ -277,6 +280,7 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 				else{
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
+					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
 					message[0].save();
 				}
 			},function (error) {
