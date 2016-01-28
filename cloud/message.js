@@ -52,7 +52,18 @@ var NO = 'NO';
 var UserNotFound = "User not found";
 var ConfigNotFound = "Config not found";
 
+var expressPost = "post";
+var expressCollect = "collect";
+
 //public method
+exports.expressPost = function () {
+    return expressPost;
+}
+
+exports.expressCollect = function () {
+    return expressCollect;
+}
+
 exports.YES = function () {
     return YES;
 }

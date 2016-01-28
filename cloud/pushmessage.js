@@ -197,7 +197,12 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 	if(status == messageModule.ShippingStatus_Sending())
 		content = "亲，代运人拿到了您的包裹["+shipping.get("cargo").get("type")+"]."; 
 	if(status == messageModule.ShippingStatus_Received())
-		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达，感谢您的支持！"
+	{
+	   if(cargo.get("expressType") == messageModule.expressPost())
+		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已寄出，感谢您的支持！";
+	   else
+		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达，感谢您的支持！";
+	}
 	
 	var messageQuery = new AV.Query(PushMessage);
 	//messageQuery.equalTo("groupId", shipping.id);
