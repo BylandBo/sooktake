@@ -135,7 +135,7 @@ var CreateShippingInfo = function (cargoId, flightId, weight, response) {
                     myShipping.set("cargo", cargo);
                     myShipping.set("flight", flight);
                     myShipping.set("weight", parseInt(weight));
-					myShipping.set("sender",AV.User.current())
+					myShipping.set("sender",flight.get("owner"));//AV.User.current()
                     myShipping.save(null).then(
 					  function(result) {
 						console.log("Create Cargo-Flight Shipping-> Cargo: "+ cargo.id + " flight: "+ flight.id + " Weight: " + result.get("weight"));
