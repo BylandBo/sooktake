@@ -40,7 +40,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					myPushMessage.save();
 				}
 				else{
-				 if(message[0].get("dataList").indexOf(shipping) = -1)
+				 if(!message[0].get("dataList").inArray(shipping))
 				    {
 					 message[0].add("dataList",shipping);
 					}
