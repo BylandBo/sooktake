@@ -379,10 +379,11 @@ var UpdateUserScoreByShipping = function (shipping) {
     var userQuery = new AV.Query(AV.User);
 	
 	userQuery.equalTo("objectId", shipping.get("cargo").get("owner"));
-	
     userQuery.find({
         success: function (users) {
-		   users[0].set("scores", users[0].get("scores") + 10);
+		   var currentScore = users[0].get("scores");
+		   console.log("Update user "+users[0].id +" scores from: " + currentScore);
+		   users[0].set("scores", currentScore + 10);
 		   users[0].save();
         },
         error: function ( error) {
@@ -396,7 +397,9 @@ var UpdateUserScoreByShipping = function (shipping) {
 	userQuery2.equalTo("objectId", shipping.get("flight").get("owner"));
     userQuery2.find({
         success: function (users) {
-		   users[0].set("scores", users[0].get("scores") + 10);
+		   var currentScore = users[0].get("scores");
+		   console.log("Update user "+users[0].id +" scores from: " + currentScore);
+		   users[0].set("scores", currentScore + 10);
 		   users[0].save();
         },
         error: function ( error) {
