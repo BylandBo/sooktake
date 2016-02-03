@@ -23,6 +23,11 @@ AV.Cloud.afterSave(classnameModule.GetShippingClass(), function(request) {
 	  var cargoOwner = cargo.get("owner");
 	  var cargoRelation = cargoOwner.relation('existShippings');
 	  cargoRelation.add(request.object);
+	  if(request.object.get("status") == messageModule.ShippingStatus_Received())
+	  {
+	   var oldScores = cargoOwner.get("scores");
+	   cargoOwner.set("scores",oldScores+10);
+	  }
 	  cargoOwner.save();
     },
     error: function(error) {
@@ -41,6 +46,11 @@ AV.Cloud.afterSave(classnameModule.GetShippingClass(), function(request) {
 	  var flightOwner = flight.get("owner");
 	  var flightRelation = flightOwner.relation('existShippings');
 	  flightRelation.add(request.object);
+	  if(request.object.get("status") == messageModule.ShippingStatus_Received())
+	  {
+	   var oldScores2 = flightOwner.get("scores");
+	   flightOwner.set("scores",oldScores2+10);
+	  }
 	  flightOwner.save();
     },
     error: function(error) {
