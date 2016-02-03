@@ -120,6 +120,24 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 				}
 				else
 				{
+				    var data = message[0].get("dataList");
+					var shippingExist = false;
+					if(data != null)
+					{
+						for(var i = 0; i<data.length; i++)
+						{
+						  if(data[i].id == shipping.id)
+						  {
+						    shippingExist = true;
+							break;
+						  }
+						}
+					}
+					if(!shippingExist)
+					{
+					  console.log("new shipping->"+shipping.id+" for Flight: "+flight.id);
+					  message[0].add("dataList",shipping);
+					}
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
 					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
