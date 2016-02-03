@@ -610,7 +610,7 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 	var platform = request.params.platform;
 	var Config = AV.Object.extend(classnameModule.GetConfigClass());
     var configQuery = new AV.Query(Config);
-	console.log("Get latest version: current version->"+currentVersion+ "; platform->"+platform+"; currentUser->"+AV.User.current());
+	console.log("Get latest version: current version->"+currentVersion+ "; platform->"+platform+"; currentUser->"+AV.User.current().id);
 	configQuery.equalTo("type", "latestAppVersion");
     configQuery.find().then(function (config) {
 	    if(config.length <= 0)
