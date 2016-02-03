@@ -19,7 +19,7 @@ AV.Cloud.afterSave(classnameModule.GetShippingClass(), function(request) {
       cargo.set("shipping",request.object);
       cargo.save();
 	  
-	  console.log("Hook function: update shipping to CargoUser: " + request.object.id)
+	  console.log("Hook function: update shipping to CargoUser: " + request.object.id + ", Shipping status: "+ request.object.get("status"));
 	  var cargoOwner = cargo.get("owner");
 	  var cargoRelation = cargoOwner.relation('existShippings');
 	  cargoRelation.add(request.object);
