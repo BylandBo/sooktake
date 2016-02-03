@@ -40,10 +40,21 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					myPushMessage.save();
 				}
 				else{
-				 if(!message[0].get("dataList").inArray(shipping))
-				    {
-					 message[0].add("dataList",shipping);
+				    var data = message[0].get("dataList");
+					var shippingExist = false;
+					if(data != null)
+					{
+						for(var i = 0; i<data.length; i++)
+						{
+						  if(data[i].get("objectId") == shipping.get("objectId"))
+						  {
+						    shippingExist = true;
+							break;
+						  }
+						}
 					}
+					if(!shippingExist)
+					  message[0].add("dataList",shipping);
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
 					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
