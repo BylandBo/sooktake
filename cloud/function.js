@@ -310,6 +310,7 @@ var CheckUpdateCargoAndFlight = function (shipping, response) {
 				 cargo.set("status",messageModule.CargoStatus_Sending());
 			}
 			cargo.save().then(function(result){
+			    UpdateUserScoreByShipping(shipping);
 				CheckUpdateFlight(shipping, response);
 			},function (error) {
 				console.log(error.message);
@@ -368,6 +369,44 @@ var CheckUpdateFlight = function (shipping, response) {
     });
 };
 
+
+/*
+Update User Score
+
+*/
+var UpdateUserScoreByShipping = function (shipping) {
+    var flight = shipping.get("flight");
+	
+	var User = AV.Object.extend(classnameModule.GetUserClass());
+    var userQuery = new AV.Query(User);
+	
+	userQuery.equalTo("objectId", shipping.get("cargo").id);
+    userQuery.find({
+        success: function (users) {
+		   users[0].set("scores", users[0].get("scores") + 10);
+		   users[0].save();
+        },
+        error: function ( error) {
+            // The object was not retrieved successfully.
+            console.log(error.message);
+            response.error(messageModule.errorMsg());
+        }
+    });
+	
+	var userQuery2 = new AV.Query(User);
+	userQuery2.equalTo("objectId", shipping.get("flight").id);
+    userQuery2.find({
+        success: function (users) {
+		   users[0].set("scores", users[0].get("scores") + 10);
+		   users[0].save();
+        },
+        error: function ( error) {
+            // The object was not retrieved successfully.
+            console.log(error.message);
+            response.error(messageModule.errorMsg());
+        }
+    });
+};
 
 /*
 ApproveShuikeRegistration   
