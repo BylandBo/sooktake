@@ -40,6 +40,10 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					myPushMessage.save();
 				}
 				else{
+				 if(message[0].get("dataList").indexOf(shipping) = -1)
+				    {
+					 message[0].add("dataList",shipping);
+					}
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
 					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
