@@ -34,3 +34,7 @@ exports.GetUserDetailsClass = function () {
 exports.GetConfigClass = function () {
 	return ConfigClass;
 }
+
+exports.GetUserClass = function () {
+	return UserClass;
+}
