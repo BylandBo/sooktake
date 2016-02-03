@@ -234,6 +234,7 @@ AV.Cloud.define("CancelShipping", function(request, response) {
 AV.Cloud.define("GetLatestAppVersion", function(request, response) {
     var returnResults ={};
 	var currentVersion = request.params.currentVersion;
+	var platform = request.params.platform;
 	var Config = AV.Object.extend(classnameModule.GetConfigClass());
     var configQuery = new AV.Query(Config);
 	configQuery.equalTo("type", "latestAppVersion");
@@ -246,7 +247,13 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 			if(currentVersion != config[0].get("value"))
 				returnResults["isMustUpdate"] = "YES";
 			else
-				returnResults["isMustUpdate"] = "NO";
+			{
+			 returnResults["isMustUpdate"] = "NO";
+			 configQuery.equalTo("type", "appleStoreDownloadURL");
+			 configQuery.find().then(function (config) {
+					returnResults["downloadURL"] = config[0].get("value")
+			 });
+			}
 			response.success(returnResults);
 		}
 	},function (error) {
