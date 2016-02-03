@@ -635,3 +635,18 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
             response.error(messageModule.errorMsg());
     });
 });
+
+AV.Cloud.define("SearchCargoInfo", function(request, response) {
+	var cargoId = request.params.cargoId;
+	var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
+    var cargoQuery = new AV.Query(Cargo);
+
+	cargoQuery.get(cargoId).then(
+		function(cargo) {
+					response.success(cargo);
+			}, function (error){
+						console.log(error.message);
+						response.error(messageModule.errorMsg());
+			});
+});
+
