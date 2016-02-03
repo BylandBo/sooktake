@@ -46,10 +46,10 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					{
 						for(var i = 0; i<data.length; i++)
 						{
-						  if(data[i].get("objectId") == shipping.get("objectId"))
+						  if(data[i].id == shipping.id)
 						  {
 						    shippingExist = true;
-							console.log("new shipping: "+ shipping.get("objectId"));
+							console.log("new shipping: "+ shipping.id);
 							break;
 						  }
 						}
