@@ -49,6 +49,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 						  if(data[i].get("objectId") == shipping.get("objectId"))
 						  {
 						    shippingExist = true;
+							console.log("new shipping: "+ shipping.get("objectId"));
 							break;
 						  }
 						}
