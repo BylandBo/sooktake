@@ -49,13 +49,15 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 						  if(data[i].id == shipping.id)
 						  {
 						    shippingExist = true;
-							console.log("new shipping: "+ shipping.id);
 							break;
 						  }
 						}
 					}
 					if(!shippingExist)
+					{
+					  console.log("new shipping for cancelled cargo: "+ shipping.id);
 					  message[0].add("dataList",shipping);
+					}
 					message[0].set("text", content);
 					message[0].set("counter", message[0].get("counter")+1);
 					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
