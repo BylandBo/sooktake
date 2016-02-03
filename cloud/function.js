@@ -378,7 +378,8 @@ var UpdateUserScoreByShipping = function (shipping) {
 	
     var userQuery = new AV.Query(AV.User);
 	
-	userQuery.equalTo("objectId", shipping.get("cargo").id);
+	userQuery.equalTo("objectId", shipping.get("cargo").get("owner"));
+	
     userQuery.find({
         success: function (users) {
 		   users[0].set("scores", users[0].get("scores") + 10);
@@ -392,7 +393,7 @@ var UpdateUserScoreByShipping = function (shipping) {
     });
 	
 	var userQuery2 = new AV.Query(AV.User);
-	userQuery2.equalTo("objectId", shipping.get("flight").id);
+	userQuery2.equalTo("objectId", shipping.get("flight").get("owner"));
     userQuery2.find({
         success: function (users) {
 		   users[0].set("scores", users[0].get("scores") + 10);
