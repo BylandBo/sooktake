@@ -300,6 +300,7 @@ var CheckUpdateCargoAndFlight = function (shipping, response) {
 			if(sumWeight >= parseInt(cargo.get("weight")))
 			{
 				cargo.set("status",messageModule.CargoStatus_Completed());
+				UpdateUserScoreByShipping(shipping);
 			}
 			else if(shipping.get("status") == messageModule.ShippingStatus_Received())
 			{				
@@ -310,7 +311,6 @@ var CheckUpdateCargoAndFlight = function (shipping, response) {
 				 cargo.set("status",messageModule.CargoStatus_Sending());
 			}
 			cargo.save().then(function(result){
-			    UpdateUserScoreByShipping(shipping);
 				CheckUpdateFlight(shipping, response);
 			},function (error) {
 				console.log(error.message);
