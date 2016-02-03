@@ -375,10 +375,8 @@ Update User Score
 
 */
 var UpdateUserScoreByShipping = function (shipping) {
-    var flight = shipping.get("flight");
 	
-	var User = AV.Object.extend(classnameModule.GetUserClass());
-    var userQuery = new AV.Query(User);
+    var userQuery = new AV.Query(AV.User);
 	
 	userQuery.equalTo("objectId", shipping.get("cargo").id);
     userQuery.find({
@@ -393,7 +391,7 @@ var UpdateUserScoreByShipping = function (shipping) {
         }
     });
 	
-	var userQuery2 = new AV.Query(User);
+	var userQuery2 = new AV.Query(AV.User);
 	userQuery2.equalTo("objectId", shipping.get("flight").id);
     userQuery2.find({
         success: function (users) {
