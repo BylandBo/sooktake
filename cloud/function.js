@@ -605,32 +605,33 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
 });
 
 AV.Cloud.define("GetLatestAppVersion", function(request, response) {
-    // var returnResults ={};
-	// var currentVersion = request.params.currentVersion;
-	// var platform = request.params.platform;
-	// var Config = AV.Object.extend(classnameModule.GetConfigClass());
-    // var configQuery = new AV.Query(Config);
-	// configQuery.equalTo("type", "latestAppVersion");
-    // configQuery.find().then(function (config) {
-	    // if(config.length <= 0)
-			// response.error(messageModule.ConfigNotFound());
-		// else
-		// {
-			// returnResults["latestVersion"] = config[0].get("value");
-			// if(currentVersion != config[0].get("value"))
-				// returnResults["isMustUpdate"] = "YES";
-			// else
-			// {
-			 // returnResults["isMustUpdate"] = "NO";
-			 // configQuery.equalTo("type", "appleStoreDownloadURL");
-			 // configQuery.find().then(function (config) {
-					// returnResults["downloadURL"] = config[0].get("value")
-			 // });
-			// }
-			// response.success(returnResults);
-		// }
-	// },function (error) {
-            // console.log(error.message);
-            // response.error(messageModule.errorMsg());
-    // });
+    var returnResults ={};
+	var currentVersion = request.params.currentVersion;
+	var platform = request.params.platform;
+	var Config = AV.Object.extend(classnameModule.GetConfigClass());
+    var configQuery = new AV.Query(Config);
+	console.log("Get lastet version");
+	configQuery.equalTo("type", "latestAppVersion");
+    configQuery.find().then(function (config) {
+	    if(config.length <= 0)
+			response.error(messageModule.ConfigNotFound());
+		else
+		{
+			returnResults["latestVersion"] = config[0].get("value");
+			if(currentVersion != config[0].get("value"))
+				returnResults["isMustUpdate"] = "YES";
+			else
+			{
+			 returnResults["isMustUpdate"] = "NO";
+			 configQuery.equalTo("type", "appleStoreDownloadURL");
+			 configQuery.find().then(function (config) {
+					returnResults["downloadURL"] = config[0].get("value")
+			 });
+			}
+			response.success(returnResults);
+		}
+	},function (error) {
+            console.log(error.message);
+            response.error(messageModule.errorMsg());
+    });
 });
