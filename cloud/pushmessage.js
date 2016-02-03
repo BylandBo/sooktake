@@ -55,7 +55,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					}
 					if(!shippingExist)
 					{
-					  console.log("new shipping for cancelled cargo: "+ shipping.id);
+					  console.log("new shipping->"+shipping.id+" for cancelled cargo: "+cargo.id);
 					  message[0].add("dataList",shipping);
 					}
 					message[0].set("text", content);
