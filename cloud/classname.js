@@ -5,6 +5,7 @@ var OrderClass = "Order";
 var PushMessageClass = "Message";
 var UserDetailsClass = "UserDetails";
 var ConfigClass = "Application";
+var UserClass = "_User";
 
 exports.GetCargoClass = function(){
     return CargoClass;
