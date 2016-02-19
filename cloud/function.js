@@ -648,6 +648,7 @@ AV.Cloud.define("SearchCargoInfo", function(request, response) {
 	var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
     var cargoQuery = new AV.Query(Cargo);
 
+	console.log("SearchCargoInfo: orderId->" + orderId);
 	cargoQuery.equalTo("orderId", orderId);
 	cargoQuery.find().then(
 		function(cargo) {
