@@ -621,7 +621,7 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 			var oldversion = Math.floor(currentVersion);
 			returnResults["latestVersion"] = config[0].get("value");
 			
-			console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + "; needUpdate->" + newversion != oldversion?'Yes':'No');
+			console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + "; needUpdate->" + (newversion != oldversion?'Yes':'No'));
 			if(newversion != oldversion)
 				returnResults["isMustUpdate"] = "YES";
 			else
