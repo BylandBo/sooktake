@@ -456,7 +456,7 @@ AV.Cloud.define("ResetUserPassword", function (request, response) {
 	
     userQuery.find().then(function (user) {
 	    if(user.length <= 0)
-			response.error(messageModule.UserNotFound());
+			response.error(141);
 		else
 		{
 			user[0].set("password", password);
@@ -617,8 +617,10 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 			response.error(messageModule.ConfigNotFound());
 		else
 		{
+		    var newversion = Math.floor(config[0].get("value"));
+			var oldversion = Math.floor(currentVersion);
 			returnResults["latestVersion"] = config[0].get("value");
-			if(currentVersion != config[0].get("value"))
+			if(newversion != oldversion)
 				returnResults["isMustUpdate"] = "YES";
 			else
 			{
