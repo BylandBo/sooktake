@@ -651,8 +651,8 @@ AV.Cloud.define("SearchCargoInfo", function(request, response) {
 	console.log("SearchCargoInfo: orderId->" + orderId);
 	cargoQuery.equalTo("orderId", orderId);
 	cargoQuery.find().then(
-		function(cargo) {
-					response.success(cargo);
+		function(cargos) {
+					response.success(cargo[0]);
 			}, function (error){
 						console.log(error.message);
 						response.error(messageModule.errorMsg());
