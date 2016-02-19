@@ -644,11 +644,12 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 });
 
 AV.Cloud.define("SearchCargoInfo", function(request, response) {
-	var cargoId = request.params.cargoId;
+	var orderId = request.params.cargoId;
 	var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
     var cargoQuery = new AV.Query(Cargo);
 
-	cargoQuery.get(cargoId).then(
+	cargoQuery.equalTo("orderId", orderId);
+	cargoQuery.find().then(
 		function(cargo) {
 					response.success(cargo);
 			}, function (error){
