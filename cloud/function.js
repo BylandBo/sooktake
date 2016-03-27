@@ -627,6 +627,7 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 			console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + "; needUpdate->" + (newversion > oldversion?'Yes':'No'));
 			if(newversion > oldversion)
 			{
+				//then return the download url
 				returnResults["isMustUpdate"] = "YES";
 				configQuery.equalTo("key", "appleStoreDownloadURL");
 				configQuery.find().then(function (config) {
