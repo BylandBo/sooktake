@@ -624,16 +624,18 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 			var oldversion = Math.floor(currentVersion);
 			returnResults["latestVersion"] = config[0].get("value");
 			
-			console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + "; needUpdate->" + (newversion != oldversion?'Yes':'No'));
+			console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + "; needUpdate->" + (newversion > oldversion?'Yes':'No'));
 			if(newversion > oldversion)
+			{
 				returnResults["isMustUpdate"] = "YES";
+				configQuery.equalTo("key", "appleStoreDownloadURL");
+				configQuery.find().then(function (config) {
+					returnResults["downloadURL"] = config[0].get("value")
+			 });
+			}
 			else
 			{
 			 returnResults["isMustUpdate"] = "NO";
-			 configQuery.equalTo("key", "appleStoreDownloadURL");
-			 configQuery.find().then(function (config) {
-					returnResults["downloadURL"] = config[0].get("value")
-			 });
 			}
 			response.success(returnResults);
 		}
