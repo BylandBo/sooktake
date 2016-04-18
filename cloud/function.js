@@ -254,7 +254,18 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
             // The object was retrieved successfully.
             shipping.set("status",status);
 			if(status == messageModule.ShippingStatus_Sending())
-			 shipping.set("sendingTime",new Date());
+			{
+			    var flight = shipping.get("flight");
+				if(flight != null)
+				{
+				  if(status == messageModule.ShippingStatus_Sending() && flight.get("status") == messageModule.FlightStatus_Pending())
+				  {
+					console.log("Flight "+ flight.id + " not take off yet.");
+					response.error(406);
+				  }
+				}
+			    shipping.set("sendingTime",new Date());
+			}
 			if(status == messageModule.ShippingStatus_Received())
 			 shipping.set("receivedTime",new Date());
             shipping.save().then(function(result){

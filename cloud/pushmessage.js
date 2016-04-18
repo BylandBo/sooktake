@@ -18,6 +18,8 @@ var PF_PUSH_MESSAGE_STATUS_SENT     ="sent"
 var PF_PUSH_MESSAGE_STATUS_RECEIVED ="received"
 var PF_PUSH_MESSAGE_STATUS_CLEAN    ="clean"
 
+var PF_PUSH_MESSAGE_ACTION    ="SoonTake_Function"
+
 exports.PushCargoAssigned = function (cargo, flight, shipping) {
     var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
@@ -37,6 +39,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					myPushMessage.set("sendFrom", flight.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
 					myPushMessage.set("counter", 1);
+					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else{
@@ -116,6 +119,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 					myPushMessage.set("sendFrom", cargo.get("owner"));
 					myPushMessage.set("sendTo", flight.get("owner"));
 					myPushMessage.set("counter",1);
+					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else
@@ -193,6 +197,7 @@ exports.PushUserDetailVerifyStatus = function (userDetail) {
     myPushMessage.set("sendFrom", userDetail.get("owner"));
     myPushMessage.set("sendTo", userDetail.get("owner"));
 	myPushMessage.set("counter", 1);
+	myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
     myPushMessage.save();
 
 
@@ -255,6 +260,7 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 					myPushMessage.set("sendFrom", flight.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
 					myPushMessage.set("counter", 1);
+					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else{
@@ -316,6 +322,7 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 					myPushMessage.set("sendFrom", cargo.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
 					myPushMessage.set("counter", 1);
+					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else{
