@@ -18,7 +18,7 @@ var PF_PUSH_MESSAGE_STATUS_SENT     ="sent"
 var PF_PUSH_MESSAGE_STATUS_RECEIVED ="received"
 var PF_PUSH_MESSAGE_STATUS_CLEAN    ="clean"
 
-var PF_PUSH_MESSAGE_ACTION    ="SoonTake_Function"
+var PF_PUSH_MESSAGE_ACTION    ="com.soontake.PUSH"
 
 exports.PushCargoAssigned = function (cargo, flight, shipping) {
     var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
@@ -39,7 +39,6 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 					myPushMessage.set("sendFrom", flight.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
 					myPushMessage.set("counter", 1);
-					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else{
@@ -83,7 +82,8 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 			body:content,
 			objectId:cargo.id,
 			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_CARGO
+			type:PF_PUSH_MESSAGE_TYPE_CARGO,
+			action:PF_PUSH_MESSAGE_ACTION
         }
     }, {
         success: function () {
@@ -119,7 +119,6 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 					myPushMessage.set("sendFrom", cargo.get("owner"));
 					myPushMessage.set("sendTo", flight.get("owner"));
 					myPushMessage.set("counter",1);
-					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else
@@ -165,7 +164,8 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 			body:content,
 			objectId:flight.id,
 			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_FLIGHT
+			type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
+			action:PF_PUSH_MESSAGE_ACTION
         }
     }, {
         success: function () {
@@ -197,7 +197,6 @@ exports.PushUserDetailVerifyStatus = function (userDetail) {
     myPushMessage.set("sendFrom", userDetail.get("owner"));
     myPushMessage.set("sendTo", userDetail.get("owner"));
 	myPushMessage.set("counter", 1);
-	myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
     myPushMessage.save();
 
 
@@ -213,7 +212,8 @@ exports.PushUserDetailVerifyStatus = function (userDetail) {
 			body:message,
 			objectId:userDetail.id,
 			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_SYSTEM
+			type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+			action:PF_PUSH_MESSAGE_ACTION
         }
     }, {
         success: function () {
@@ -260,7 +260,6 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 					myPushMessage.set("sendFrom", flight.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
 					myPushMessage.set("counter", 1);
-					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else{
@@ -287,7 +286,8 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 			body:content,
 			objectId:shipping.id,
 			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_SYSTEM
+			type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+			action:PF_PUSH_MESSAGE_ACTION
         }
     }, {
         success: function () {
@@ -322,7 +322,6 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 					myPushMessage.set("sendFrom", cargo.get("owner"));
 					myPushMessage.set("sendTo", cargo.get("owner"));
 					myPushMessage.set("counter", 1);
-					myPushMessage.set("action", PF_PUSH_MESSAGE_ACTION);
 					myPushMessage.save();
 				}
 				else{
@@ -348,7 +347,8 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 			body:content,
 			objectId:cargo.id,
 			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_CARGO
+			type:PF_PUSH_MESSAGE_TYPE_CARGO,
+			action:PF_PUSH_MESSAGE_ACTION
         }
     }, {
         success: function () {
