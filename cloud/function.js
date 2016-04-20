@@ -527,7 +527,7 @@ AV.Cloud.define("StartNewConversition", function (request, response) {
 			    myPushMessage.set("groupId", groupId);
 				myPushMessage.add("dataList",conversitionId);
 				myPushMessage.set("text", "");
-				myPushMessage.set("status", "sent");
+				myPushMessage.set("status", "new");
 				myPushMessage.set("type", "chat");
 				myPushMessage.set("sendFrom", userF[0]);
 				myPushMessage.set("sendTo", user[0]);
