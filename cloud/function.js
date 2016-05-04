@@ -628,7 +628,7 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 	var currentUserId = null;
 	if(AV.User.current()!=null)
 		currentUserId = AV.User.current().id;
-	console.log("Get latest version: current version->"+currentVersion+ "; platform->"+platform+"; currentUser->"+currentUserId;
+	console.log("Get latest version: current version->"+currentVersion+ "; platform->"+platform+"; currentUser->"+currentUserId);
 	if(platform.toLowerCase() == 'ios')
 	{
 	    console.log("Check ios version");
