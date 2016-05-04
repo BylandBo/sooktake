@@ -435,18 +435,18 @@ AV.Cloud.define("SMSwithTwilio", function(request, response) {
   // Use the Twilio Cloud Module to send an SMS
   var phoneNumber = request.phoneNumber; 
   var content = request.content; 
-  SMSInformation(phoneNumber, content,response);
+  SMSInformation(phoneNumber, content);
 });
 
-var SMSInformation = function (phoneNumber, content, response){
+var SMSInformation = function (phoneNumber, content){
   console.log("SMS to " + phoneNumber + ", content: "+ content);
   twilio.messages.create({
     From: "+18446126401",
     To: phoneNumber,
     Body: '【SoonTake客服】'+content
   }, {
-    success: function(httpResponse) { response.success("SMS sent!"); },
-    error: function(httpResponse) { response.error("Uh oh, something went wrong"); }
+    success: function(httpResponse) { console.log("SMS to " + phoneNumber + " succeed"},
+    error: function(httpResponse) { console.log("SMS to " + phoneNumber + " failed" }
   });
 }
 
