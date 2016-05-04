@@ -611,6 +611,7 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
   }).then(function() {
     // Set the job's success status
 	console.log("Flight Update completed successfully");
+	return true;
   }, function(error) {
     // Set the job's error status
 	console.log(error.message);
