@@ -681,11 +681,21 @@ AV.Cloud.define("SearchCargoInfo", function(request, response) {
 
 	console.log("SearchCargoInfo: orderId->" + orderId);
 	cargoQuery.equalTo("orderId", orderId);
-	console.log("SearchCargoInfo: shunfengId->" + orderId);
-	cargoQuery2.equalTo("shunfengId", orderId);
-	cargoQuery.orQuery(cargoQuery2);
 	cargoQuery.find().then(
 		function(cargos) {
+		         if(cargos.length <= 0)
+				 {
+					console.log("SearchCargoInfo: shunfengId->" + orderId);
+					cargoQuery2.equalTo("shunfengId", orderId);
+					cargoQuery2.find().then(
+					function(subcargos) {
+								response.success(subcargos[0]);
+						}, function (error){
+									console.log(error.message);
+									response.error(messageModule.errorMsg());
+						});
+				 }
+				 else
 					response.success(cargos[0]);
 			}, function (error){
 						console.log(error.message);
