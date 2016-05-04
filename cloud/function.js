@@ -625,10 +625,15 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 	var Config = AV.Object.extend(classnameModule.GetConfigClass());
     var configQuery = new AV.Query(Config);
 	console.log("Get latest version: current version->"+currentVersion+ "; platform->"+platform+"; currentUser->"+AV.User.current());
-	if(platform.toLowerCase() == 'ios')
+	if(platform.toLowerCase() == 'ios'){
+	    console.log("Check ios version");
 		configQuery.equalTo("key", "latestIOSAppVersion");
+	}
 	else
+	{
+		console.log("Check android version");
 		configQuery.equalTo("key", "latestAndroidAppVersion");
+	}
     configQuery.find().then(function (config) {
 	    if(config.length <= 0)
 			response.error(messageModule.ConfigNotFound());
