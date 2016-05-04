@@ -445,8 +445,8 @@ var SMSInformation = function (phoneNumber, content){
     To: phoneNumber,
     Body: '【SoonTake客服】'+content
   }, {
-    success: function(httpResponse) { console.log("SMS to " + phoneNumber + " succeed"},
-    error: function(httpResponse) { console.log("SMS to " + phoneNumber + " failed" }
+    success: function(httpResponse) { console.log("SMS to " + phoneNumber + " succeed")},
+    error: function(httpResponse) { console.log("SMS to " + phoneNumber + " failed")}
   });
 }
 
