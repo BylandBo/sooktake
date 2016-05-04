@@ -581,7 +581,7 @@ AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
 })
 
 
-AV.Cloud.define("CheckUpdateFlightJob", function(request, status) {
+AV.Cloud.define("CheckUpdateFlightJob", function(request, response) {
   var Flight = AV.Object.extend(classnameModule.GetFlightClass());
   var flightQuery = new AV.Query(Flight);
 	
