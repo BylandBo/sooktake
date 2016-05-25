@@ -247,6 +247,7 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
     var status = request.params.status;
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
+	var flightNotReady = false;
 	
 	console.log("UpdateShippingStatus-> shippingId:" + shippingId + ", status:"+status);
     shippingQuery.get(shippingId, {
@@ -255,26 +256,32 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
             shipping.set("status",status);
 			if(status == messageModule.ShippingStatus_Sending())
 			{
+				shipping.set("sendingTime",new Date());
 			    var flight = shipping.get("flight");
 				if(flight != null)
 				{
 				  if(status == messageModule.ShippingStatus_Sending() && flight.get("status") == messageModule.FlightStatus_Pending())
 				  {
 					console.log("Flight "+ flight.id + " not take off yet.");
-					response.error(406);
+					flightNotReady = true;
 				  }
 				}
-			    shipping.set("sendingTime",new Date());
 			}
 			if(status == messageModule.ShippingStatus_Received())
 			 shipping.set("receivedTime",new Date());
-            shipping.save().then(function(result){
-				CheckUpdateCargoAndFlight(result,response);
-			    pushModule.PushShippingStatusUpdateToUser(result);
-			},function (error) {
-				console.log(error.message);
-				response.error(messageModule.errorMsg());
-			});
+			
+			if(flightNotReady)
+			  response.error(406);
+			else
+			{
+				shipping.save().then(function(result){
+					CheckUpdateCargoAndFlight(result,response);
+					pushModule.PushShippingStatusUpdateToUser(result);
+				},function (error) {
+					console.log(error.message);
+					response.error(messageModule.errorMsg());
+				});
+			}
         },
         error: function (error) {
             // The object was not retrieved successfully.
