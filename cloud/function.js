@@ -260,7 +260,7 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 			    var flight = shipping.get("flight");
 				if(flight != null)
 				{
-				  if(status == messageModule.ShippingStatus_Sending() && flight.get("time") < new Date())
+				  if(status == messageModule.ShippingStatus_Sending() && flight.get("time") > new Date())
 				  {
 					console.log("Flight "+ flight.id + " not take off yet.");
 					flightNotReady = true;
