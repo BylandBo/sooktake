@@ -624,6 +624,7 @@ AV.Cloud.define("CheckUpdateFlightJob", function(request, response) {
 	console.log(error.message);
 	response.error(false);
   });
+  
 });
 
 AV.Cloud.define("GetLatestAppVersion", function(request, response) {
