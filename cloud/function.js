@@ -255,20 +255,20 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
             // The object was retrieved successfully.
             shipping.set("status",status);
 			if(status == messageModule.ShippingStatus_Sending())
+			 shipping.set("sendingTime",new Date());
+			if(status == messageModule.ShippingStatus_Received())
 			{
-				shipping.set("sendingTime",new Date());
+				shipping.set("receivedTime",new Date());
 			    var flight = shipping.get("flight");
 				if(flight != null)
 				{
-				  if(status == messageModule.ShippingStatus_Sending() && flight.get("time") > new Date())
+				  if(status == messageModule.ShippingStatus_Received() && flight.get("time") > new Date())
 				  {
 					console.log("Flight "+ flight.id + " not take off yet.");
 					flightNotReady = true;
 				  }
 				}
 			}
-			if(status == messageModule.ShippingStatus_Received())
-			 shipping.set("receivedTime",new Date());
 			
 			if(flightNotReady)
 			  response.error(406);
