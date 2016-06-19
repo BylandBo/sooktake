@@ -186,6 +186,7 @@ AV.Cloud.define("CancelShipping", function(request, response) {
     var shippingId = request.params.shipping; 
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;	
+	var isCancelByCargoOwner = request.params.isCancelByCargoOwner;
 	
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
@@ -210,7 +211,7 @@ AV.Cloud.define("CancelShipping", function(request, response) {
 						//shipping.set("flight",null);
 						//shipping.set("cargo",null);
 						shipping.set("status",messageModule.ShippingStatus_Cancel());
-						
+						shipping.set("isCancelByCargoOwner",isCancelByCargoOwner);
 						shipping.save().then(function(s){
 							response.success(s);
 						},function (error) {

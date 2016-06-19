@@ -46,6 +46,11 @@ var PF_USERDETAILS_STATUS_APPROVED = "approved";
 var PF_USERDETAILS_STATUS_REJECTED = "rejected";
 var PF_USERDETAILS_STATUS_PENDING = "pending";
 
+//assign type
+
+var Assign_Type_Cargo = "cargo";
+var Assign_Type_Flight = "flight";
+
 var YES = 'YES';
 var NO = 'NO';
 
@@ -56,6 +61,14 @@ var expressPost = "post";
 var expressCollect = "collect";
 
 //public method
+exports.Assign_Type_Cargo = function () {
+    return Assign_Type_Cargo;
+}
+
+exports.Assign_Type_Flight = function () {
+    return Assign_Type_Flight;
+}
+
 exports.expressPost = function () {
     return expressPost;
 }
