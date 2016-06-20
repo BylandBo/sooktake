@@ -27,10 +27,10 @@ var AssignTotalWeight = 0;
 AV.Cloud.define("AssignCargosToFlight", function (request, response) {
     var cargoIds = request.params.cargoList;
     var flightId = request.params.flight; 
-    ValidationCargoAssignInfo(cargoIds, flightId, response);
+    ValidationCargoAssignInfo(cargoIds, flightId, 'cargo', response);
 });
 
-var ValidationCargoAssignInfo = function (cargoIds, flightId, response) {
+var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response) {
     var Flight = AV.Object.extend(classnameModule.GetFlightClass());
     var flightQuery = new AV.Query(Flight);
 
@@ -56,7 +56,7 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, response) {
 							response.error(messageModule.errorMsg());
 						console.log("Flight " + flightId + " space: " + lastestLeftSpace);
 						//all valid, then start to update
-						UpdateFlightInfo(cargo.id, flightId, lastestLeftWeight, response);
+						UpdateFlightInfo(cargo.id, flightId, lastestLeftWeight, assignBy, response);
 					}, function (error){
 						console.log(error.message);
 						response.error(messageModule.errorMsg());
@@ -68,7 +68,7 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, response) {
 	}
 };
 
-var UpdateFlightInfo = function (cargoId, flightId, weight, response) {
+var UpdateFlightInfo = function (cargoId, flightId, weight, assignBy, response) {
     var Flight = AV.Object.extend(classnameModule.GetFlightClass());
     var flightQuery = new AV.Query(Flight);
 
@@ -76,7 +76,7 @@ var UpdateFlightInfo = function (cargoId, flightId, weight, response) {
 			var lastestLeftSpace = flight.get("leftSpace");
             if (lastestLeftSpace == 0 || lastestLeftSpace < weight)
                 response.error(messageModule.errorMsg());
-			UpdateCargoInfo(cargoId, flightId, weight, response);
+			UpdateCargoInfo(cargoId, flightId, weight, assignBy, response);
 			
 			}, function(error) {
 				console.log(error.message);
@@ -84,7 +84,7 @@ var UpdateFlightInfo = function (cargoId, flightId, weight, response) {
 			});
 };
 
-var UpdateCargoInfo = function (cargoId, flightId,weight, response) {
+var UpdateCargoInfo = function (cargoId, flightId,weight, assignBy, response) {
     var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
     var cargoQuery = new AV.Query(Cargo);
 
@@ -102,7 +102,7 @@ var UpdateCargoInfo = function (cargoId, flightId,weight, response) {
 			  function(result) {
 				console.log("Update Cargo After: "+ result.id + " Weight: "+ result.get("leftWeight"));
 				//then update the shipping info
-				CreateShippingInfo(cargoId, flightId, weight, response);
+				CreateShippingInfo(cargoId, flightId, weight, assignBy, response);
 			  },
 			  function(error) {
 				console.log(error.message);
@@ -114,7 +114,7 @@ var UpdateCargoInfo = function (cargoId, flightId,weight, response) {
 };
 
 
-var CreateShippingInfo = function (cargoId, flightId, weight, response) {
+var CreateShippingInfo = function (cargoId, flightId, weight, assignBy, response) {
     var Flight = AV.Object.extend(classnameModule.GetFlightClass());
     var flightQuery = new AV.Query(Flight);
 
@@ -136,6 +136,7 @@ var CreateShippingInfo = function (cargoId, flightId, weight, response) {
                     myShipping.set("flight", flight);
                     myShipping.set("weight", parseInt(weight));
 					myShipping.set("sender",flight.get("owner"));//AV.User.current()
+					myShipping.set("assignBy",assignBy);
                     myShipping.save(null).then(
 					  function(result) {
 						console.log("Create Cargo-Flight Shipping-> Cargo: "+ cargo.id + " flight: "+ flight.id + " Weight: " + result.get("weight"));
@@ -710,5 +711,14 @@ AV.Cloud.define("SearchCargoInfo", function(request, response) {
 						console.log(error.message);
 						response.error(messageModule.errorMsg());
 			});
+});
+
+AV.Cloud.define("AssignFlightToCargo", function (request, response) {
+    var cargoId = request.params.cargo;
+    var flightId = request.params.flight; 
+	
+	var cargoIds = [];
+	cargoIds.push(cargoId);
+    ValidationCargoAssignInfo(cargoIds, flightId, 'flight', response);
 });
 
