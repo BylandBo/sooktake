@@ -25,49 +25,64 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
     var myPushMessage = new PushMessage();
     var content = "亲，您的包裹["+cargo.get("type")+"]被预定，请自行约定包裹交接，在此以前请不要打包以便开箱验视，感谢您的支持！";   
 
-	var messageQuery = new AV.Query(PushMessage);
-	messageQuery.equalTo("groupId", cargo.id);
-	messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-	messageQuery.find().then(function (message) {
-				if(message == null || message.length <= 0)
-				{
-				    myPushMessage.set("groupId", cargo.id);
-					myPushMessage.add("dataList",shipping);
-					myPushMessage.set("text", content);
-					myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-					myPushMessage.set("sendFrom", flight.get("owner"));
-					myPushMessage.set("sendTo", cargo.get("owner"));
-					myPushMessage.set("counter", 1);
-					myPushMessage.save();
-				}
-				else{
-				    var data = message[0].get("dataList");
-					var shippingExist = false;
-					if(data != null)
-					{
-						for(var i = 0; i<data.length; i++)
+	//add message history
+	var History = AV.Object.extend(classnameModule.GetHistoryClass());
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", cargo.id);
+	historyRecord.save().then(
+		function (history){
+			var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", cargo.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+			messageQuery.find().then(function (message) {
+						if(message == null || message.length <= 0)
 						{
-						  if(data[i].id == shipping.id)
-						  {
-						    shippingExist = true;
-							break;
-						  }
+							myPushMessage.set("groupId", cargo.id);
+							myPushMessage.add("dataList",shipping);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+							myPushMessage.set("sendFrom", flight.get("owner"));
+							myPushMessage.set("sendTo", cargo.get("owner"));
+							myPushMessage.set("counter", 1);
+							myPushMessage.add("historyList",history.id);
+							myPushMessage.save();
 						}
-					}
-					if(!shippingExist)
-					{
-					  console.log("new shipping->"+shipping.id+" for cancelled cargo: "+cargo.id);
-					  message[0].add("dataList",shipping);
-					}
-					message[0].set("text", content);
-					message[0].set("counter", message[0].get("counter")+1);
-					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					message[0].save();
-				}
-			},function (error) {
-					console.log(error.message);
-	});
+						else{
+							var data = message[0].get("dataList");
+							var shippingExist = false;
+							if(data != null)
+							{
+								for(var i = 0; i<data.length; i++)
+								{
+								  if(data[i].id == shipping.id)
+								  {
+									shippingExist = true;
+									break;
+								  }
+								}
+							}
+							if(!shippingExist)
+							{
+							  console.log("new shipping->"+shipping.id+" for cancelled cargo: "+cargo.id);
+							  message[0].add("dataList",shipping);
+							}
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].add("historyList",history.id);
+							message[0].save();
+						}
+					},function (error) {
+							console.log(error.message);
+			});
+		},
+	    function(error) {
+		   console.log(error.message);
+	   }
+	);
 
     var pushQuery = new AV.Query(AV.Installation);
     var cargoUser = cargo.get("owner");
@@ -105,51 +120,65 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 
     var content = "亲，您收到一个包裹["+cargo.get("type")+"], 请自行约定包裹交接，请当面开箱验视，感谢您的支持！";
 	
-	var messageQuery = new AV.Query(PushMessage);
-	messageQuery.equalTo("groupId", flight.id);
-	messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
-	messageQuery.find().then(function (message) {           
-				if(message == null || message.length <= 0)
-				{
-					myPushMessage.set("groupId", flight.id);
-					myPushMessage.add("dataList",shipping);
-					myPushMessage.set("text", content);
-					myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
-					myPushMessage.set("sendFrom", cargo.get("owner"));
-					myPushMessage.set("sendTo", flight.get("owner"));
-					myPushMessage.set("counter",1);
-					myPushMessage.save();
-				}
-				else
-				{
-				    var data = message[0].get("dataList");
-					var shippingExist = false;
-					if(data != null)
-					{
-						for(var i = 0; i<data.length; i++)
+	//add message history
+	var History = AV.Object.extend(classnameModule.GetHistoryClass());
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", flight.id);
+	historyRecord.save().then(
+		function (history){
+		    var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", flight.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+			messageQuery.find().then(function (message) {           
+						if(message == null || message.length <= 0)
 						{
-						  if(data[i].id == shipping.id)
-						  {
-						    shippingExist = true;
-							break;
-						  }
+							myPushMessage.set("groupId", flight.id);
+							myPushMessage.add("dataList",shipping);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+							myPushMessage.set("sendFrom", cargo.get("owner"));
+							myPushMessage.set("sendTo", flight.get("owner"));
+							myPushMessage.set("counter",1);
+							myPushMessage.add("historyList",history.id);
+							myPushMessage.save();
 						}
-					}
-					if(!shippingExist)
-					{
-					  console.log("new shipping->"+shipping.id+" for Flight: "+flight.id);
-					  message[0].add("dataList",shipping);
-					}
-					message[0].set("text", content);
-					message[0].set("counter", message[0].get("counter")+1);
-					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					message[0].save();
-				}
-			},function (error) {
-					console.log(error.message);
-	});
-	
+						else
+						{
+							var data = message[0].get("dataList");
+							var shippingExist = false;
+							if(data != null)
+							{
+								for(var i = 0; i<data.length; i++)
+								{
+								  if(data[i].id == shipping.id)
+								  {
+									shippingExist = true;
+									break;
+								  }
+								}
+							}
+							if(!shippingExist)
+							{
+							  console.log("new shipping->"+shipping.id+" for Flight: "+flight.id);
+							  message[0].add("dataList",shipping);
+							}
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].add("historyList",history.id);
+							message[0].save();
+						}
+					},function (error) {
+							console.log(error.message);
+			});
+		},
+	    function(error) {
+		   console.log(error.message);
+	   }
+	 );
 
     var pushQuery = new AV.Query(AV.Installation);
     var flightUser = flight.get("owner");
@@ -245,33 +274,46 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达，感谢您的支持！";
 	}
 	
-	var messageQuery = new AV.Query(PushMessage);
-	//messageQuery.equalTo("groupId", shipping.id);
-	messageQuery.equalTo("groupId", cargo.id);
-	messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-	messageQuery.find().then(function (message) {
-				if(message == null || message.length <= 0)
-				{
-					myPushMessage.set("groupId", shipping.id);
-					myPushMessage.add("dataList",shipping);
-					myPushMessage.set("text", content);
-					myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-					myPushMessage.set("sendFrom", flight.get("owner"));
-					myPushMessage.set("sendTo", cargo.get("owner"));
-					myPushMessage.set("counter", 1);
-					myPushMessage.save();
-				}
-				else{
-					message[0].set("text", content);
-					message[0].set("counter", message[0].get("counter")+1);
-					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					message[0].save();
-				}
-			},function (error) {
-					console.log(error.message);
-	});
-
+	//add message history
+	var History = AV.Object.extend(classnameModule.GetHistoryClass());
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", cargo.id);
+	historyRecord.save().then(
+		function (history){
+		    var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", cargo.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+			messageQuery.find().then(function (message) {
+						if(message == null || message.length <= 0)
+						{
+							myPushMessage.set("groupId", cargo.id);
+							myPushMessage.add("dataList",shipping);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+							myPushMessage.set("sendFrom", flight.get("owner"));
+							myPushMessage.set("sendTo", cargo.get("owner"));
+							myPushMessage.set("counter", 1);
+							myPushMessage.add("historyList",history.id);
+							myPushMessage.save();
+						}
+						else{
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].add("historyList",history.id);
+							message[0].save();
+						}
+					},function (error) {
+							console.log(error.message);
+			});
+		},
+		function(error) {
+		   console.log(error.message);
+	   }
+	);	
 
     var pushQuery = new AV.Query(AV.Installation);
     var cargoUser = cargo.get("owner");
@@ -308,31 +350,46 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 
     var content = "亲，您的包裹["+cargo.get("type")+"]已被取消，请重新等待代运人，感谢您的支持！";   
 	
-	var messageQuery = new AV.Query(PushMessage);
-	messageQuery.equalTo("groupId", cargo.id);
-	messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-	messageQuery.find().then(function (message) {
-				if(message == null || message.length <= 0)
-				{
-					myPushMessage.set("groupId", cargo.id);
-					myPushMessage.add("dataList",cargo);
-					myPushMessage.set("text", content);
-					myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-					myPushMessage.set("sendFrom", cargo.get("owner"));
-					myPushMessage.set("sendTo", cargo.get("owner"));
-					myPushMessage.set("counter", 1);
-					myPushMessage.save();
-				}
-				else{
-					message[0].set("text", content);
-					message[0].set("counter", message[0].get("counter")+1);
-					message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-					message[0].save();
-				}
-			},function (error) {
-					console.log(error.message);
-	});
+	//add message history
+	var History = AV.Object.extend(classnameModule.GetHistoryClass());
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", cargo.id);
+	historyRecord.save().then(
+		function (history){
+			var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", cargo.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+			messageQuery.find().then(function (message) {
+						if(message == null || message.length <= 0)
+						{
+							myPushMessage.set("groupId", cargo.id);
+							myPushMessage.add("dataList",cargo);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+							myPushMessage.set("sendFrom", cargo.get("owner"));
+							myPushMessage.set("sendTo", cargo.get("owner"));
+							myPushMessage.set("counter", 1);
+							myPushMessage.add("historyList",history.id);
+							myPushMessage.save();
+						}
+						else{
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].add("historyList",history.id);
+							message[0].save();
+						}
+					},function (error) {
+							console.log(error.message);
+			});
+		},
+		function(error) {
+		   console.log(error.message);
+	   }
+	);
 
     var pushQuery = new AV.Query(AV.Installation);
     var cargoUser = cargo.get("owner");

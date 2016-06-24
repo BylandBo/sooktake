@@ -6,6 +6,7 @@ var PushMessageClass = "Message";
 var UserDetailsClass = "UserDetails";
 var ConfigClass = "Application";
 var UserClass = "_User";
+var HistoryClass = "History";
 
 exports.GetCargoClass = function(){
     return CargoClass;
@@ -37,4 +38,8 @@ exports.GetConfigClass = function () {
 
 exports.GetUserClass = function () {
 	return UserClass;
+}
+
+exports.GetHistoryClass = function () {
+	return HistoryClass;
 }
