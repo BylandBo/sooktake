@@ -190,7 +190,7 @@ AV.Cloud.define("CancelShipping", function(request, response) {
 	var isCancelByCargoOwner = request.params.isCancelByCargoOwner;
 	
 	if(isCancelByCargoOwner == null || isCancelByCargoOwner == '')
-	   isCancelByCargoOwner = false;
+	   isCancelByCargoOwner = 'NO';
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
     shippingQuery.get(shippingId, {
