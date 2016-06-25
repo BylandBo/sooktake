@@ -17,7 +17,7 @@ router.post('/', function(request, response) {
       if (event.type === undefined) {
         return response('Event 对象中缺少 type 字段', 400);
       }
-	  console.log(2);
+	  console.log("event type: " + event.type);
       switch (event.type) {
         case "charge.succeeded":
           // 开发者在此处加入对支付异步通知的处理代码
