@@ -9,7 +9,7 @@ var pub_key_path = __dirname + "/rsa_public_key.pem";
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
-  var postData = req.body;
+  var postData = request.body;
   console.log(postData);
     try {
       var event = JSON.parse(postData);
