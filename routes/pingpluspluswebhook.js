@@ -1,37 +1,39 @@
-var router = require('express').Router();
-var AV = require('leanengine');
+var http = require('http');
 
-var crypto = require("crypto"),
-    fs  = require("fs");
+http.createServer(function (req, res) {
 
-var pub_key_path = __dirname + "/rsa_public_key.pem";
-
-// `AV.Object.extend` 方法一定要放在全局变量，否则会造成堆栈溢出。
-
-
-router.post('/pingpluswebhooks', function(request, response) {
-    console.log(request);
+  req.setEncoding('utf8');
+  var postData = "";
+  req.addListener("data", function (chunk) {
+    postData += chunk;
+  });
+  req.addListener("end", function () {
+    var resp = function (ret, status_code) {
+      res.writeHead(status_code, {
+        "Content-Type": "text/plain; charset=utf-8"
+      });
+      res.end(ret);
+    }
     try {
-      var event = JSON.parse(request);
+      var event = JSON.parse(postData);
       if (event.type === undefined) {
-        return response('Event type undefined', 400);
+        return resp('Event 对象中缺少 type 字段', 400);
       }
       switch (event.type) {
         case "charge.succeeded":
-          // todo
-          return response("OK", 200);
+          // 开发者在此处加入对支付异步通知的处理代码
+          return resp("OK", 200);
           break;
         case "refund.succeeded":
-          // todo
-          return response("OK", 200);
+          // 开发者在此处加入对退款异步通知的处理代码
+          return resp("OK", 200);
           break;
         default:
-          return response("Unknow Event type", 400);
+          return resp("未知 Event 类型", 400);
           break;
       }
     } catch (err) {
-      return response('JSON analyz failed', 400);
+      return resp('JSON 解析失败', 400);
     }
-});
-
-module.exports = router;
+  });
+}).listen(8000, "127.0.0.1");
