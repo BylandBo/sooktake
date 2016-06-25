@@ -14,6 +14,7 @@ router.get('/pingpluspluswebhooks', function(request, response) {
   request.addListener("data", function (chunk) {
     postData += chunk;
   });
+  console.log(postData);
   request.addListener("end", function () {
     var response = function (ret, status_code) {
       res.writeHead(status_code, {
