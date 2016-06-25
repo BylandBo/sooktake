@@ -30,7 +30,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 	historyRecord.set("text", content);
-	historyRecord.set("referenceId", cargo);
+	historyRecord.set("referenceId", cargo.id);
 	historyRecord.save().then(
 		function (history){
 			var messageQuery = new AV.Query(PushMessage);
@@ -125,7 +125,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
 	historyRecord.set("text", content);
-	historyRecord.set("referenceId", flight);
+	historyRecord.set("referenceId", flight.id);
 	historyRecord.save().then(
 		function (history){
 		    var messageQuery = new AV.Query(PushMessage);
@@ -279,7 +279,7 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 	historyRecord.set("text", content);
-	historyRecord.set("referenceId", cargo);
+	historyRecord.set("referenceId", cargo.id);
 	historyRecord.save().then(
 		function (history){
 		    var messageQuery = new AV.Query(PushMessage);
@@ -355,7 +355,7 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 	historyRecord.set("text", content);
-	historyRecord.set("referenceId", cargo);
+	historyRecord.set("referenceId", cargo.id);
 	historyRecord.save().then(
 		function (history){
 			var messageQuery = new AV.Query(PushMessage);
