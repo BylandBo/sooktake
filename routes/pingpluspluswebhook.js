@@ -9,7 +9,8 @@ var pub_key_path = __dirname + "/rsa_public_key.pem";
 // `AV.Object.extend` 方法一定要放在全局变量，否则会造成堆栈溢出。
 
 
-router.get('/pingpluswebhooks', function(request, response) {
+router.post('/pingpluswebhooks', function(request, response) {
+    console.log(request);
     try {
       var event = JSON.parse(request);
       if (event.type === undefined) {
