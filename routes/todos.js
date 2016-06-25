@@ -6,7 +6,7 @@ var AV = require('leanengine');
 var Todo = AV.Object.extend('Todo');
 
 // 查询 Todo 列表
-router.get('/', function(req, res, next) {
+router.get('/GetList', function(req, res, next) {
   var query = new AV.Query(Todo);
   query.descending('createdAt');
   query.find({
