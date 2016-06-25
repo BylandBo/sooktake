@@ -12,7 +12,7 @@ router.post('/', function(request, response) {
   var postData = request.body;
   console.log(postData);
     try {
-      var event = postData;
+      var event = jQuery.parseJSON(JSON.stringify(postData));
       if (event.type === undefined) {
         return response('Event 对象中缺少 type 字段', 400);
       }
