@@ -47,7 +47,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 							myPushMessage.set("sendFrom", flight.get("owner"));
 							myPushMessage.set("sendTo", cargo.get("owner"));
 							myPushMessage.set("counter", 1);
-							myPushMessage.add("historyList",history.id);
+							myPushMessage.add("historyList",history);
 							myPushMessage.save();
 						}
 						else{
@@ -72,7 +72,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 							message[0].set("text", content);
 							message[0].set("counter", message[0].get("counter")+1);
 							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-							message[0].add("historyList",history.id);
+							message[0].add("historyList",history);
 							message[0].save();
 						}
 					},function (error) {
@@ -142,7 +142,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 							myPushMessage.set("sendFrom", cargo.get("owner"));
 							myPushMessage.set("sendTo", flight.get("owner"));
 							myPushMessage.set("counter",1);
-							myPushMessage.add("historyList",history.id);
+							myPushMessage.add("historyList",history);
 							myPushMessage.save();
 						}
 						else
@@ -168,7 +168,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 							message[0].set("text", content);
 							message[0].set("counter", message[0].get("counter")+1);
 							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-							message[0].add("historyList",history.id);
+							message[0].add("historyList",history);
 							message[0].save();
 						}
 					},function (error) {
@@ -296,14 +296,14 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 							myPushMessage.set("sendFrom", flight.get("owner"));
 							myPushMessage.set("sendTo", cargo.get("owner"));
 							myPushMessage.set("counter", 1);
-							myPushMessage.add("historyList",history.id);
+							myPushMessage.add("historyList",history);
 							myPushMessage.save();
 						}
 						else{
 							message[0].set("text", content);
 							message[0].set("counter", message[0].get("counter")+1);
 							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-							message[0].add("historyList",history.id);
+							message[0].add("historyList",history);
 							message[0].save();
 						}
 					},function (error) {
@@ -372,14 +372,14 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 							myPushMessage.set("sendFrom", cargo.get("owner"));
 							myPushMessage.set("sendTo", cargo.get("owner"));
 							myPushMessage.set("counter", 1);
-							myPushMessage.add("historyList",history.id);
+							myPushMessage.add("historyList",history);
 							myPushMessage.save();
 						}
 						else{
 							message[0].set("text", content);
 							message[0].set("counter", message[0].get("counter")+1);
 							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-							message[0].add("historyList",history.id);
+							message[0].add("historyList",history);
 							message[0].save();
 						}
 					},function (error) {
