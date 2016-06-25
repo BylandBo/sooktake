@@ -1,14 +1,21 @@
-var http = require('http');
+var router = require('express').Router();
+var AV = require('leanengine');
 
-http.createServer(function (req, res) {
+var crypto = require("crypto"),
+    fs  = require("fs");
 
-  req.setEncoding('utf8');
+var pub_key_path = __dirname + "/rsa_public_key.pem";
+
+var data = '';
+
+router.get('/pingpluspluswebhooks', function(request, response) {
+   request.setEncoding('utf8');
   var postData = "";
-  req.addListener("data", function (chunk) {
+  request.addListener("data", function (chunk) {
     postData += chunk;
   });
-  req.addListener("end", function () {
-    var resp = function (ret, status_code) {
+  request.addListener("end", function () {
+    var response = function (ret, status_code) {
       res.writeHead(status_code, {
         "Content-Type": "text/plain; charset=utf-8"
       });
@@ -17,23 +24,33 @@ http.createServer(function (req, res) {
     try {
       var event = JSON.parse(postData);
       if (event.type === undefined) {
-        return resp('Event 对象中缺少 type 字段', 400);
+        return response('Event 对象中缺少 type 字段', 400);
       }
       switch (event.type) {
         case "charge.succeeded":
           // 开发者在此处加入对支付异步通知的处理代码
-          return resp("OK", 200);
+          return response("OK", 200);
           break;
         case "refund.succeeded":
           // 开发者在此处加入对退款异步通知的处理代码
-          return resp("OK", 200);
+          return response("OK", 200);
           break;
         default:
-          return resp("未知 Event 类型", 400);
+          return response("未知 Event 类型", 400);
           break;
       }
     } catch (err) {
-      return resp('JSON 解析失败', 400);
+      return response('JSON 解析失败', 400);
     }
   });
-}).listen(8000, "127.0.0.1");
+});
+
+
+// verify webhooks
+var verify_signature = function(raw_data, signature, pub_key_path) {
+  var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
+  var pub_key = fs.readFileSync(pub_key_path, "utf8");
+  return verifier.verify(pub_key, signature, 'base64');
+}
+
+module.exports = router;
