@@ -5,6 +5,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var todos = require('./routes/todos');
+var pingpluspluswebhook = require('./routes/pingpluspluswebhook');
 var cloud = require('./cloud');
 
 var app = express();
@@ -48,6 +49,7 @@ app.get('/', function(req, res) {
 
 // 可以将一类的路由单独保存在一个文件中
 app.use('/todos', todos);
+app.use('/pingpluspluswebhook',pingpluspluswebhook);
 
 // 如果任何路由都没匹配到，则认为 404
 // 生成一个异常让后面的 err handler 捕获
