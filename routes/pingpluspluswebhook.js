@@ -8,19 +8,9 @@ var pub_key_path = __dirname + "/rsa_public_key.pem";
 
 
 router.post('/', function(request, response) {
-   request.setEncoding('utf8');
-  var postData = "";
-  request.addListener("data", function (chunk) {
-    postData += chunk;
-  });
+  request.setEncoding('utf8');
+  var postData = req.body;
   console.log(postData);
-  request.addListener("end", function () {
-    var response = function (ret, status_code) {
-      res.writeHead(status_code, {
-        "Content-Type": "text/plain; charset=utf-8"
-      });
-      res.end(ret);
-    }
     try {
       var event = JSON.parse(postData);
       if (event.type === undefined) {
@@ -43,7 +33,6 @@ router.post('/', function(request, response) {
 	  console.log(err);
       return response('JSON 解析失败', 400);
     }
-  });
 });
 
 

@@ -48,19 +48,6 @@ app.get('/', function(req, res) {
   res.render('index', { currentTime: new Date() });
 });
 
-app.post('/', function (req, res) {
-    // var body = req.body;
-    // var trackingNumber = body.msg.tracking_number;
-    // var slug = body.msg.slug;
-    // var token = body.msg.unique_token;
-
-    console.log(req);
-
-    res.json({
-        message: 'ok got it!'
-    });
-});
-
 
 // 可以将一类的路由单独保存在一个文件中
 app.use('/todos', todos);
