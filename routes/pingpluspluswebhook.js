@@ -6,9 +6,8 @@ var crypto = require("crypto"),
 
 var pub_key_path = __dirname + "/rsa_public_key.pem";
 
-var data = '';
 
-router.get('/pingpluspluswebhooks', function(request, response) {
+router.CONNECT('/pingpluspluswebhooks', function(request, response) {
    request.setEncoding('utf8');
   var postData = "";
   request.addListener("data", function (chunk) {
@@ -41,6 +40,7 @@ router.get('/pingpluspluswebhooks', function(request, response) {
           break;
       }
     } catch (err) {
+		console.log(err)
       return response('JSON 解析失败', 400);
     }
   });
