@@ -9,6 +9,7 @@ var pub_key_path = __dirname + "/rsa_public_key.pem";
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
+  console.log("ping++ all data: " + request);
   var postData = request.body;
   var resp = function (ret, status_code) {
       response.writeHead(status_code, {
@@ -21,7 +22,7 @@ router.post('/', function(request, response) {
       if (event.type === undefined) {
         return resp('Event no type column', 400);
       }
-	  console.log("event type: " + event.type);
+	  console.log("ping++ event type: " + event.type);
       switch (event.type) {
         case "charge.succeeded":
           // 开发者在此处加入对支付异步通知的处理代码
