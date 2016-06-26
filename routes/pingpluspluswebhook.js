@@ -15,7 +15,7 @@ pingpp.setPrivateKeyPath(__dirname + "/rsa_private_key.pem");
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
-  var postData = request.body;
+  var postData = JSON.stringify(request.body);
   var resp = function (ret, status_code) {
       response.writeHead(status_code, {
         "Content-Type": "text/plain; charset=utf-8"
@@ -25,7 +25,7 @@ router.post('/', function(request, response) {
   var signature = request.headers['x-pingplusplus-signature'];
   if (verify_signature(postData, signature, pub_key_path)) {
 	try {
-      var event = JSON.parse(JSON.stringify(postData));
+      var event = JSON.parse(postData);
       if (event.type === undefined) {
         return resp('Event no type column', 400);
       }
