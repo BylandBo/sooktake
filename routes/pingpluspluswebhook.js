@@ -9,7 +9,7 @@ var pub_key_path = __dirname + "/rsa_public_key.pem";
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
-  console.log("ping++ all data: " + request.headers);
+  console.log("ping++ header data: " + JSON.stringify(request.headers));
   var postData = request.body;
   var resp = function (ret, status_code) {
       response.writeHead(status_code, {
