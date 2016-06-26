@@ -9,7 +9,7 @@ var pub_key_path = __dirname + "/rsa_public_key.pem";
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
-  console.log("ping++ all data: " + request);
+  console.log("ping++ all data: " + request.header);
   var postData = request.body;
   var resp = function (ret, status_code) {
       response.writeHead(status_code, {
@@ -17,7 +17,10 @@ router.post('/', function(request, response) {
       });
       response.end(ret);
     }
-    try {
+  var signature = request.header['x-pingplusplus-signature'];
+  console.log("ping++ signature: " + signature);
+  if (verify_signature(postData, signature, pub_key_path)) {
+	try {
       var event = JSON.parse(JSON.stringify(postData));
       if (event.type === undefined) {
         return resp('Event no type column', 400);
@@ -40,6 +43,10 @@ router.post('/', function(request, response) {
 	  console.log(err);
       return resp('JSON serializ failed', 400);
     }
+	console.log('verification succeeded');
+	} else {
+	  console.log('verification failed');
+   }
 });
 
 
