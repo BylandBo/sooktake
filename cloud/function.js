@@ -275,7 +275,12 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 			}
 			
 			if(flightNotReady)
-			  response.error(406);
+			{
+			  throw new Error({406: {
+				"msg": "Flight not take off yet.",
+				"msg_en": "Flight not take off yet."
+			  }});
+			}
 			else
 			{
 				shipping.save().then(function(result){
