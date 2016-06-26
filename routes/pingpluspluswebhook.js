@@ -1,10 +1,9 @@
 var router = require('express').Router();
 var AV = require('leanengine');
-var pingpp = require('pingpp');
-
 // Ping++ app info
 var API_KEY = "sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
 var APP_ID = "app_mjj10KPGqXzPDiHe" //ping++ APP ID
+var pingpp = require('pingpp')(API_KEY);
 
 var crypto = require("crypto"),
     fs  = require("fs");
