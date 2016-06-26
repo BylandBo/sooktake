@@ -15,7 +15,6 @@ pingpp.setPrivateKeyPath(__dirname + "/rsa_private_key.pem");
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
-  console.log("ping++ header data: " + JSON.stringify(request.headers));
   var postData = request.body;
   var resp = function (ret, status_code) {
       response.writeHead(status_code, {
@@ -24,7 +23,6 @@ router.post('/', function(request, response) {
       response.end(ret);
     }
   var signature = request.headers['x-pingplusplus-signature'];
-  console.log("ping++ signature: " + signature);
   if (verify_signature(postData, signature, pub_key_path)) {
 	try {
       var event = JSON.parse(JSON.stringify(postData));
@@ -60,6 +58,7 @@ router.post('/', function(request, response) {
 var verify_signature = function(raw_data, signature, pub_key_path) {
   try
   {
+	  console.log('raw_data-> '+ raw_data + ',   signature> '+ signature + 'pub_key_path-> ' + pub_key_path);
 	  var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
 	  var pub_key = fs.readFileSync(pub_key_path, "utf8");
 	  return verifier.verify(pub_key, signature, 'base64');
