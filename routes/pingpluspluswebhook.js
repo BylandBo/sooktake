@@ -1,11 +1,18 @@
 var router = require('express').Router();
 var AV = require('leanengine');
+var pingpp = require('pingpp');
+
+// Ping++ app info
+var API_KEY = "sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
+var APP_ID = "app_mjj10KPGqXzPDiHe" //ping++ APP ID
 
 var crypto = require("crypto"),
     fs  = require("fs");
 
 var pub_key_path = __dirname + "/rsa_public_key.pem";
 
+//ping++ private key
+pingpp.setPrivateKeyPath(__dirname + "/rsa_private_key.pem");
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
@@ -28,15 +35,15 @@ router.post('/', function(request, response) {
 	  console.log("ping++ event type: " + event.type);
       switch (event.type) {
         case "charge.succeeded":
-          // 开发者在此处加入对支付异步通知的处理代码
+          // asyn handling to charge succeed
           return resp("OK", 200);
           break;
         case "refund.succeeded":
-          // 开发者在此处加入对退款异步通知的处理代码
+          // asyn handling to refund succeed
           return resp("OK", 200);
           break;
         default:
-          return resp("Unknown Event typr", 400);
+          return resp("Unknown Event type", 400);
           break;
       }
     } catch (err) {
