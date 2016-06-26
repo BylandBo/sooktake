@@ -10,11 +10,12 @@ var crypto = require("crypto"),
 
 var pub_key_path = __dirname + "/rsa_public_key.pem";
 
-//ping++ private key
-pingpp.setPrivateKeyPath(__dirname + "/rsa_private_key.pem");
-
 router.post('/', function(request, response) {
+  pingpp.parseHeaders(request.headers); // 把从客户端传上来的 Headers 传到这里
+  //ping++ private key
+  pingpp.setPrivateKeyPath(__dirname + "/rsa_private_key.pem");
   request.setEncoding('utf8');
+  
   var postData = JSON.stringify(request.body);
   var resp = function (ret, status_code) {
       response.writeHead(status_code, {
@@ -58,7 +59,7 @@ router.post('/', function(request, response) {
 var verify_signature = function(raw_data, signature, pub_key_path) {
   try
   {
-	  console.log('raw_data-> '+ raw_data + ',   signature> '+ signature + 'pub_key_path-> ' + pub_key_path);
+	  console.log('raw_data-> '+ raw_data + ',   signature-> '+ signature + ',   pub_key_path-> ' + pub_key_path);
 	  var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
 	  var pub_key = fs.readFileSync(pub_key_path, "utf8");
 	  return verifier.verify(pub_key, signature, 'base64');
