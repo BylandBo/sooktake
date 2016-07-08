@@ -1,7 +1,7 @@
 var router = require('express').Router();
-var classnameModule = require('/cloud/classname');
-var messageModule = require('/cloud/message');
-var pushModule = require('/cloud/pushmessage');
+var classnameModule = require('../../../cloud/classname');
+var messageModule = require('../../../cloud/message');
+var pushModule = require('../../../cloud/pushmessage');
 
 var AV = require('leanengine');
 // Ping++ app info
