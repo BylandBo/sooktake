@@ -276,10 +276,7 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 			
 			if(flightNotReady)
 			{
-			   response.error(json.stringify({
-				 code: 406,
-				 message: 'flight not take off yet'
-			  }));
+			   response.error({code: 406, message: 'flight not take off yet'});
 			}
 			else
 			{
