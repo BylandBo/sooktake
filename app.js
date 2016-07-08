@@ -11,6 +11,7 @@ var cloud = require('./cloud');
 
 var app = express();
 
+global.__base = __dirname + '/';
 // 设置 view 引擎
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
