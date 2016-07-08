@@ -482,7 +482,8 @@ AV.Cloud.define("ResetUserPassword", function (request, response) {
 	    if(user.length <= 0)
 		{
 			console.log("Reset password -> failed: user->"+phoneNumber +" cannot be found, return code:" +'141');
-			response.error('141');
+			//response.error('141');
+			response.error({code: 141, message: 'user cannot be found'});
 		}
 		else
 		{
