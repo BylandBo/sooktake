@@ -11,11 +11,6 @@ var AV = require('leanengine');
 var twilio = require("twilio")("AC05051a3183e935f8a6d2a2c94da971dd", "8668f086109349d554688600c3ff8e90");
 //twilio.initialize("AC05051a3183e935f8a6d2a2c94da971dd","8668f086109349d554688600c3ff8e90");
 
-/*Ping++ API*/
-var API_KEY = "sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
-var APP_ID = "app_mjj10KPGqXzPDiHe" //ping++ APP ID
-var pingpp = require('pingpp')(API_KEY);
-//******Functions Definition******//
 
 /*
 AssignCargoToFlight
@@ -281,10 +276,11 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 			
 			if(flightNotReady)
 			{
-			   response.error(JSON.stringify({
-				code: 406,
-				message: 'Flight not take off yet'
-			  }));
+			   response.error('406');
+			   // response.error(JSON.stringify({
+				// code: 406,
+				// message: 'Flight not take off yet'
+			  // }));
 			}
 			else
 			{
@@ -599,7 +595,7 @@ AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
 				console.log(error.message);
 				response.error(messageModule.errorMsg());
 			});
-})
+});
 
 
 AV.Cloud.define("CheckUpdateFlightJob", function(request, response) {
@@ -734,6 +730,4 @@ AV.Cloud.define("AssignFlightToCargo", function (request, response) {
     ValidationCargoAssignInfo(cargoIds, flightId, 'flight', response);
 });
 
-
-/*payment function*/
 
