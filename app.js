@@ -87,4 +87,7 @@ app.use(function(err, req, res, next) { // jshint ignore:line
   });
 });
 
+global._require = function(path) { //I call it 'reversal require'
+    return require(path.join(__dirname, path));
+}
 module.exports = app;
