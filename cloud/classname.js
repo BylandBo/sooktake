@@ -7,6 +7,7 @@ var UserDetailsClass = "UserDetails";
 var ConfigClass = "Application";
 var UserClass = "_User";
 var HistoryClass = "History";
+var PaymentClass = "Payment";
 
 exports.GetCargoClass = function(){
     return CargoClass;
@@ -42,4 +43,8 @@ exports.GetUserClass = function () {
 
 exports.GetHistoryClass = function () {
 	return HistoryClass;
+}
+
+exports.GetPaymentClass = function () {
+	return PaymentClass;
 }

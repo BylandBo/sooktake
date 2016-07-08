@@ -60,7 +60,50 @@ var ConfigNotFound = "Config not found";
 var expressPost = "post";
 var expressCollect = "collect";
 
+//payment
+var PF_SHIPPING_PAYMENT_STATUS_PENDING ="pending"//付款中
+
+var PF_SHIPPING_PAYMENT_STATUS_CANCEL ="cancel"; //付款中途取消
+
+var PF_SHIPPING_PAYMENT_STATUS_REJECTED ="rejected" // 用户取消转钱给代运人
+
+var PF_SHIPPING_PAYMENT_STATUS_SUCCESS ="success";
+
+var PF_SHIPPING_PAYMENT_STATUS_FAILED ="failed";
+
+var PF_SHIPPING_PAYMENT = "payment"; //付款到平台的交易信息
+
+var PF_SHIPPING_TRANSFER_PAYMENT = "transferPayment"; // 平台到代运人的转账信息
+
+var PF_SHIPPING_PAYMENT_TOPUP = "topup"; 
+
 //public method
+exports.PF_SHIPPING_PAYMENT_STATUS_PENDING = function () {
+    return PF_SHIPPING_PAYMENT_STATUS_PENDING;
+}
+exports.PF_SHIPPING_PAYMENT_STATUS_CANCEL = function () {
+    return PF_SHIPPING_PAYMENT_STATUS_CANCEL;
+}
+exports.PF_SHIPPING_PAYMENT_STATUS_REJECTED = function () {
+    return PF_SHIPPING_PAYMENT_STATUS_REJECTED;
+}
+exports.PF_SHIPPING_PAYMENT_STATUS_SUCCESS = function () {
+    return PF_SHIPPING_PAYMENT_STATUS_SUCCESS;
+}
+exports.PF_SHIPPING_PAYMENT_STATUS_FAILED = function () {
+    return PF_SHIPPING_PAYMENT_STATUS_FAILED;
+}
+exports.PF_SHIPPING_PAYMENT = function () {
+    return PF_SHIPPING_PAYMENT;
+}
+exports.PF_SHIPPING_TRANSFER_PAYMENT = function () {
+    return PF_SHIPPING_TRANSFER_PAYMENT;
+}
+exports.PF_SHIPPING_PAYMENT_TOPUP = function () {
+    return PF_SHIPPING_PAYMENT_TOPUP;
+}
+
+
 exports.Assign_Type_Cargo = function () {
     return Assign_Type_Cargo;
 }

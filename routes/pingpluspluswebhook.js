@@ -1,4 +1,8 @@
 var router = require('express').Router();
+var classnameModule = require('./cloud/classname');
+var messageModule = require('./cloud/message');
+var pushModule = require('./cloud/pushmessage');
+
 var AV = require('leanengine');
 // Ping++ app info
 var API_KEY = "sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
@@ -34,6 +38,9 @@ router.post('/', function(request, response) {
       switch (event.type) {
         case "charge.succeeded":
           // asyn handling to charge succeed
+		  if(event.subject == "PaymentTopup"){
+			topup(event);
+		  }
           return resp("OK", 200);
           break;
         case "refund.succeeded":
@@ -69,6 +76,48 @@ var verify_signature = function(raw_data, signature, pub_key_path) {
 	  console.log(err);
       return false;
   }
+}
+
+var topup = function(event){
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var paymentQuery = new AV.Query(Payment);
+	
+	paymentQuery.equalTo("transactionId", event.order_no);
+	paymentQuery.find({
+        success: function (payments) {
+			payment = payments[0];
+			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			payment.save().then(function(result){
+				var userQuery = new AV.Query(AV.User);
+				AV.Cloud.useMasterKey();
+				var userId = result.get('user');
+				userQuery.get(userId).then(function (user) {
+					if(user.length <= 0)
+					{
+						console.log("Payment - Topup: cannot find user " + userId );
+					}
+					else
+					{
+					    var balance = user[0].get("totalMoney") + event.amount;
+						user[0].set("totalMoney",balance);
+						user[0].save().then(function(result){
+						    console.log(error.message);
+						},function (error) {
+							console.log("Payment - Topup success for user: " + user[0].id + " with transactionId + " + event.order_no);
+						});
+					}
+				},function (error) {
+						console.log(error.message);
+				});
+			},function (error) {
+				console.log(error.message);
+			});
+        },
+        error: function (error) {
+            // The object was not retrieved successfully.
+            console.log(error.message);
+        }
+    });
 }
 
 module.exports = router;

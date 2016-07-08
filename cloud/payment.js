@@ -1,7 +1,6 @@
 //******Varibales Definition******//
 var classnameModule = require('./classname');
 var messageModule = require('./message');
-var messageModule = require('./message');
 var pushModule = require('./pushmessage');
 var AV = require('leanengine');
 var crypto = require('crypto');
@@ -22,34 +21,47 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	
     var amount = request.params.amount;
 	var channel = request.params.channel;
+	var userId = request.params.userId;
 
 	var order_no = crypto.createHash('md5')
-				  .update(new Date().getTime().toString())
-				  .digest('hex').substr(0, 16);
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
 	pingpp.charges.create({
 	  order_no:  order_no,
 	  app:       { id: APP_ID },
 	  channel:   channel,
-	  amount:    100,
-	  client_ip: "127.0.0.1",
+	  amount:    amount,
+	  client_ip: request.headers['x-real-ip'],
 	  currency:  "cny",
-	  subject:   "Your Subject",
-	  body:      "Your Body",
+	  subject:   "PaymentTopup",
+	  body:      userId,
 	  extra:     extra
 	}, function(err, charge) {
 	  // YOUR CODE
 	  console.log(err);
-	  console.log(charge);
+	  console.log(charge); 
+	  CreatePayment(charge);
 	});
-
-	console.log("GetShuikeRegistrationList-> status:" + status);
-    userDetailsQuery.include("owner");
-    userDetailsQuery.equalTo("status", status);
-	
-    userDetailsQuery.find().then(function(results){
-			   response.success(results);
-			},function (error) {
-				console.log(error.message);
-				response.error(messageModule.errorMsg());
-			});
 });
+
+var CreatePayment = function (charge) {
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var myPayment = new Payment();
+	
+	myPayment.set("paymentChannel", charge.channel);
+	myPayment.set("total", charge.amount);
+	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+	myPayment.set("type", messageModule.PF_SHIPPING_PAYMENT_TOPUP());
+	myPayment.set("user",charge.body);
+	myPayment.set("transactionId",charge.order_no)
+	myPayment.save(null, {
+	  success: function(payment) {
+		response.success(charge);
+	  },
+	  error: function(message, error) {
+		console.log(error.message);
+		response.error(messageModule.errorMsg());
+	  }
+	});
+};
