@@ -20,6 +20,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
     var UserDetails = AV.Object.extend(classnameModule.GetUserDetailsClass());
     var userDetailsQuery = new AV.Query(UserDetails);
 	
+	console.log(request);
     var amount = request.params.amount;
 	var channel = request.params.channel;
 	var userId = request.params.userId;
@@ -64,6 +65,7 @@ var CreatePayment = function (charge) {
 	myPayment.set("transactionId",charge.order_no)
 	myPayment.save(null, {
 	  success: function(payment) {
+	    console.log("Topup payment creation succeed: transactionId(order_no)->" + charge.order_no + ", UserId->" + charge.body); 
 		response.success(charge);
 	  },
 	  error: function(message, error) {
