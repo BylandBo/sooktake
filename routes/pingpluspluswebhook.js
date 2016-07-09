@@ -38,7 +38,7 @@ router.post('/', function(request, response) {
       switch (event.type) {
         case "charge.succeeded":
           // asyn handling to charge succeed
-		  console.log("event.subject->" + event.subject);
+		  console.log("event.data.object.subject->" + event.data.object.subject);
 		  if(event.subject == "PaymentTopup"){
 			topup(event);
 		  }
@@ -83,8 +83,9 @@ var topup = function(event){
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
 	
-	console.log("Payment - Topup succeed hook from ping++: " + event.body + " with transactionId + " + event.order_no);
-	paymentQuery.equalTo("transactionId", event.order_no);
+	var data = event.data.object;
+	console.log("Payment - Topup succeed hook from ping++: " + data.body + " with transactionId + " + data.order_no);
+	paymentQuery.equalTo("transactionId", data.order_no);
 	paymentQuery.find({
         success: function (payments) {
 			payment = payments[0];
@@ -100,10 +101,10 @@ var topup = function(event){
 					}
 					else
 					{
-					    var balance = user[0].get("totalMoney") + event.amount;
+					    var balance = user[0].get("totalMoney") + data.amount;
 						user[0].set("totalMoney",balance);
 						user[0].save().then(function(result){
-							console.log("Payment - Topup success for user: " + user[0].id + " with transactionId + " + event.order_no);
+							console.log("Payment - Topup success for user: " + user[0].id + " with transactionId + " + data.order_no);
 						},function (error) {
 							console.log(error.message);
 						});
