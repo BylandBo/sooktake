@@ -35,22 +35,37 @@ router.post('/', function(request, response) {
         return resp('Event no type column', 400);
       }
 	  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject);
-      switch (event.type) {
-        case "charge.succeeded":
-          // asyn handling to charge succeed
-		  if(event.data.object.subject == "PaymentTopup"){
-			topup(event);
-		  }
-          return resp("OK", 200);
-          break;
-        case "refund.succeeded":
-          // asyn handling to refund succeed
-          return resp("OK", 200);
-          break;
-        default:
-          return resp("Unknown Event type", 400);
-          break;
-      }
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var paymentQuery = new AV.Query(Payment);
+	
+	var data = event.data.object;
+	paymentQuery.equalTo("transactionId", data.order_no);
+	paymentQuery.find({
+        success: function (payments) {
+			 var payment = payments[0];
+			 switch (event.type) {
+				case "charge.succeeded":
+				  // asyn handling to charge succeed
+				  if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_TOPUP()){
+					topup(payment,event);
+				  }
+				  return resp("OK", 200);
+				  break;
+				case "refund.succeeded":
+				  // asyn handling to refund succeed
+				  return resp("OK", 200);
+				  break;
+				default:
+				  return resp("Unknown Event type", 400);
+				  break;
+			  }
+        },
+        error: function (error) {
+            // The object was not retrieved successfully.
+            console.log(error.message);
+        }
+    });
     } catch (err) {
 	  console.log(err);
       return resp('JSON serializ failed', 400);
@@ -79,50 +94,37 @@ var verify_signature = function(raw_data, signature, pub_key_path) {
   }
 }
 
-var topup = function(event){
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
-    var paymentQuery = new AV.Query(Payment);
-	
+var topup = function(payment,event){
 	var data = event.data.object;
-	paymentQuery.equalTo("transactionId", data.order_no);
-	paymentQuery.find({
-        success: function (payments) {
-			payment = payments[0];
-			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-			payment.set("transaction_no",data.transaction_no);
-			payment.save().then(function(result){
-				var userQuery = new AV.Query(AV.User);
-				AV.Cloud.useMasterKey();
-				var userId = payment.get("user");
-				userQuery.equalTo("objectId", userId);
-				userQuery.find().then(function (user) {
-					if(user.length <= 0)
-					{
-						console.log("Payment - Topup: cannot find user " + userId );
-					}
-					else
-					{
-					    var balance = user[0].get("totalMoney") + (data.amount/100);
-						user[0].set("totalMoney",balance);
-						user[0].save().then(function(result){
-							console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
-							pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user[0]);
-						},function (error) {
-							console.log(error.message);
-						});
-					}
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+	payment.set("transactionNumber",data.transaction_no);
+	payment.save().then(function(result){
+		var userQuery = new AV.Query(AV.User);
+		AV.Cloud.useMasterKey();
+		var userId = payment.get("user");
+		userQuery.equalTo("objectId", userId);
+		userQuery.find().then(function (user) {
+			if(user.length <= 0)
+			{
+				console.log("Payment - Topup: cannot find user " + userId );
+			}
+			else
+			{
+				var balance = user[0].get("totalMoney") + (data.amount/100);
+				user[0].set("totalMoney",balance);
+				user[0].save().then(function(result){
+					console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
+					pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user[0]);
 				},function (error) {
-						console.log(error.message);
+					console.log(error.message);
 				});
-			},function (error) {
+			}
+		},function (error) {
 				console.log(error.message);
-			});
-        },
-        error: function (error) {
-            // The object was not retrieved successfully.
-            console.log(error.message);
-        }
-    });
+		});
+	},function (error) {
+		console.log(error.message);
+	});
 }
 
 module.exports = router;

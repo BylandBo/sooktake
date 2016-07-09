@@ -38,7 +38,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	  amount:    amount,
 	  client_ip: ip,
 	  currency:  "cny",
-	  subject:   "PaymentTopup",
+	  subject:   "soontake充值",
 	  body:      "Soontake 充值"
 	}, function(err, charge) {
 	  if(err != null)
