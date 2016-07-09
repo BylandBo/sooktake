@@ -29,9 +29,9 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
         .update(new Date().getTime().toString())
         .digest('hex').substr(0, 16);
 		
-	 var ip = request.meta.remoteAddress;
-
-	 
+	var ip = request.meta.remoteAddress;
+	
+	console.log("Topup payment creation charge: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + amount); 
 	pingpp.charges.create({
 	  order_no:  order_no,
 	  app:       { id: APP_ID },
@@ -42,9 +42,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	  subject:   "PaymentTopup",
 	  body:      userId
 	}, function(err, charge) {
-	  // YOUR CODE
 	  console.log(err);
-	  console.log(charge); 
 	  CreatePayment(charge,response);
 	});
 });
