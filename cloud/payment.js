@@ -42,8 +42,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	  client_ip: '127.0.0.1',
 	  currency:  "cny",
 	  subject:   "PaymentTopup",
-	  body:      userId,
-	  extra:     ''
+	  body:      userId
 	}, function(err, charge) {
 	  // YOUR CODE
 	  console.log(err);
