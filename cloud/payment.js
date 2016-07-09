@@ -27,10 +27,10 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
         .update(new Date().getTime().toString())
         .digest('hex').substr(0, 16);
 		
-	var ip = req.headers['x-forwarded-for'] || 
-     req.connection.remoteAddress || 
-     req.socket.remoteAddress ||
-     req.connection.socket.remoteAddress;
+	var ip = request.headers['x-forwarded-for'] || 
+     request.connection.remoteAddress || 
+     request.socket.remoteAddress ||
+     request.connection.socket.remoteAddress;
      console.log(ip);
 	 
 	pingpp.charges.create({
