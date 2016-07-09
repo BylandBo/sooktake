@@ -42,7 +42,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	  currency:  "cny",
 	  subject:   "PaymentTopup",
 	  body:      userId,
-	  extra:     extra
+	  extra:     ''
 	}, function(err, charge) {
 	  // YOUR CODE
 	  console.log(err);
