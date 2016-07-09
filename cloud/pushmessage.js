@@ -423,12 +423,8 @@ exports.PushPaymentTopupSucceedToUser = function (payment,amount,user) {
     var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
-	var flight = shipping.get("flight");
-	var cargo = shipping.get("cargo");
-	var status = shipping.get("status");
     var content = "已成功充值$"+amount+", 我们收到转账后将把钱打入您的Soontake帐号(十分钟以内还没到账请联系我们客服)";
 	
-	var messageQuery = new AV.Query(PushMessage);
 	myPushMessage.set("groupId", payment.id);
 	myPushMessage.add("dataList",payment);
 	myPushMessage.set("text", content);
