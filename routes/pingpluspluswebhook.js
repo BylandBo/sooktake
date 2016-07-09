@@ -39,7 +39,7 @@ router.post('/', function(request, response) {
         case "charge.succeeded":
           // asyn handling to charge succeed
 		  console.log("event.data.object.subject->" + event.data.object.subject);
-		  if(event.subject == "PaymentTopup"){
+		  if(event.data.object.subject == "PaymentTopup"){
 			topup(event);
 		  }
           return resp("OK", 200);
