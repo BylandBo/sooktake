@@ -22,7 +22,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	
     var amount = request.params.amount;
 	var channel = request.params.channel;
-	var userId = request.params.user;
+	var userId = request.params.userId;
 
 	var order_no = crypto.createHash('md5')
         .update(new Date().getTime().toString())
