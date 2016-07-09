@@ -31,7 +31,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	  app:       { id: APP_ID },
 	  channel:   channel,
 	  amount:    amount,
-	  client_ip: request.headers['x-real-ip'],
+	  client_ip: request.connection.remoteAddress,
 	  currency:  "cny",
 	  subject:   "PaymentTopup",
 	  body:      userId,
