@@ -29,18 +29,15 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
         .update(new Date().getTime().toString())
         .digest('hex').substr(0, 16);
 		
-	// var ip = request.headers['x-forwarded-for'] || 
-     // request.connection.remoteAddress || 
-     // request.socket.remoteAddress ||
-     // request.connection.socket.remoteAddress;
-     // console.log(ip);
+	 var ip = request.meta.remoteAddress;
+
 	 
 	pingpp.charges.create({
 	  order_no:  order_no,
 	  app:       { id: APP_ID },
 	  channel:   channel,
 	  amount:    amount,
-	  client_ip: '127.0.0.1',
+	  client_ip: ip,
 	  currency:  "cny",
 	  subject:   "PaymentTopup",
 	  body:      userId
@@ -48,11 +45,11 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	  // YOUR CODE
 	  console.log(err);
 	  console.log(charge); 
-	  CreatePayment(charge);
+	  CreatePayment(charge,response);
 	});
 });
 
-var CreatePayment = function (charge) {
+var CreatePayment = function (charge, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
