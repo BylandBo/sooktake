@@ -71,7 +71,7 @@ var verify_signature = function(raw_data, signature, pub_key_path) {
       var configQuery = new AV.Query(Config);
 	  configQuery.equalTo("key", "pingplusplusVerification");
 	  configQuery.find().then(function (config) {
-	    console.log("pingplusplusVerification config: " + config[0].get("value"))；
+	    console.log("pingplusplusVerification config: " + config[0].get("value"));
 	   if(config[0].get("value") == "true"){
 	     var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
 		 var pub_key = fs.readFileSync(pub_key_path, "utf8");
