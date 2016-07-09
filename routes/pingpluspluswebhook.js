@@ -5,7 +5,7 @@ var pushModule = require('/home/leanengine/app' + '/cloud/pushmessage.js');
 
 var AV = require('leanengine');
 // Ping++ app info
-var API_KEY = "sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
+var API_KEY = "sk_live_b5C0aTavTe9KjHyLuD9C4Ga9" //"sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
 var APP_ID = "app_mjj10KPGqXzPDiHe" //ping++ APP ID
 var pingpp = require('pingpp')(API_KEY);
 

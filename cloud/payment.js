@@ -6,7 +6,7 @@ var AV = require('leanengine');
 var crypto = require('crypto');
 
 /*Ping++ API*/
-var API_KEY = "sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
+var API_KEY = "sk_live_b5C0aTavTe9KjHyLuD9C4Ga9" //"sk_test_qb58aPjHiDKC1mr1OSSyfnbP" //ping++ Test/Live Key
 var APP_ID = "app_mjj10KPGqXzPDiHe" //ping++ APP ID
 var pingpp = require('pingpp')(API_KEY);
 var pub_key_path = __dirname + "/rsa_public_key.pem";
