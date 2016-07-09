@@ -100,10 +100,10 @@ var topup = function(event){
 					}
 					else
 					{
-					    var balance = user[0].get("totalMoney") + data.amount;
+					    var balance = user[0].get("totalMoney") + (data.amount/100);
 						user[0].set("totalMoney",balance);
 						user[0].save().then(function(result){
-							console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + data.amount);
+							console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
 						},function (error) {
 							console.log(error.message);
 						});

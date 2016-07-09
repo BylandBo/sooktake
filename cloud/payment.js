@@ -30,7 +30,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		
 	var ip = request.meta.remoteAddress;
 	
-	console.log("Payment - Topup: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + amount); 
+	console.log("Payment - Topup: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100)); 
 	pingpp.charges.create({
 	  order_no:  order_no,
 	  app:       { id: APP_ID },
@@ -53,7 +53,7 @@ var CreatePayment = function (charge, response) {
     var myPayment = new Payment();
 	
 	myPayment.set("paymentChannel", charge.channel);
-	myPayment.set("total", charge.amount);
+	myPayment.set("total", (charge.amount/100));
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 	myPayment.set("type", messageModule.PF_SHIPPING_PAYMENT_TOPUP());
 	myPayment.set("user",charge.body);
