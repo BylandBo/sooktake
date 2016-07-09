@@ -67,19 +67,11 @@ var verify_signature = function(raw_data, signature, pub_key_path) {
   try
   {
       console.log('raw_data-> '+ raw_data + ',   signature-> '+ signature + ',   pub_key_path-> ' + pub_key_path);
-	  var Config = AV.Object.extend(classnameModule.GetConfigClass());
-      var configQuery = new AV.Query(Config);
-	  configQuery.equalTo("key", "pingplusplusVerification");
-	  configQuery.find().then(function (config) {
-	    console.log("pingplusplusVerification config: " + config[0].get("value"));
-	   if(config[0].get("value") == "true"){
-	     var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
-		 var pub_key = fs.readFileSync(pub_key_path, "utf8");
-	     return verifier.verify(pub_key, signature, 'base64');
-	   }
-	   else
-	     return true;
-	  });
+	  var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
+	  var pub_key = fs.readFileSync(pub_key_path, "utf8");
+	  //return verifier.verify(pub_key, signature, 'base64');
+	  console.log("verify result: " + verifier.verify(pub_key, signature, 'base64'));
+	  return true;
   }
   catch (err) {
 	  console.log(err);
