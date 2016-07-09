@@ -34,11 +34,10 @@ router.post('/', function(request, response) {
       if (event.type === undefined) {
         return resp('Event no type column', 400);
       }
-	  console.log("ping++ event type: " + event.type);
+	  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject);
       switch (event.type) {
         case "charge.succeeded":
           // asyn handling to charge succeed
-		  console.log("event.data.object.subject->" + event.data.object.subject);
 		  if(event.data.object.subject == "PaymentTopup"){
 			topup(event);
 		  }
@@ -84,7 +83,6 @@ var topup = function(event){
     var paymentQuery = new AV.Query(Payment);
 	
 	var data = event.data.object;
-	console.log("Payment - Topup succeed hook from ping++: userId->" + data.body + " with transactionId->" + data.order_no);
 	paymentQuery.equalTo("transactionId", data.order_no);
 	paymentQuery.find({
         success: function (payments) {
@@ -105,7 +103,7 @@ var topup = function(event){
 					    var balance = user[0].get("totalMoney") + data.amount;
 						user[0].set("totalMoney",balance);
 						user[0].save().then(function(result){
-							console.log("Payment - Topup success for user: " + user[0].id + " with transactionId + " + data.order_no);
+							console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + data.amount);
 						},function (error) {
 							console.log(error.message);
 						});
