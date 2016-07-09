@@ -94,7 +94,8 @@ var topup = function(event){
 				var userQuery = new AV.Query(AV.User);
 				AV.Cloud.useMasterKey();
 				var userId = data.body;
-				userQuery.get(userId).then(function (user) {
+				userQuery.equalTo("objectId", userId);
+				userQuery.find().then(function (user) {
 					if(user.length <= 0)
 					{
 						console.log("Payment - Topup: cannot find user " + userId );
