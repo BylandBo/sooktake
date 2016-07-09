@@ -39,15 +39,15 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	  client_ip: ip,
 	  currency:  "cny",
 	  subject:   "PaymentTopup",
-	  body:      userId
+	  body:      ""
 	}, function(err, charge) {
 	  if(err != null)
 		console.log(err);
-	  CreatePayment(charge,response);
+	  CreatePayment(userId,charge,response);
 	});
 });
 
-var CreatePayment = function (charge, response) {
+var CreatePayment = function (userId, charge, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -56,11 +56,11 @@ var CreatePayment = function (charge, response) {
 	myPayment.set("total", (charge.amount/100));
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 	myPayment.set("type", messageModule.PF_SHIPPING_PAYMENT_TOPUP());
-	myPayment.set("user",charge.body);
+	myPayment.set("user",userId);
 	myPayment.set("transactionId",charge.order_no)
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - Topup: payment creation succeed: transactionId(order_no)->" + charge.order_no + ", UserId->" + charge.body); 
+	    console.log("Payment - Topup: payment creation succeed: transactionId(order_no)->" + charge.order_no + ", UserId->" + userId); 
 		response.success(charge);
 	  },
 	  error: function(message, error) {

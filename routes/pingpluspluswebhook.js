@@ -66,11 +66,20 @@ router.post('/', function(request, response) {
 var verify_signature = function(raw_data, signature, pub_key_path) {
   try
   {
-	  console.log('raw_data-> '+ raw_data + ',   signature-> '+ signature + ',   pub_key_path-> ' + pub_key_path);
-	  var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
-	  var pub_key = fs.readFileSync(pub_key_path, "utf8");
-	  return verifier.verify(pub_key, signature, 'base64');
-	  //return true;
+      console.log('raw_data-> '+ raw_data + ',   signature-> '+ signature + ',   pub_key_path-> ' + pub_key_path);
+	  var Config = AV.Object.extend(classnameModule.GetConfigClass());
+      var configQuery = new AV.Query(Config);
+	  configQuery.equalTo("key", "pingplusplusVerification");
+	  console.log("pingplusplusVerification config: " + config[0].get("value"))
+	  configQuery.find().then(function (config) {
+	   if(config[0].get("value") == "true"){
+	     var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
+		 var pub_key = fs.readFileSync(pub_key_path, "utf8");
+	     return verifier.verify(pub_key, signature, 'base64');
+	   }
+	   else
+	     return true;
+	  });
   }
   catch (err) {
 	  console.log(err);
@@ -88,10 +97,11 @@ var topup = function(event){
         success: function (payments) {
 			payment = payments[0];
 			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			payment.set("transaction_no",data.transaction_no);
 			payment.save().then(function(result){
 				var userQuery = new AV.Query(AV.User);
 				AV.Cloud.useMasterKey();
-				var userId = data.body;
+				var userId = payment.get("user");
 				userQuery.equalTo("objectId", userId);
 				userQuery.find().then(function (user) {
 					if(user.length <= 0)
@@ -104,6 +114,7 @@ var topup = function(event){
 						user[0].set("totalMoney",balance);
 						user[0].save().then(function(result){
 							console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
+							pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),userId);
 						},function (error) {
 							console.log(error.message);
 						});
