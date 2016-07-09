@@ -38,6 +38,7 @@ router.post('/', function(request, response) {
       switch (event.type) {
         case "charge.succeeded":
           // asyn handling to charge succeed
+		  console.log("event.subject->" + event.subject);
 		  if(event.subject == "PaymentTopup"){
 			topup(event);
 		  }
@@ -82,6 +83,7 @@ var topup = function(event){
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
 	
+	console.log("Payment - Topup succeed hook from ping++: " + event.body + " with transactionId + " + event.order_no);
 	paymentQuery.equalTo("transactionId", event.order_no);
 	paymentQuery.find({
         success: function (payments) {
@@ -101,9 +103,9 @@ var topup = function(event){
 					    var balance = user[0].get("totalMoney") + event.amount;
 						user[0].set("totalMoney",balance);
 						user[0].save().then(function(result){
-						    console.log(error.message);
-						},function (error) {
 							console.log("Payment - Topup success for user: " + user[0].id + " with transactionId + " + event.order_no);
+						},function (error) {
+							console.log(error.message);
 						});
 					}
 				},function (error) {
