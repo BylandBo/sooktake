@@ -26,12 +26,19 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	var order_no = crypto.createHash('md5')
         .update(new Date().getTime().toString())
         .digest('hex').substr(0, 16);
+		
+	var ip = req.headers['x-forwarded-for'] || 
+     req.connection.remoteAddress || 
+     req.socket.remoteAddress ||
+     req.connection.socket.remoteAddress;
+     console.log(ip);
+	 
 	pingpp.charges.create({
 	  order_no:  order_no,
 	  app:       { id: APP_ID },
 	  channel:   channel,
 	  amount:    amount,
-	  client_ip: request.connection.remoteAddress,
+	  client_ip: ip,
 	  currency:  "cny",
 	  subject:   "PaymentTopup",
 	  body:      userId,
