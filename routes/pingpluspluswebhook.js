@@ -84,7 +84,7 @@ var topup = function(event){
     var paymentQuery = new AV.Query(Payment);
 	
 	var data = event.data.object;
-	console.log("Payment - Topup succeed hook from ping++: " + data.body + " with transactionId + " + data.order_no);
+	console.log("Payment - Topup succeed hook from ping++: userId->" + data.body + " with transactionId->" + data.order_no);
 	paymentQuery.equalTo("transactionId", data.order_no);
 	paymentQuery.find({
         success: function (payments) {
@@ -93,7 +93,7 @@ var topup = function(event){
 			payment.save().then(function(result){
 				var userQuery = new AV.Query(AV.User);
 				AV.Cloud.useMasterKey();
-				var userId = result.get('user');
+				var userId = data.body;
 				userQuery.get(userId).then(function (user) {
 					if(user.length <= 0)
 					{
