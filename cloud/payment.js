@@ -20,7 +20,6 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
     var UserDetails = AV.Object.extend(classnameModule.GetUserDetailsClass());
     var userDetailsQuery = new AV.Query(UserDetails);
 	
-	console.log(request);
     var amount = request.params.amount;
 	var channel = request.params.channel;
 	var userId = request.params.user;
