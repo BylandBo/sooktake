@@ -114,7 +114,7 @@ var topup = function(event){
 						user[0].set("totalMoney",balance);
 						user[0].save().then(function(result){
 							console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
-							pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),userId);
+							pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user[0]);
 						},function (error) {
 							console.log(error.message);
 						});

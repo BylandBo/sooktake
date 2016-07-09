@@ -419,7 +419,7 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
     });
 }
 
-exports.PushPaymentTopupSucceedToUser = function (payment,amount,userId) {
+exports.PushPaymentTopupSucceedToUser = function (payment,amount,user) {
     var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
@@ -428,49 +428,38 @@ exports.PushPaymentTopupSucceedToUser = function (payment,amount,userId) {
 	var status = shipping.get("status");
     var content = "已成功充值$"+amount+", 我们收到转账后将把钱打入您的Soontake帐号(十分钟以内还没到账请联系我们客服)";
 	
-	var userQuery = new AV.Query(AV.User);
-	AV.Cloud.useMasterKey();
-	userQuery.equalTo("objectId", userId);
-	userQuery.find().then(
-		function (user){
-		    var messageQuery = new AV.Query(PushMessage);
-			myPushMessage.set("groupId", payment.id);
-			myPushMessage.add("dataList",payment);
-			myPushMessage.set("text", content);
-			myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-			myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_SYSTEM);
-			myPushMessage.set("sendTo", user[0]);
-			myPushMessage.set("counter", 1);
-			myPushMessage.save();
-			
-			var pushQuery = new AV.Query(AV.Installation);
-			var paymentUser = user[0];
+	var messageQuery = new AV.Query(PushMessage);
+	myPushMessage.set("groupId", payment.id);
+	myPushMessage.add("dataList",payment);
+	myPushMessage.set("text", content);
+	myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+	myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_SYSTEM);
+	myPushMessage.set("sendTo", user);
+	myPushMessage.set("counter", 1);
+	myPushMessage.save();
+	
+	
+	var pushQuery = new AV.Query(AV.Installation);
+	pushQuery.equalTo("user", user);
 
-			pushQuery.equalTo("user", paymentUser);
-
-			AV.Push.send({
-				where: pushQuery, // Set our Installation query
-				data: {
-					alert:content,
-					body:content,
-					objectId:payment.id,
-					sound:'default',
-					type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
-					action:PF_PUSH_MESSAGE_ACTION
-				}
-			}, {
-				success: function () {
-					// Push was successful
-					console.log("PushPaymentTopupSucceedToUser message: Payment: " + payment.id + " to User: " + paymentUser.id);
-				},
-				error: function (error) {
-					// Handle error
-					console.log(error.message);
-				}
-			});
+	AV.Push.send({
+		where: pushQuery, // Set our Installation query
+		data: {
+			alert:content,
+			body:content,
+			objectId:payment.id,
+			sound:'default',
+			type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+			action:PF_PUSH_MESSAGE_ACTION
+		}
+	}, {
+		success: function () {
+			// Push was successful
+			console.log("PushPaymentTopupSucceedToUser message: Payment: " + payment.id + " to User: " + user.id);
 		},
-		function(error) {
-		   console.log(error.message);
-	   }
-	);
+		error: function (error) {
+			// Handle error
+			console.log(error.message);
+		}
+	});
 }
