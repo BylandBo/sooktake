@@ -12,7 +12,7 @@ var pingpp = require('pingpp')(API_KEY);
 var crypto = require("crypto"),
     fs  = require("fs");
 
-var pub_key_path = __dirname + "/rsa_public_key.pem";
+var pub_key_path = "/home/leanengine/app/pingpluspluskeys/rsa_public_key.pem";
 
 router.post('/', function(request, response) {
   pingpp.parseHeaders(request.headers); // 把从客户端传上来的 Headers 传到这里
