@@ -52,7 +52,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
         .digest('hex').substr(0, 16);
 	
 	
-	console.log("Payment - WithdrawToWechat: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
+	console.log("Payment - WithdrawToWechat: transfer creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
 	
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
@@ -72,7 +72,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 			   if(wechatInfo != null)
 			   {
 				    var openId = wechatInfo.get("openId");
-				  	  pingpp.transfers.create({
+				  	pingpp.transfers.create({
 					  order_no:  order_no,
 					  app:       { id: APP_ID },
 					  channel:   "wx",
@@ -81,10 +81,10 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 					  type:      "b2c",
 					  recipient:   openId,
 					  description: "soontake 取款"
-					}, function(err, charge) {
+					}, function(err, transfer) {
 						  if(err != null)
 							console.log(err);
-					      CreatePayment(userId,charge,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+					      CreatePayment(userId,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
 					});
 			   }
 			   else
@@ -105,21 +105,21 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	});
 });
 
-var CreatePayment = function (userId, charge, type, response) {
+var CreatePayment = function (userId, transfer, type, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
 	
-	myPayment.set("paymentChannel", charge.channel);
-	myPayment.set("total", (charge.amount/100));
+	myPayment.set("paymentChannel", transfer.channel);
+	myPayment.set("total", (transfer.amount/100));
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 	myPayment.set("type", type);
 	myPayment.set("user",userId);
-	myPayment.set("transactionId",charge.order_no)
+	myPayment.set("transactionId",transfer.order_no)
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - " + type + ": payment creation succeed: transactionId(order_no)->" + charge.order_no + ", UserId->" + userId); 
-		response.success(charge);
+	    console.log("Payment - " + type + ": payment creation succeed: transactionId(order_no)->" + transfer.order_no + ", UserId->" + userId); 
+		response.success(transfer);
 	  },
 	  error: function(message, error) {
 		console.log(error.message);
