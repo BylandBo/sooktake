@@ -60,6 +60,7 @@ router.post('/', function(request, response) {
 					  break;
 				    case "transfer.succeeded":
 					  // asyn handling to refund succeed
+					  transfer(payment,event);
 					  return resp("OK", 200);
 					  break;
 					case "refund.succeeded":
