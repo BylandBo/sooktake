@@ -209,12 +209,13 @@ AV.Cloud.define("CancelShipping", function(request, response) {
 					cargo.set("leftWeight",cargo.get("leftWeight") + addSpace);
 					cargo.set("shipping",null);
 					cargo.save().then(function(result){
-						pushModule.PushShippingCancelToUser(result,reasonCode);
 						//shipping.set("flight",null);
 						//shipping.set("cargo",null);
 						shipping.set("status",messageModule.ShippingStatus_Cancel());
 						shipping.set("isCancelByCargoOwner",isCancelByCargoOwner);
 						shipping.save().then(function(s){
+						    pushModule.PushShippingCancelToUser(result,reasonCode);
+						    pushModule.PushShippingCancelToFlightUser(result,flight,reasonCode);
 							response.success(s);
 						},function (error) {
 							console.log(error.message);

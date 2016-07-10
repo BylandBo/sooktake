@@ -48,6 +48,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 							myPushMessage.set("sendTo", cargo.get("owner"));
 							myPushMessage.set("counter", 1);
 							myPushMessage.add("historyList",history);
+							myPushMessage.set("lastShipping",shipping);
 							myPushMessage.save();
 						}
 						else{
@@ -73,6 +74,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 							message[0].set("counter", message[0].get("counter")+1);
 							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
 							message[0].add("historyList",history);
+							message[0].set("lastShipping",shipping);
 							message[0].save();
 						}
 					},function (error) {
@@ -143,6 +145,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 							myPushMessage.set("sendTo", flight.get("owner"));
 							myPushMessage.set("counter",1);
 							myPushMessage.add("historyList",history);
+							myPushMessage.set("lastShipping",shipping);
 							myPushMessage.save();
 						}
 						else
@@ -168,6 +171,7 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 							message[0].set("text", content);
 							message[0].set("counter", message[0].get("counter")+1);
 							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].set("lastShipping", shipping);
 							message[0].add("historyList",history);
 							message[0].save();
 						}
@@ -297,12 +301,14 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 							myPushMessage.set("sendTo", cargo.get("owner"));
 							myPushMessage.set("counter", 1);
 							myPushMessage.add("historyList",history);
+							myPushMessage.set("lastShipping",shipping);
 							myPushMessage.save();
 						}
 						else{
 							message[0].set("text", content);
 							message[0].set("counter", message[0].get("counter")+1);
 							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].set("lastShipping", shipping);
 							message[0].add("historyList",history);
 							message[0].save();
 						}
@@ -410,6 +416,81 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
     }, {
         success: function () {
             console.log("PushShippingCancelToUser message: " + cargoUser.id + " Cargo: " + cargo.id);
+            // Push was successful
+        },
+        error: function (error) {
+            // Handle error
+            console.log(error.message);
+        }
+    });
+}
+
+exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
+    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
+    var myPushMessage = new PushMessage();
+
+    var content = "亲，您代运的包裹["+cargo.get("type")+"]已被取消，感谢您的支持！";   
+	
+	//add message history
+	var History = AV.Object.extend(classnameModule.GetHistoryClass());
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", flight.id);
+	historyRecord.save().then(
+		function (history){
+			var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", flight.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+			messageQuery.find().then(function (message) {
+						if(message == null || message.length <= 0)
+						{
+							myPushMessage.set("groupId", flight.id);
+							myPushMessage.add("dataList",flight);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+							myPushMessage.set("sendFrom", flight.get("owner"));
+							myPushMessage.set("sendTo", flight.get("owner"));
+							myPushMessage.set("counter", 1);
+							myPushMessage.add("historyList",history);
+							myPushMessage.save();
+						}
+						else{
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].add("historyList",history);
+							message[0].save();
+						}
+					},function (error) {
+							console.log(error.message);
+			});
+		},
+		function(error) {
+		   console.log(error.message);
+	   }
+	);
+
+    var pushQuery = new AV.Query(AV.Installation);
+    var flightUser = flight.get("owner");
+
+    pushQuery.equalTo("user", flightUser);
+    //pushQuery.equalTo("appIdentifier", messageModule.appName());
+
+    AV.Push.send({
+        where: pushQuery, // Set our Installation query
+        data: {
+            alert:content,
+			body:content,
+			objectId:flight.id,
+			sound:'default',
+			type:PF_PUSH_MESSAGE_TYPE_CARGO,
+			action:PF_PUSH_MESSAGE_ACTION
+        }
+    }, {
+        success: function () {
+            console.log("PushShippingCancelToFlightUser message: " + flightUser.id + " Cargo: " + cargo.id);
             // Push was successful
         },
         error: function (error) {
