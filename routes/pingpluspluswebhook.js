@@ -34,7 +34,7 @@ router.post('/', function(request, response) {
       if (event.type === undefined) {
         return resp('Event no type column', 400);
       }
-	  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject);
+	  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId(order_no)->" + event.data.object.order_no);
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
@@ -43,23 +43,30 @@ router.post('/', function(request, response) {
 	paymentQuery.equalTo("transactionId", data.order_no);
 	paymentQuery.find({
         success: function (payments) {
-			 var payment = payments[0];
-			 switch (event.type) {
-				case "charge.succeeded":
-				  // asyn handling to charge succeed
-				  if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_TOPUP()){
-					topup(payment,event);
+		     if(payments.length <= 0)
+			 {
+				console.log("Unknown payment with transactionId(order_no): " + data.order_no);
+			 }
+			 else
+			 {
+				 var payment = payments[0];
+				 switch (event.type) {
+					case "charge.succeeded":
+					  // asyn handling to charge succeed
+					  if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_TOPUP()){
+						topup(payment,event);
+					  }
+					  return resp("OK", 200);
+					  break;
+					case "refund.succeeded":
+					  // asyn handling to refund succeed
+					  return resp("OK", 200);
+					  break;
+					default:
+					  return resp("Unknown Event type", 400);
+					  break;
 				  }
-				  return resp("OK", 200);
-				  break;
-				case "refund.succeeded":
-				  // asyn handling to refund succeed
-				  return resp("OK", 200);
-				  break;
-				default:
-				  return resp("Unknown Event type", 400);
-				  break;
-			  }
+			 }
         },
         error: function (error) {
             // The object was not retrieved successfully.
