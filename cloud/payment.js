@@ -84,7 +84,14 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 					}, function(err, transfer) {
 						  if(err != null)
 							console.log(err);
-					      CreatePayment(userId,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+						  if(transfer.status == messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
+						  {
+						    response.error(transfer.failure_msg);
+						  }
+						  else
+						  {
+					        CreatePayment(userId,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+						  }
 					});
 			   }
 			   else
