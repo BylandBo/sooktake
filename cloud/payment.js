@@ -56,7 +56,6 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
-	var userId = payment.get("user");
 	userQuery.equalTo("objectId", userId);
 	userQuery.include("wechatInfo");
 	userQuery.find().then(function (user) {
