@@ -52,7 +52,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
         .digest('hex').substr(0, 16);
 	
 	
-	console.log("Payment - WithdrawToWechat: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", channel->"+ channel + ", amount->" + (amount/100)); 
+	console.log("Payment - WithdrawToWechat: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
 	
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
