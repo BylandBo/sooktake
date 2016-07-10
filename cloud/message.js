@@ -77,6 +77,8 @@ var PF_SHIPPING_TRANSFER_PAYMENT = "transferPayment"; // 平台到代运人的�
 
 var PF_SHIPPING_PAYMENT_TOPUP = "topup"; 
 
+var PF_SHIPPING_PAYMENT_WITHDRAW = "withdraw"; 
+
 //public method
 exports.PF_SHIPPING_PAYMENT_STATUS_PENDING = function () {
     return PF_SHIPPING_PAYMENT_STATUS_PENDING;
@@ -101,6 +103,9 @@ exports.PF_SHIPPING_TRANSFER_PAYMENT = function () {
 }
 exports.PF_SHIPPING_PAYMENT_TOPUP = function () {
     return PF_SHIPPING_PAYMENT_TOPUP;
+}
+exports.PF_SHIPPING_PAYMENT_WITHDRAW = function () {
+    return PF_SHIPPING_PAYMENT_WITHDRAW;
 }
 
 

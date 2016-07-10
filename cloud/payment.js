@@ -16,9 +16,6 @@ pingpp.setPrivateKeyPath("/home/leanengine/app/pingpluspluskeys/rsa_private_key.
 /*payment function*/
 
 AV.Cloud.define("PaymentTopup", function (request, response) {
-    var UserDetails = AV.Object.extend(classnameModule.GetUserDetailsClass());
-    var userDetailsQuery = new AV.Query(UserDetails);
-	
     var amount = request.params.amount;
 	var channel = request.params.channel;
 	var userId = request.params.userId;
@@ -42,11 +39,74 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	}, function(err, charge) {
 	  if(err != null)
 		console.log(err);
-	  CreatePayment(userId,charge,response);
+	  CreatePayment(userId,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
 	});
 });
 
-var CreatePayment = function (userId, charge, response) {
+AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
+    var amount = request.params.amount;
+	var userId = request.params.userId;
+
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+	
+	
+	console.log("Payment - WithdrawToWechat: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", channel->"+ channel + ", amount->" + (amount/100)); 
+	
+	var userQuery = new AV.Query(AV.User);
+	AV.Cloud.useMasterKey();
+	var userId = payment.get("user");
+	userQuery.equalTo("objectId", userId);
+	userQuery.include("wechatInfo");
+	userQuery.find().then(function (user) {
+		if(user.length <= 0)
+		{
+			console.log("Payment - WithdrawToWechat: cannot find user " + userId );
+		}
+		else
+		{
+			var user = user[0];
+			if(user.get("isBindWechat") == "YES")
+			{
+			   var wechatInfo = user.get("wechatInfo");
+			   if(wechatInfo != null)
+			   {
+				    var openId = wechatInfo.get("openId");
+				  	  pingpp.transfers.create({
+					  order_no:  order_no,
+					  app:       { id: APP_ID },
+					  channel:   "wx",
+					  amount:    amount,
+					  currency:  "cny",
+					  type:      "b2c",
+					  recipient:   openId,
+					  description: "soontake 取款"
+					}, function(err, charge) {
+						  if(err != null)
+							console.log(err);
+					      CreatePayment(userId,charge,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+					});
+			   }
+			   else
+			    {
+				  var errormsg = "Payment - WithdrawToWechat: cannot find wechat info for user: " + userId;
+				  console.log(errormsg);
+				  response.error(errormsg);
+				}
+			}
+			else{
+				var errormsg2 = "Payment - WithdrawToWechat: user: " + userId + " is not bind with wechat account";
+				console.log(errormsg2);
+				response.error(errormsg2);
+			}
+		}
+	},function (error) {
+			console.log(error.message);
+	});
+});
+
+var CreatePayment = function (userId, charge, type, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -54,12 +114,12 @@ var CreatePayment = function (userId, charge, response) {
 	myPayment.set("paymentChannel", charge.channel);
 	myPayment.set("total", (charge.amount/100));
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
-	myPayment.set("type", messageModule.PF_SHIPPING_PAYMENT_TOPUP());
+	myPayment.set("type", type);
 	myPayment.set("user",userId);
 	myPayment.set("transactionId",charge.order_no)
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - Topup: payment creation succeed: transactionId(order_no)->" + charge.order_no + ", UserId->" + userId); 
+	    console.log("Payment - " + type + ": payment creation succeed: transactionId(order_no)->" + charge.order_no + ", UserId->" + userId); 
 		response.success(charge);
 	  },
 	  error: function(message, error) {

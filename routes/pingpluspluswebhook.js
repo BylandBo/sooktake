@@ -58,6 +58,10 @@ router.post('/', function(request, response) {
 					  }
 					  return resp("OK", 200);
 					  break;
+				    case "transfer.succeeded":
+					  // asyn handling to refund succeed
+					  return resp("OK", 200);
+					  break;
 					case "refund.succeeded":
 					  // asyn handling to refund succeed
 					  return resp("OK", 200);
@@ -122,6 +126,39 @@ var topup = function(payment,event){
 				user[0].save().then(function(result){
 					console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
 					pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user[0]);
+				},function (error) {
+					console.log(error.message);
+				});
+			}
+		},function (error) {
+				console.log(error.message);
+		});
+	},function (error) {
+		console.log(error.message);
+	});
+}
+
+var transfer = function(payment,event){
+	var data = event.data.object;
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+	payment.set("transactionNumber",data.transaction_no);
+	payment.save().then(function(result){
+		var userQuery = new AV.Query(AV.User);
+		AV.Cloud.useMasterKey();
+		var userId = payment.get("user");
+		userQuery.equalTo("objectId", userId);
+		userQuery.find().then(function (user) {
+			if(user.length <= 0)
+			{
+				console.log("Payment - Withdraw: cannot find user " + userId );
+			}
+			else
+			{
+				var balance = user[0].get("forzenMoney") + (data.amount/100);
+				user[0].set("forzenMoney",balance);
+				user[0].save().then(function(result){
+					console.log("Payment - Withdraw success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
+					pushModule.PushWithdrawSucceedToUser(payment,(data.amount/100),user[0]);
 				},function (error) {
 					console.log(error.message);
 				});
