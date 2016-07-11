@@ -27,19 +27,36 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	var ip = request.meta.remoteAddress;
 	
 	console.log("Payment - Topup: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100)); 
-	pingpp.charges.create({
-	  order_no:  order_no,
-	  app:       { id: APP_ID },
-	  channel:   channel,
-	  amount:    amount,
-	  client_ip: ip,
-	  currency:  "cny",
-	  subject:   "soontake充值",
-	  body:      "Soontake 充值"
-	}, function(err, charge) {
-	  if(err != null)
-		console.log(err);
-	  CreatePayment(userId,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
+	var userQuery = new AV.Query(AV.User);
+	AV.Cloud.useMasterKey();
+	userQuery.equalTo("objectId", userId);
+	userQuery.include("wechatInfo");
+	userQuery.find().then(function (users) {
+		if(users.length <= 0)
+		{
+			console.log("Payment - Topup: cannot find user " + userId );
+		}
+		else
+		{
+			var user = users[0];
+			pingpp.charges.create({
+			  order_no:  order_no,
+			  app:       { id: APP_ID },
+			  channel:   channel,
+			  amount:    amount,
+			  client_ip: ip,
+			  currency:  "cny",
+			  subject:   "soontake充值",
+			  body:      "Soontake 充值"
+			}, function(err, charge) {
+			  if(err != null){
+				console.log(err);
+				response.error(err);
+			  }
+			  else
+			    CreatePayment(user,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
+			});
+		}
 	});
 });
 
@@ -58,14 +75,14 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	AV.Cloud.useMasterKey();
 	userQuery.equalTo("objectId", userId);
 	userQuery.include("wechatInfo");
-	userQuery.find().then(function (user) {
-		if(user.length <= 0)
+	userQuery.find().then(function (users) {
+		if(users.length <= 0)
 		{
 			console.log("Payment - WithdrawToWechat: cannot find user " + userId );
 		}
 		else
 		{
-			var user = user[0];
+			var user = users[0];
 			if(user.get("isBindWechat") == "YES")
 			{
 			   var wechatInfo = user.get("wechatInfo");
@@ -90,7 +107,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 						  }
 						  else
 						  {
-					        CreatePayment(userId,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+					        CreatePayment(user,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
 						  }
 					});
 			   }
@@ -112,21 +129,26 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	});
 });
 
-var CreatePayment = function (userId, transfer, type, response) {
+var CreatePayment = function (user, pingObj, type, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
 	
-	myPayment.set("paymentChannel", transfer.channel);
-	myPayment.set("total", (transfer.amount/100));
+	myPayment.set("paymentChannel", pingObj.channel);
+	myPayment.set("total", (pingObj.amount/100));
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 	myPayment.set("type", type);
-	myPayment.set("user",userId);
-	myPayment.set("transactionId",transfer.order_no)
+	myPayment.set("user",user.id);
+	myPayment.set("transactionId",pingObj.order_no)
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - " + type + ": payment creation succeed: transactionId(order_no)->" + transfer.order_no + ", UserId->" + userId); 
-		response.success(transfer);
+	    console.log("Payment - " + type + ": payment creation succeed: transactionId(order_no)->" + pingObj.order_no + ", UserId->" + userId); 
+		//add payment history to user
+		var paymentRelation = user.relation('paymentHistory');
+		paymentRelation.add(payment);
+		user.save();
+		
+		response.success(pingObj);
 	  },
 	  error: function(message, error) {
 		console.log(error.message);
