@@ -34,19 +34,19 @@ router.post('/', function(request, response) {
       if (event.type === undefined) {
         return resp('Event no type column', 400);
       }
-	  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId(order_no)->" + event.data.object.order_no);
+	  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
 	
 	var data = event.data.object;
-	paymentQuery.equalTo("transactionId", data.order_no);
+	paymentQuery.equalTo("transactionId", data.id);
 	paymentQuery.include("user");
 	paymentQuery.find({
         success: function (payments) {
 		     if(payments.length <= 0)
 			 {
-				console.log("Unknown payment with transactionId(order_no): " + data.order_no);
+				console.log("Unknown payment with transactionId: " + data.id);
 			 }
 			 else
 			 {
@@ -116,7 +116,7 @@ var topup = function(payment,event){
 	    var balance = user.get("totalMoney") + (data.amount/100);
 		user.set("totalMoney",balance);
 		user.save().then(function(result){
-			console.log("Payment - Topup success for user->" + user.id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
+			console.log("Payment - Topup success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
 			pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user);
 		},function (error) {
 			console.log(error.message);
@@ -135,7 +135,7 @@ var transfer = function(payment,event){
 		var balance = user.get("forzenMoney") + (data.amount/100);
 		user.set("forzenMoney",balance);
 		user.save().then(function(result){
-			console.log("Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
+			console.log("Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
 			pushModule.PushWithdrawSucceedToUser(payment,(data.amount/100),user);
 		},function (error) {
 			console.log(error.message);
