@@ -141,11 +141,11 @@ var CreatePayment = function (user, pingObj, type, response) {
 	myPayment.set("total", (pingObj.amount/100));
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 	myPayment.set("type", type);
-	myPayment.set("user",user.id);
+	myPayment.set("user",user);
 	myPayment.set("transactionId",pingObj.order_no)
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - " + type + ": payment creation succeed: transactionId(order_no)->" + pingObj.order_no + ", UserId->" + userId); 
+	    console.log("Payment - " + type + ": payment creation succeed: transactionId(order_no)->" + pingObj.order_no + ", UserId->" + user.id); 
 		//add payment history to user
 		var paymentRelation = user.relation('paymentHistory');
 		paymentRelation.add(payment);

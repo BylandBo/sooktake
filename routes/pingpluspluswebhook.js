@@ -41,6 +41,7 @@ router.post('/', function(request, response) {
 	
 	var data = event.data.object;
 	paymentQuery.equalTo("transactionId", data.order_no);
+	paymentQuery.include("user");
 	paymentQuery.find({
         success: function (payments) {
 		     if(payments.length <= 0)
@@ -111,28 +112,14 @@ var topup = function(payment,event){
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	payment.set("transactionNumber",data.transaction_no);
 	payment.save().then(function(result){
-		var userQuery = new AV.Query(AV.User);
-		AV.Cloud.useMasterKey();
-		var userId = payment.get("user");
-		userQuery.equalTo("objectId", userId);
-		userQuery.find().then(function (user) {
-			if(user.length <= 0)
-			{
-				console.log("Payment - Topup: cannot find user " + userId );
-			}
-			else
-			{
-				var balance = user[0].get("totalMoney") + (data.amount/100);
-				user[0].set("totalMoney",balance);
-				user[0].save().then(function(result){
-					console.log("Payment - Topup success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
-					pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user[0]);
-				},function (error) {
-					console.log(error.message);
-				});
-			}
+	    var user = payment.get("user");
+	    var balance = user.get("totalMoney") + (data.amount/100);
+		user.set("totalMoney",balance);
+		user.save().then(function(result){
+			console.log("Payment - Topup success for user->" + user.id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
+			pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user);
 		},function (error) {
-				console.log(error.message);
+			console.log(error.message);
 		});
 	},function (error) {
 		console.log(error.message);
@@ -144,28 +131,14 @@ var transfer = function(payment,event){
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	payment.set("transactionNumber",data.transaction_no);
 	payment.save().then(function(result){
-		var userQuery = new AV.Query(AV.User);
-		AV.Cloud.useMasterKey();
-		var userId = payment.get("user");
-		userQuery.equalTo("objectId", userId);
-		userQuery.find().then(function (user) {
-			if(user.length <= 0)
-			{
-				console.log("Payment - Withdraw: cannot find user " + userId );
-			}
-			else
-			{
-				var balance = user[0].get("forzenMoney") + (data.amount/100);
-				user[0].set("forzenMoney",balance);
-				user[0].save().then(function(result){
-					console.log("Payment - Withdraw success for user->" + user[0].id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
-					pushModule.PushWithdrawSucceedToUser(payment,(data.amount/100),user[0]);
-				},function (error) {
-					console.log(error.message);
-				});
-			}
+	    var user = payment.get("user");
+		var balance = user.get("forzenMoney") + (data.amount/100);
+		user.set("forzenMoney",balance);
+		user.save().then(function(result){
+			console.log("Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.order_no + " with amount->" + (data.amount/100));
+			pushModule.PushWithdrawSucceedToUser(payment,(data.amount/100),user);
 		},function (error) {
-				console.log(error.message);
+			console.log(error.message);
 		});
 	},function (error) {
 		console.log(error.message);
