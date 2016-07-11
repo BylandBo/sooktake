@@ -39,6 +39,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		else
 		{
 			var user = users[0];
+			console.log("Payment - Topup: starting creating charge object, order_no->" + order_no );
 			pingpp.charges.create({
 			  order_no:  order_no,
 			  app:       { id: APP_ID },
@@ -50,6 +51,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			  body:      "Soontake 充值"
 			}, function(err, charge) {
 			  if(err != null){
+			    console.log("Payment - Topup: error creating charge object, order_no->" + order_no );
 				console.log(err);
 				response.error(err.message);
 			  }
