@@ -17,7 +17,7 @@ var pub_key_path = "/home/leanengine/app/pingpluspluskeys/rsa_public_key.pem";
 router.post('/', function(request, response) {
   pingpp.parseHeaders(request.headers); // 把从客户端传上来的 Headers 传到这里
   //ping++ private key
-  pingpp.setPrivateKeyPath(__dirname + "/rsa_private_key.pem");
+  pingpp.setPrivateKeyPath("/home/leanengine/app/pingpluspluskeys/rsa_private_key.pem");
   request.setEncoding('utf8');
   
   var postData = JSON.stringify(request.body);
