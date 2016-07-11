@@ -89,6 +89,11 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 		}
 		else
 		{
+			var sys = require('sys')
+			var exec = require('child_process').exec;
+			function puts(error, stdout, stderr) { sys.puts(stdout) }
+			exec("ping api.pingxx.com", puts);
+			
 			var user = users[0];
 			if(user.get("isBindWechat") == "YES")
 			{

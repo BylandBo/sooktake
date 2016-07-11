@@ -27,14 +27,15 @@ router.post('/', function(request, response) {
       });
       response.end(ret);
     }
+  var event = JSON.parse(postData);
+  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
+  
   var signature = request.headers['x-pingplusplus-signature'];
   if (verify_signature(postData, signature, pub_key_path)) {
 	try {
-      var event = JSON.parse(postData);
       if (event.type === undefined) {
         return resp('Event no type column', 400);
       }
-	  console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
