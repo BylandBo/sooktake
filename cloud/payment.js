@@ -38,6 +38,11 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		}
 		else
 		{
+		    var sys = require('sys')
+			var exec = require('child_process').exec;
+			function puts(error, stdout, stderr) { console.log(stdout) };
+			exec("ping api.pingxx.com", puts);
+			
 			var user = users[0];
 			console.log("Payment - Topup: starting creating charge object, order_no->" + order_no );
 			pingpp.charges.create({
