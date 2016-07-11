@@ -51,7 +51,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			}, function(err, charge) {
 			  if(err != null){
 				console.log(err);
-				response.error(err);
+				response.error(err.message);
 			  }
 			  else
 			    CreatePayment(user,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
@@ -100,8 +100,11 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 					  description: "soontake 取款"
 					}, function(err, transfer) {
 						  if(err != null)
+						  {
 							console.log(err);
-						  if(transfer.status == messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
+							response.error(err.message);
+						  }
+						  else if(transfer.status == messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
 						  {
 						    response.error(transfer.failure_msg);
 						  }
