@@ -26,7 +26,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		
 	var ip = request.meta.remoteAddress;
 	
-	console.log("Payment - Topup: charge creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100)); 
+	console.log("Payment - Topup: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100)); 
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
 	userQuery.equalTo("objectId", userId);
@@ -44,7 +44,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			exec("ping api.pingxx.com", puts);
 			
 			var user = users[0];
-			console.log("Payment - Topup: starting creating charge object, order_no->" + order_no );
+			console.log("Payment - Topup: charge creation starting, order_no->" + order_no );
 			pingpp.charges.create({
 			  order_no:  order_no,
 			  app:       { id: APP_ID },
@@ -56,7 +56,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			  body:      "Soontake 充值"
 			}, function(err, charge) {
 			  if(err != null){
-			    console.log("Payment - Topup: error creating charge object, order_no->" + order_no );
+			    console.log("Payment - Topup: charge creation error, order_no->" + order_no );
 				console.log(err);
 				response.error(err.message);
 			  }
@@ -76,7 +76,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
         .digest('hex').substr(0, 16);
 	
 	
-	console.log("Payment - WithdrawToWechat: transfer creation: transactionId(order_no)->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
+	console.log("Payment - WithdrawToWechat: transfer creation: order_no->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
 	
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
@@ -100,6 +100,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 			   var wechatInfo = user.get("wechatInfo");
 			   if(wechatInfo != null)
 			   {
+					console.log("Payment - WithdrawToWechat: transfer creation starting, order_no->" + order_no );
 				    var openId = wechatInfo.get("openId");
 				  	pingpp.transfers.create({
 					  order_no:  order_no,
@@ -113,6 +114,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 					}, function(err, transfer) {
 						  if(err != null)
 						  {
+						    console.log("Payment - WithdrawToWechat: transfer creation error, order_no->" + order_no );
 							console.log(err);
 							response.error(err.message);
 						  }
