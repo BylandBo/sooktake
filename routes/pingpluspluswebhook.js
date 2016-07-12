@@ -31,7 +31,7 @@ router.post('/', function(request, response) {
   console.log("ping++ event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
   
   var signature = request.headers['x-pingplusplus-signature'];
-  if (verify_signature(request.body, signature, pub_key_path)) {
+  if (verify_signature(postData, signature, pub_key_path)) {
 	try {
       if (event.type === undefined) {
         return resp('Event no type column', 400);
