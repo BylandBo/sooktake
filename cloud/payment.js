@@ -121,7 +121,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 						  else if(transfer.status == messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
 						  {
 						    console.log("Payment - WithdrawToWechat: transfer creation error:"+ transfer.failure_msg +", order_no->" + order_no );
-						    response.error(transfer.failure_msg);
+							response.error({code: 136, message: transfer.failure_msg});//135: user balance not enough
 						  }
 						  else
 						  {
