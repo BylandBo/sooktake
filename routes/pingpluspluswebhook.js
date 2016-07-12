@@ -98,9 +98,7 @@ var verify_signature = function(raw_data, signature, pub_key_path) {
       console.log('raw_data-> '+ raw_data + ',   signature-> '+ signature + ',   pub_key_path-> ' + pub_key_path);
 	  var verifier = crypto.createVerify('RSA-SHA256').update(raw_data, "utf8");
 	  var pub_key = fs.readFileSync(pub_key_path, "utf8");
-	  //return verifier.verify(pub_key, signature, 'base64');
-	  console.log("verify result: " + verifier.verify(pub_key, signature, 'base64'));
-	  return true;
+	  return verifier.verify(pub_key, signature, 'base64');
   }
   catch (err) {
 	  console.log(err);
