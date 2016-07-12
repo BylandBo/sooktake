@@ -28,7 +28,7 @@ router.post('/', function(request, response) {
       response.end(ret);
     }
   var event = JSON.parse(postData);
-  console.log("ping++ Webhook event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
+  console.log("ping++ Webhook: event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
   
   var signature = request.headers['x-pingplusplus-signature'];
   if (verify_signature(postData, signature, pub_key_path)) {
@@ -47,7 +47,7 @@ router.post('/', function(request, response) {
         success: function (payments) {
 		     if(payments.length <= 0)
 			 {
-				console.log("Unknown payment with transactionId: " + data.id);
+				console.log("ping++ Webhook: Unknown payment with transactionId: " + data.id);
 			 }
 			 else
 			 {
@@ -84,9 +84,9 @@ router.post('/', function(request, response) {
 	  console.log(err);
       return resp('JSON serializ failed', 400);
     }
-	console.log('TransactionId->'+event.data.object.id+' signature verification succeeded');
+	console.log('ping++ Webhook: TransactionId->'+event.data.object.id+' signature verification succeeded');
 	} else {
-	  console.log('TransactionId->'+event.data.object.id+' signature verification failed');
+	  console.log('ping++ Webhook: TransactionId->'+event.data.object.id+' signature verification failed');
    }
 });
 
@@ -115,7 +115,7 @@ var topup = function(payment,event){
 	    var balance = user.get("totalMoney") + (data.amount/100);
 		user.set("totalMoney",balance);
 		user.save().then(function(result){
-			console.log("Payment - Topup success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
+			console.log("ping++ Webhook: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
 			pushModule.PushPaymentTopupSucceedToUser(payment,(data.amount/100),user);
 		},function (error) {
 			console.log(error.message);
@@ -134,7 +134,7 @@ var transfer = function(payment,event){
 		var balance = user.get("forzenMoney") + (data.amount/100);
 		user.set("forzenMoney",balance);
 		user.save().then(function(result){
-			console.log("Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
+			console.log("ping++ Webhook: Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
 			pushModule.PushWithdrawSucceedToUser(payment,(data.amount/100),user);
 		},function (error) {
 			console.log(error.message);
