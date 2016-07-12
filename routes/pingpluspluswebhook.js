@@ -58,6 +58,9 @@ router.post('/', function(request, response) {
 					  if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_TOPUP()){
 						topup(payment,event);
 					  }
+					  else if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE()){
+					    PaymentChargeShippingList(payment,event);
+					  }
 					  return resp("OK", 200);
 					  break;
 				    case "transfer.succeeded":
@@ -136,6 +139,48 @@ var transfer = function(payment,event){
 		user.save().then(function(result){
 			console.log("ping++ Webhook: Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
 			pushModule.PushWithdrawSucceedToUser(payment,(data.amount/100),user);
+		},function (error) {
+			console.log(error.message);
+		});
+	},function (error) {
+		console.log(error.message);
+	});
+}
+
+var PaymentChargeShippingList = function(payment,event){
+    var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+			
+	var data = event.data.object;
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+	payment.set("transactionNumber",data.transaction_no);
+	payment.save().then(function(result){
+	    var user = payment.get("user");
+		var balance = user.get("totalMoney") - (data.amount/100);
+		user.set("totalMoney",balance);
+		user.set("scores",0);//todo
+		user.save().then(function(result){
+			console.log("ping++ Webhook: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
+			shippingQuery.equalTo("payment", payment);
+			shippingQuery.include("cargo");
+			shippingQuery.include("flight");
+			shippingQuery.find({
+					success: function (shippings) {
+						// The object was retrieved successfully.
+						for(var i=0; i<shippings.length; i++)
+						{
+							shipping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+							shipping.save().then(function(sp){
+								pushModule.PushChargeShippingListSucceedToCargoUser(payment,(data.amount/100),shipping,user);
+								pushModule.PushChargeShippingListSucceedToFlightUser(payment,(data.amount/100),shipping,user);
+							});
+						}
+					},
+					error: function (error) {
+						// The object was not retrieved successfully.
+						console.log(error.message);
+					}
+				});
 		},function (error) {
 			console.log(error.message);
 		});

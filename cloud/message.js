@@ -79,6 +79,8 @@ var PF_SHIPPING_PAYMENT_TOPUP = "topup";
 
 var PF_SHIPPING_PAYMENT_WITHDRAW = "withdraw"; 
 
+var PF_SHIPPING_PAYMENT_CHARGE = "charge"; 
+
 //public method
 exports.PF_SHIPPING_PAYMENT_STATUS_PENDING = function () {
     return PF_SHIPPING_PAYMENT_STATUS_PENDING;
@@ -106,6 +108,9 @@ exports.PF_SHIPPING_PAYMENT_TOPUP = function () {
 }
 exports.PF_SHIPPING_PAYMENT_WITHDRAW = function () {
     return PF_SHIPPING_PAYMENT_WITHDRAW;
+}
+exports.PF_SHIPPING_PAYMENT_CHARGE = function () {
+    return PF_SHIPPING_PAYMENT_CHARGE;
 }
 
 
