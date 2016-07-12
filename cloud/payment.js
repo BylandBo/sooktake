@@ -87,6 +87,11 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 		{
 			console.log("Payment - WithdrawToWechat: cannot find user " + userId );
 		}
+		else if(user[0].get("totalMoney") < (amount/100))
+		{
+			 console.log("Payment - WithdrawToWechat: transfer creation error: user balance not enough, order_no->" + order_no );
+			 response.error({code: 135, message: "user balance not enough"});//135: user balance not enough
+		}
 		else
 		{
 			var sys = require('sys')
