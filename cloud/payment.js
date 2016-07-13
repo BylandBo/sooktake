@@ -40,7 +40,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		{
 		    var sys = require('sys')
 			var exec = require('child_process').exec;
-			function puts(error, stdout, stderr) { sys.puts(stdout) }
+			function puts(error, stdout, stderr) { console.log(stdout) }
 			exec("ping api.pingxx.com", puts);
 			
 			var user = users[0];
@@ -96,7 +96,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 		{
 			var sys = require('sys')
 			var exec = require('child_process').exec;
-			function puts(error, stdout, stderr) { sys.puts(stdout) }
+			function puts(error, stdout, stderr) { console.log(stdout) }
 			exec("ping api.pingxx.com", puts);
 			
 			var user = users[0];
@@ -182,7 +182,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 		{
 		    var sys = require('sys')
 			var exec = require('child_process').exec;
-			function puts(error, stdout, stderr) { sys.puts(stdout) }
+			function puts(error, stdout, stderr) { console.log(stdout) }
 			exec("ping api.pingxx.com", puts);
 			
 			var user = users[0];
@@ -204,7 +204,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			  }
 			  else
 			  {
-			    var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
+			    var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 				console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
 				CreateShippingPayment(newPayment,charge,shippingList,response);
 			  }
@@ -263,6 +263,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippingList, respons
 	  success: function(payment) {
 	    console.log("Payment - " + newpayment.type + ": payment creation succeed: transactionId->" + pingObj.id + ", UserId->" + newpayment.user.id + ", order_no->" + pingObj.order_no); 
 		//add payment history to user
+		var user = newpayment.user;
 		var paymentRelation = user.relation('paymentHistory');
 		paymentRelation.add(payment);
 		user.save();

@@ -28,7 +28,7 @@ router.post('/', function(request, response) {
       response.end(ret);
     }
   var event = JSON.parse(postData);
-  console.log("ping++ Webhook: event type: " + event.type + ", event.data.object.subject->" + event.data.object.subject + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
+  console.log("ping++ Webhook: event type: " + event.type + ", transactionId->" + event.data.object.id + ", order_no->" + event.data.object.order_no);
   
   var signature = request.headers['x-pingplusplus-signature'];
   if (verify_signature(postData, signature, pub_key_path)) {
