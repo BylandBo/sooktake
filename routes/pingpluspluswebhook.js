@@ -161,12 +161,13 @@ var PaymentChargeShippingList = function(payment,event){
 		//user.set("scores",0);//todo
 		user.save().then(function(result){
 			console.log("ping++ Webhook: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
-			shippingQuery.equalTo("payment", payment);
+			shippingQuery.equalTo("payment", payment.id);
 			shippingQuery.include("cargo");
 			shippingQuery.include("flight");
 			shippingQuery.find({
 					success: function (shippings) {
 						// The object was retrieved successfully.
+						console.log("Shippings->" + JSON.stringify(shippings));
 						for(var i=0; i<shippings.length; i++)
 						{
 							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
