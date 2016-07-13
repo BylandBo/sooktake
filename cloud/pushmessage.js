@@ -640,35 +640,35 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 				   console.log(error.message);
 			   }
 			);
+			
+			    var pushQuery = new AV.Query(AV.Installation);
+				var cargoUser = cargo.get("owner");
+
+				pushQuery.equalTo("user", cargoUser);
+				//pushQuery.equalTo("appIdentifier", messageModule.appName());
+
+				AV.Push.send({
+					where: pushQuery, // Set our Installation query
+					data: {
+						alert:content,
+						body:content,
+						objectId:cargo.id,
+						sound:'default',
+						type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+						action:PF_PUSH_MESSAGE_ACTION
+					}
+				}, {
+					success: function () {
+						console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
+						// Push was successful
+					},
+					error: function (error) {
+						// Handle error
+						console.log(error.message);
+					}
+				});
 		}
 	});
-
-    var pushQuery = new AV.Query(AV.Installation);
-    var cargoUser = cargo.get("owner");
-
-    pushQuery.equalTo("user", cargoUser);
-    //pushQuery.equalTo("appIdentifier", messageModule.appName());
-
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-            alert:content,
-			body:content,
-			objectId:cargo.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_CHARGE,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
-            // Push was successful
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
 }
 
 exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shipping,user) {
