@@ -158,7 +158,7 @@ var PaymentChargeShippingList = function(payment,event){
 	    var user = payment.get("user");
 		var balance = user.get("totalMoney") - ((data.amount+payment.get("usingBalance"))/100);
 		user.set("totalMoney",balance);
-		user.set("scores",0);//todo
+		//user.set("scores",0);//todo
 		user.save().then(function(result){
 			console.log("ping++ Webhook: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
 			shippingQuery.equalTo("payment", payment);

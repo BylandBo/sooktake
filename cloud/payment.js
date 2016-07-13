@@ -254,7 +254,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippingList, respons
 	myPayment.set("status", newpayment.status);
 	myPayment.set("type", newpayment.type);
 	myPayment.set("user",newpayment.user);
-	myPayment.set("usingBalance",newpayment.usingBalance);
+	myPayment.set("usingBalance",newpayment.usingBalance/100);
 	myPayment.set("usingCredit",newpayment.usingCredit);
 	myPayment.set("usingVoucher",newpayment.usingVoucher);
 	myPayment.set("voucherCode",newpayment.voucherCode);
