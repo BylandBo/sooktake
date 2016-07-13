@@ -169,10 +169,10 @@ var PaymentChargeShippingList = function(payment,event){
 						// The object was retrieved successfully.
 						for(var i=0; i<shippings.length; i++)
 						{
-							shipping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-							shipping.save().then(function(sp){
-								pushModule.PushChargeShippingListSucceedToCargoUser(payment,(data.amount/100),shipping,user);
-								pushModule.PushChargeShippingListSucceedToFlightUser(payment,(data.amount/100),shipping,user);
+							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+							shippings[i].save().then(function(sp){
+								pushModule.PushChargeShippingListSucceedToCargoUser(payment,(data.amount/100),shippings[i],user);
+								pushModule.PushChargeShippingListSucceedToFlightUser(payment,(data.amount/100),shippings[i],user);
 							});
 						}
 					},
