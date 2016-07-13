@@ -152,7 +152,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	});
 });
 
-AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
+AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, response) {
     var shippingList = request.params.shippingList;
 	var amount = request.params.amount;
 	var usingBalance = request.params.usingBalance;
@@ -168,7 +168,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 
 	var ip = request.meta.remoteAddress;
 	
-	console.log("Payment - PaymentChargeShippingList: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100) + ", usingBalance->" + usingBalance); 
+	console.log("Payment - PaymentChargeShippingList: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100) + ", usingBalance->" + (usingBalance/100)); 
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
 	userQuery.equalTo("objectId", userId);
