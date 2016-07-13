@@ -172,10 +172,10 @@ var PaymentChargeShippingList = function(payment,event){
 						{
 							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 							shippings[i].set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-							shippings[i].save().then(function(sp){
+							shippings[i].save().then(function(shipping){
 							    var totalAmount = (data.amount/100) + payment.get("usingBalance");
-								pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shippings[i],user);
-								pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shippings[i],user);
+								pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shipping,user);
+								pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shipping,user);
 							});
 						}
 					},
