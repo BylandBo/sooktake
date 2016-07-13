@@ -167,13 +167,15 @@ var PaymentChargeShippingList = function(payment,event){
 			shippingQuery.find({
 					success: function (shippings) {
 						// The object was retrieved successfully.
-						console.log("Shippings->" + JSON.stringify(shippings));
+						console.log("Shippings->" + JSON.stringify(shippings) + ", shippings count->" + shippings.length);
 						for(var i=0; i<shippings.length; i++)
 						{
 							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+							shippings[i].set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 							shippings[i].save().then(function(sp){
-								pushModule.PushChargeShippingListSucceedToCargoUser(payment,(data.amount/100),shippings[i],user);
-								pushModule.PushChargeShippingListSucceedToFlightUser(payment,(data.amount/100),shippings[i],user);
+							    var totalAmount = (data.amount/100) + payment.get("usingBalance");
+								pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shippings[i],user);
+								pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shippings[i],user);
 							});
 						}
 					},
