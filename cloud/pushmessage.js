@@ -590,6 +590,7 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
     var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
+	console.log("Shipping->" + JSON.stringify(shipping));
 	var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
