@@ -594,47 +594,54 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 	var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
-    var content = "成功支付¥"+amount+"给顺带君"+flight.get("owner").get("fullname")+"，包裹成功寄出以后，这笔钱将打入顺带君的账户(在此之前这笔钱将被冻结)";
+	flight.fetch({
+    include: "owner"
+	  },
+	  {
+		success: function(post) {
+		    var content = "成功支付¥"+amount+"给顺带君"+flight.get("owner").get("fullname")+"，包裹成功寄出以后，这笔钱将打入顺带君的账户(在此之前这笔钱将被冻结)";
 	
-	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
-	var historyRecord = new History();
-	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
-	historyRecord.set("text", content);
-	historyRecord.set("referenceId", cargo.id);
-	historyRecord.save().then(
-		function (history){
-			var messageQuery = new AV.Query(PushMessage);
-			messageQuery.equalTo("groupId", cargo.id);
-			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
-			messageQuery.find().then(function (message) {
-						if(message == null || message.length <= 0)
-						{
-							myPushMessage.set("groupId", cargo.id);
-							myPushMessage.add("dataList",shipping);
-							myPushMessage.set("text", content);
-							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
-							myPushMessage.set("sendTo", cargo.get("owner"));
-							myPushMessage.set("counter", 1);
-							myPushMessage.add("historyList",history);
-							myPushMessage.save();
-						}
-						else{
-							message[0].set("text", content);
-							message[0].set("counter", message[0].get("counter")+1);
-							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-							message[0].add("historyList",history);
-							message[0].save();
-						}
-					},function (error) {
-							console.log(error.message);
-			});
-		},
-		function(error) {
-		   console.log(error.message);
-	   }
-	);
+			//add message history
+			var History = AV.Object.extend(classnameModule.GetHistoryClass());
+			var historyRecord = new History();
+			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
+			historyRecord.set("text", content);
+			historyRecord.set("referenceId", cargo.id);
+			historyRecord.save().then(
+				function (history){
+					var messageQuery = new AV.Query(PushMessage);
+					messageQuery.equalTo("groupId", cargo.id);
+					messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
+					messageQuery.find().then(function (message) {
+								if(message == null || message.length <= 0)
+								{
+									myPushMessage.set("groupId", cargo.id);
+									myPushMessage.add("dataList",shipping);
+									myPushMessage.set("text", content);
+									myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+									myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
+									myPushMessage.set("sendTo", cargo.get("owner"));
+									myPushMessage.set("counter", 1);
+									myPushMessage.add("historyList",history);
+									myPushMessage.save();
+								}
+								else{
+									message[0].set("text", content);
+									message[0].set("counter", message[0].get("counter")+1);
+									message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+									message[0].add("historyList",history);
+									message[0].save();
+								}
+							},function (error) {
+									console.log(error.message);
+					});
+				},
+				function(error) {
+				   console.log(error.message);
+			   }
+			);
+		}
+	});
 
     var pushQuery = new AV.Query(AV.Installation);
     var cargoUser = cargo.get("owner");
@@ -654,7 +661,7 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
         }
     }, {
         success: function () {
-            console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + Payment.id +" Cargo: " + cargo.id);
+            console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
             // Push was successful
         },
         error: function (error) {

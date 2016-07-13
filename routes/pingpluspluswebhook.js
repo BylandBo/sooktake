@@ -167,7 +167,6 @@ var PaymentChargeShippingList = function(payment,event){
 			shippingQuery.find({
 					success: function (shippings) {
 						// The object was retrieved successfully.
-						console.log("Shippings->" + JSON.stringify(shippings) + ", shippings count->" + shippings.length);
 						for(var i=0; i<shippings.length; i++)
 						{
 							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
