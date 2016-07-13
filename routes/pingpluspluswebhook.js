@@ -156,7 +156,7 @@ var PaymentChargeShippingList = function(payment,event){
 	payment.set("transactionNumber",data.transaction_no);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
-		var balance = user.get("totalMoney") - ((data.amount+payment.get("usingBalance"))/100);
+		var balance = user.get("totalMoney") - ((data.amount/100)+payment.get("usingBalance"));
 		user.set("totalMoney",balance);
 		//user.set("scores",0);//todo
 		user.save().then(function(result){
