@@ -168,7 +168,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 
 	var ip = request.meta.remoteAddress;
 	
-	console.log("Payment - PaymentChargeShippingList: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100)); 
+	console.log("Payment - PaymentChargeShippingList: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100) + ", usingBalance->" + usingBalance); 
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
 	userQuery.equalTo("objectId", userId);
@@ -186,12 +186,13 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			exec("ping api.pingxx.com", puts);
 			
 			var user = users[0];
+			var finalAmount = amount - usingBalance;
 			console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
 			pingpp.charges.create({
 			  order_no:  order_no,
 			  app:       { id: APP_ID },
 			  channel:   channel,
-			  amount:    amount,
+			  amount:    finalAmount,
 			  client_ip: ip,
 			  currency:  "cny",
 			  subject:   "soontake寄货人付款",
