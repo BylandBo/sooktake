@@ -590,7 +590,6 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
     var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
-	console.log("Shipping->" + JSON.stringify(shipping));
 	var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
@@ -623,6 +622,7 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 									myPushMessage.set("sendTo", cargo.get("owner"));
 									myPushMessage.set("counter", 1);
 									myPushMessage.add("historyList",history);
+									myPushMessage.set("lastShipping",shipping);
 									myPushMessage.save();
 								}
 								else{
@@ -630,6 +630,7 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 									message[0].set("counter", message[0].get("counter")+1);
 									message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
 									message[0].add("historyList",history);
+									message[0].set("lastShipping",shipping);
 									message[0].save();
 								}
 							},function (error) {
