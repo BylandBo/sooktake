@@ -200,7 +200,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 				  
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
-					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
 					  {
 					    isDuplicatePayment = true;
 						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
@@ -297,7 +297,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			      var isDuplicatePayment = false;
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
-					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
 					  {
 					    isDuplicatePayment = true;
 						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
@@ -312,7 +312,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 				    user.set("totalMoney", newtotalMoney);
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
-					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
+					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
 					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
 					CreateShippingPaymentWithBalance(newPayment,shippings,response);
 				  }

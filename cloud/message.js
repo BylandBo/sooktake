@@ -67,6 +67,8 @@ var PF_SHIPPING_PAYMENT_STATUS_CANCEL ="cancel"; //付款中途取消
 
 var PF_SHIPPING_PAYMENT_STATUS_REJECTED ="rejected" // 用户取消转钱给代运人
 
+var PF_SHIPPING_PAYMENT_STATUS_PROCESSING ="processing" //等待货主同意支付给代运人
+
 var PF_SHIPPING_PAYMENT_STATUS_SUCCESS ="success";
 
 var PF_SHIPPING_PAYMENT_STATUS_FAILED ="failed";
@@ -111,6 +113,9 @@ exports.PF_SHIPPING_PAYMENT_WITHDRAW = function () {
 }
 exports.PF_SHIPPING_PAYMENT_CHARGE = function () {
     return PF_SHIPPING_PAYMENT_CHARGE;
+}
+exports.PF_SHIPPING_PAYMENT_STATUS_PROCESSING = function () {
+    return PF_SHIPPING_PAYMENT_STATUS_PROCESSING;
 }
 
 

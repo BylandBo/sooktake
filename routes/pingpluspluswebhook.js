@@ -152,7 +152,7 @@ var PaymentChargeShippingList = function(payment,event){
     var shippingQuery = new AV.Query(Shipping);
 			
 	var data = event.data.object;
-	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
 	payment.set("transactionNumber",data.transaction_no);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
@@ -171,8 +171,8 @@ var PaymentChargeShippingList = function(payment,event){
 						// The object was retrieved successfully.
 						for(var i=0; i<shippings.length; i++)
 						{
-							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-							shippings[i].set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
+							shippings[i].set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
 							shippings[i].save().then(function(shipping){
 							    var totalAmount = (data.amount/100) + payment.get("usingBalance");
 								pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shipping,user);
