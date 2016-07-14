@@ -185,30 +185,57 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			function puts(error, stdout, stderr) { console.log(stdout) }
 			exec("ping api.pingxx.com", puts);
 			
-			var user = users[0];
-			var finalAmount = amount - usingBalance;
-			console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
-			pingpp.charges.create({
-			  order_no:  order_no,
-			  app:       { id: APP_ID },
-			  channel:   channel,
-			  amount:    finalAmount,
-			  client_ip: ip,
-			  currency:  "cny",
-			  subject:   "soontake寄货人付款",
-			  body:      "Soontake 寄货人付款"
-			}, function(err, charge) {
-			  if(err != null){
-			    console.log("Payment - PaymentChargeShippingList: charge creation error, order_no->" + order_no );
-				console.log(err);
-				response.error(err.message);
-			  }
-			  else
-			  {
-			    var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
-				console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
-				CreateShippingPayment(newPayment,charge,shippingList,response);
-			  }
+			var shippingIds = '';
+			var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
+			for(var i=0; i<shippingList.length;i++)
+			{
+			    if(i != shippingList.length -1)
+					cql += "'" + shippingIds[i] + "',";
+				else
+					cql += "'" + shippingIds[i] + "')";
+			}
+			console.write("cql->" + cql);
+			AV.Query.doCloudQuery(cql).then(function (shippings) {
+			      var isDuplicatePayment = false;
+				  for (var shipping in shippings) {
+					  if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+					  {
+					    isDuplicatePayment = true;
+						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shipping.id + " already be paid");
+					  }
+				  }
+				  if(isDuplicatePayment)
+				     response.error({code: 100, message: "duplicate payment"});
+				  else
+				  {
+					var user = users[0];
+					var finalAmount = amount - usingBalance;
+					console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
+					pingpp.charges.create({
+					  order_no:  order_no,
+					  app:       { id: APP_ID },
+					  channel:   channel,
+					  amount:    finalAmount,
+					  client_ip: ip,
+					  currency:  "cny",
+					  subject:   "soontake寄货人付款",
+					  body:      "Soontake 寄货人付款"
+					}, function(err, charge) {
+					  if(err != null){
+						console.log("Payment - PaymentChargeShippingList: charge creation error, order_no->" + order_no );
+						console.log(err);
+						response.error(err.message);
+					  }
+					  else
+					  {
+						var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
+						console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
+						CreateShippingPayment(newPayment,charge,shippingList,response);
+					  }
+					});
+			     }
+			 }, function (error) {
+				console.log(error.message);
 			});
 		}
 	});
@@ -241,11 +268,38 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 		}
 		else
 		{	
-			var user = users[0];
-			console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
-			var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
-			console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
-			CreateShippingPaymentWithBalance(newPayment,charge,shippingList,response);
+			var shippingIds = '';
+			var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
+			for(var i=0; i<shippingList.length;i++)
+			{
+			    if(i != shippingList.length -1)
+					cql += "'" + shippingIds[i] + "',";
+				else
+					cql += "'" + shippingIds[i] + "')";
+			}
+			console.write("cql->" + cql);
+			AV.Query.doCloudQuery(cql).then(function (shippings) {
+			      var isDuplicatePayment = false;
+				  for (var shipping in shippings) {
+					  if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+					  {
+					    isDuplicatePayment = true;
+						console.log("Payment - PaymentChargeShippingListWithBalance: ShippingId->" + shipping.id + " already be paid");
+					  }
+				  }
+				  if(isDuplicatePayment)
+				   response.error({code: 100, message: "duplicate payment"});
+				  else
+				  {
+					var user = users[0];
+					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
+					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
+					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
+					CreateShippingPaymentWithBalance(newPayment,charge,shippingList,response);
+				  }
+			 }, function (error) {
+				console.log(error.message);
+			});
 		}
 	});
 });
