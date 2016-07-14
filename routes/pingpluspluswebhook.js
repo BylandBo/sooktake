@@ -157,8 +157,9 @@ var PaymentChargeShippingList = function(payment,event){
 	payment.save().then(function(result){
 	    var user = payment.get("user");
 		var unFrozenMoney = user.get("forzenMoney") - payment.get("usingBalance");
+		var balance = user.get("totalMoney") - payment.get("usingBalance");
 		user.set("forzenMoney",unFrozenMoney);
-		//user.set("totalMoney",balance);
+		user.set("totalMoney",balance);
 		//user.set("scores",0);//todo
 		user.save().then(function(result){
 			console.log("ping++ Webhook: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
