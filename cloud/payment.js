@@ -215,7 +215,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					var user = users[0];
 					if(isFirstTimePayment)//if first time payment, froze the user balance amount
 					{
-					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + usingBalance/100 + ", new forzenMoney->"+ (user.get("forzenMoney") + usingBalance/100) +", old forzenMoney->" + user.get("forzenMoney") + "; new totalMoney->" + (user.get("totalMoney") - usingBalance/100) + ", old totalMoney->" + user.get("totalMoney"));
+					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + (usingBalance/100) + ", new forzenMoney->"+ (user.get("forzenMoney") + usingBalance/100) +", old forzenMoney->" + user.get("forzenMoney") + "; new totalMoney->" + (user.get("totalMoney") - usingBalance/100) + ", old totalMoney->" + user.get("totalMoney"));
 					  var newforzenMoney = user.get("forzenMoney") + (usingBalance/100);
 					  var newtotalMoney = user.get("totalMoney") - (usingBalance/100);
 					  user.set("forzenMoney",newforzenMoney);
@@ -223,7 +223,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					}
 					else
 					{
-						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + usingBalance + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney"));
+						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + (usingBalance/100) + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney"));
 					}
 					var finalAmount = amount - usingBalance;
 					console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
