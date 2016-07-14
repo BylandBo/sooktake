@@ -297,7 +297,6 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			      var isDuplicatePayment = false;
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
-					  shippingsArray.push(shippings[j]);
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 					  {
 					    isDuplicatePayment = true;
