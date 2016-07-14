@@ -246,7 +246,6 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  {
 						var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 						console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
-						console.log("shippingsArray->" + JSON.stringify(shippings));
 						CreateShippingPayment(newPayment,charge,shippings,response);
 					  }
 					});
@@ -382,14 +381,11 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 		user.save();
 		
 		//update shipping
-		console.log("shippings->" + JSON.stringify(shippings));
-		console.log("shippings.length->" + shippings.length);
 		for(var i=0; i<shippings.length;i++)
 		{
 			shippings[i].set("paymentStatus",newpayment.status);
 			shippings[i].set("transferPaymentStatus",newpayment.status);
 			shippings[i].set("payment",payment);
-			console.log("shippings->" + JSON.stringify(shippings[i]));
 			shippings[i].save();
 		}
 		response.success(pingObj);
