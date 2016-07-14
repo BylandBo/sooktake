@@ -240,12 +240,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			console.log("Payment - PaymentChargeShippingListWithBalance: cannot find user " + userId );
 		}
 		else
-		{
-		    var sys = require('sys')
-			var exec = require('child_process').exec;
-			function puts(error, stdout, stderr) { console.log(stdout) }
-			exec("ping api.pingxx.com", puts);
-			
+		{	
 			var user = users[0];
 			console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 			var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
