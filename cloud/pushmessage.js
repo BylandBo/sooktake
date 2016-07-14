@@ -610,7 +610,7 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 				function (history){
 					var messageQuery = new AV.Query(PushMessage);
 					messageQuery.equalTo("groupId", cargo.id);
-					messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+					messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
 					messageQuery.find().then(function (message) {
 								if(message == null || message.length <= 0)
 								{
@@ -618,7 +618,7 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 									myPushMessage.add("dataList",shipping);
 									myPushMessage.set("text", content);
 									myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-									myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+									myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
 									myPushMessage.set("sendTo", cargo.get("owner"));
 									myPushMessage.set("counter", 1);
 									myPushMessage.add("historyList",history);
@@ -691,7 +691,7 @@ exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shi
 		function (history){
 		    var messageQuery = new AV.Query(PushMessage);
 			messageQuery.equalTo("groupId", flight.id);
-			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 			messageQuery.find().then(function (message) {           
 						if(message == null || message.length <= 0)
 						{
@@ -699,7 +699,7 @@ exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shi
 							myPushMessage.add("dataList",shipping);
 							myPushMessage.set("text", content);
 							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 							myPushMessage.set("sendTo", flight.get("owner"));
 							myPushMessage.set("counter",1);
 							myPushMessage.add("historyList",history);
