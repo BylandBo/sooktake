@@ -197,7 +197,10 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
 				  var isFirstTimePayment = true;
+				  var shippingsArray = [];
+				  
 				  for (var j=0; j<shippings.length; j++) {
+					  shippingsArray.push(shippings[j]);
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 					  {
 					    isDuplicatePayment = true;
@@ -244,7 +247,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  {
 						var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 						console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
-						CreateShippingPayment(newPayment,charge,shippings,response);
+						CreateShippingPayment(newPayment,charge,shippingsArray,response);
 					  }
 					});
 			     }
@@ -293,7 +296,9 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
+				  var shippingsArray = [];
 				  for (var j=0; j<shippings.length; j++) {
+					  shippingsArray.push(shippings[j]);
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 					  {
 					    isDuplicatePayment = true;
@@ -311,7 +316,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
-					CreateShippingPaymentWithBalance(newPayment,shippings,response);
+					CreateShippingPaymentWithBalance(newPayment,shippingsArray,response);
 				  }
 			 }, function (error) {
 				console.log(error.message);
