@@ -312,7 +312,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 				    user.set("totalMoney", newtotalMoney);
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
-					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
+					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
 					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
 					CreateShippingPaymentWithBalance(newPayment,shippings,response);
 				  }
@@ -411,7 +411,7 @@ var CreateShippingPaymentWithBalance = function (newpayment, shippings, response
 	myPayment.set("usingCredit",newpayment.usingCredit);
 	myPayment.set("usingVoucher",newpayment.usingVoucher);
 	myPayment.set("voucherCode",newpayment.voucherCode);
-	myPayment.set("transactionId",newpayment.id)
+	//myPayment.set("transactionId",newpayment.id)
 	myPayment.set("orderNo",newpayment.order_no);
 	myPayment.save(null, {
 	  success: function(payment) {
@@ -428,7 +428,11 @@ var CreateShippingPaymentWithBalance = function (newpayment, shippings, response
 			shippings[i].set("paymentStatus",newpayment.status);
 			shippings[i].set("transferPaymentStatus",newpayment.status);
 			shippings[i].set("payment",payment);
-			shippings[i].save();
+			shippings[i].save().then(function(sp){
+			    var totalAmount = payment.get("total");
+				pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shippings[i],user);
+				pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shippings[i],user);
+			});
 		}
 		response.success(payment);
 	  },
