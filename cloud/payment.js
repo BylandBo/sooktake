@@ -428,10 +428,10 @@ var CreateShippingPaymentWithBalance = function (newpayment, shippings, response
 			shippings[i].set("paymentStatus",newpayment.status);
 			shippings[i].set("transferPaymentStatus",newpayment.status);
 			shippings[i].set("payment",payment);
-			shippings[i].save().then(function(sp){
+			shippings[i].save().then(function(shipping){
 			    var totalAmount = payment.get("total");
-				pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shippings[i],user);
-				pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shippings[i],user);
+				pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shipping,user);
+				pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shipping,user);
 			});
 		}
 		response.success(payment);
