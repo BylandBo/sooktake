@@ -223,7 +223,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					}
 					else
 					{
-						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + usingBalance + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney");
+						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + usingBalance + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney"));
 					}
 					var finalAmount = amount - usingBalance;
 					console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
