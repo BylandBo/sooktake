@@ -196,11 +196,12 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
-				  for (var shipping in shippings) {
-					  if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+				  console.log("Shippings-> " + JSON.stringify(shippings));
+				  for (var j=0; j<shippings.length; j++) {
+					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 					  {
 					    isDuplicatePayment = true;
-						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shipping.id + " already be paid");
+						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
 					  }
 				  }
 				  if(isDuplicatePayment)
@@ -278,11 +279,12 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
-				  for (var shipping in shippings) {
-					  if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+				  console.log("Shippings-> " + JSON.stringify(shippings));
+				  for (var j=0; j<shippings.length; j++) {
+					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 					  {
 					    isDuplicatePayment = true;
-						console.log("Payment - PaymentChargeShippingListWithBalance: ShippingId->" + shipping.id + " already be paid");
+						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
 					  }
 				  }
 				  if(isDuplicatePayment)
