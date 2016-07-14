@@ -185,14 +185,13 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			function puts(error, stdout, stderr) { console.log(stdout) }
 			exec("ping api.pingxx.com", puts);
 			
-			var shippingIds = '';
 			var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
 			for(var i=0; i<shippingList.length;i++)
 			{
 			    if(i != shippingList.length -1)
-					cql += "'" + shippingIds[i] + "',";
+					cql += "'" + shippingList[i] + "',";
 				else
-					cql += "'" + shippingIds[i] + "')";
+					cql += "'" + shippingList[i] + "')";
 			}
 			console.write("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
@@ -268,14 +267,13 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 		}
 		else
 		{	
-			var shippingIds = '';
 			var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
 			for(var i=0; i<shippingList.length;i++)
 			{
 			    if(i != shippingList.length -1)
-					cql += "'" + shippingIds[i] + "',";
+					cql += "'" + shippingList[i] + "',";
 				else
-					cql += "'" + shippingIds[i] + "')";
+					cql += "'" + shippingList[i] + "')";
 			}
 			console.write("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
