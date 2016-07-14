@@ -196,19 +196,35 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
-				  console.log("Shippings-> " + JSON.stringify(shippings));
+				  var isFirstTimePayment = true;
 				  for (var j=0; j<shippings.length; j++) {
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 					  {
 					    isDuplicatePayment = true;
 						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
 					  }
+					  if(shippings[j].get("payment") != null && shippings[j].get("payment") != "")
+					  {
+						isFirstTimePayment = false;
+					  }  
 				  }
 				  if(isDuplicatePayment)
 				     response.error({code: 100, message: "duplicate payment"});
 				  else
 				  {
 					var user = users[0];
+					if(isFirstTimePayment)//if first time payment, froze the user balance amount
+					{
+					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + usingBalance + ", new forzenMoney->"+ (user.get("forzenMoney") + usingBalance) +", old forzenMoney->" + user.get("forzenMoney") + "; new totalMoney->" + (user.get("totalMoney") - usingBalance) + ", old totalMoney->" + user.get("totalMoney"));
+					  var newforzenMoney = user.get("forzenMoney") + usingBalance;
+					  var newtotalMoney = user.get("totalMoney") - usingBalance;
+					  user.set("forzenMoney",newforzenMoney);
+					  user.set("totalMoney", newtotalMoney);
+					}
+					else
+					{
+						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + usingBalance + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney");
+					}
 					var finalAmount = amount - usingBalance;
 					console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
 					pingpp.charges.create({
@@ -230,7 +246,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  {
 						var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 						console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
-						CreateShippingPayment(newPayment,charge,shippingList,response);
+						CreateShippingPayment(newPayment,charge,shippings,response);
 					  }
 					});
 			     }
@@ -279,7 +295,6 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
-				  console.log("Shippings-> " + JSON.stringify(shippings));
 				  for (var j=0; j<shippings.length; j++) {
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 					  {
@@ -292,10 +307,13 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 				  else
 				  {
 					var user = users[0];
+				    var newtotalMoney = user.get("totalMoney") - amount;
+				    user.set("totalMoney", newtotalMoney);
+					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
-					CreateShippingPaymentWithBalance(newPayment,charge,shippingList,response);
+					CreateShippingPaymentWithBalance(newPayment,charge,shippings,response);
 				  }
 			 }, function (error) {
 				console.log(error.message);
@@ -333,7 +351,7 @@ var CreatePayment = function (user, pingObj, type, response) {
 	});
 };
 
-var CreateShippingPayment = function (newpayment, pingObj, shippingList, response) {
+var CreateShippingPayment = function (newpayment, pingObj, shippings, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -353,27 +371,20 @@ var CreateShippingPayment = function (newpayment, pingObj, shippingList, respons
 	myPayment.save(null, {
 	  success: function(payment) {
 	    console.log("Payment - " + newpayment.type + ": payment creation succeed: transactionId->" + pingObj.id + ", UserId->" + newpayment.user.id + ", order_no->" + pingObj.order_no); 
+		
 		//add payment history to user
 		var user = newpayment.user;
 		var paymentRelation = user.relation('paymentHistory');
 		paymentRelation.add(payment);
 		user.save();
-		for(var i=0; i<shippingList.length;i++)
+		
+		//update shipping
+		for(var i=0; i<shippings.length;i++)
 		{
-			var shippingQuery = new AV.Query(Shipping);
-			shippingQuery.get(shippingList[i], {
-					success: function (shipping) {
-						// The object was retrieved successfully.
-						shipping.set("paymentStatus",newpayment.status);
-						shipping.set("transferPaymentStatus",newpayment.status);
-						shipping.set("payment",payment);
-						shipping.save();
-					},
-					error: function (error) {
-						// The object was not retrieved successfully.
-						console.log(error.message);
-					}
-				});
+			shippings[i].set("paymentStatus",newpayment.status);
+			shippings[i].set("transferPaymentStatus",newpayment.status);
+			shippings[i].set("payment",payment);
+			shippings[i].save();
 		}
 		response.success(pingObj);
 	  },
@@ -384,7 +395,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippingList, respons
 	});
 };
 
-var CreateShippingPaymentWithBalance = function (newpayment, pingObj, shippingList, response) {
+var CreateShippingPaymentWithBalance = function (newpayment, pingObj, shippings, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -409,25 +420,14 @@ var CreateShippingPaymentWithBalance = function (newpayment, pingObj, shippingLi
 		var paymentRelation = user.relation('paymentHistory');
 		paymentRelation.add(payment);
 		user.save();
-		for(var i=0; i<shippingList.length;i++)
+		
+		//update shipping
+		for(var i=0; i<shippings.length;i++)
 		{
-			var shippingQuery = new AV.Query(Shipping);
-			shippingQuery.get(shippingList[i], {
-					success: function (shipping) {
-						// The object was retrieved successfully.
-						shipping.set("paymentStatus",newpayment.status);
-						shipping.set("transferPaymentStatus",newpayment.status);
-						shipping.set("payment",payment);
-						shipping.save().then(function (sp){
-							pushModule.PushChargeShippingListSucceedToCargoUser(payment,(data.amount/100),shipping,user);
-							pushModule.PushChargeShippingListSucceedToFlightUser(payment,(data.amount/100),shipping,user);
-						});
-					},
-					error: function (error) {
-						// The object was not retrieved successfully.
-						console.log(error.message);
-					}
-				});
+			shippings[i].set("paymentStatus",newpayment.status);
+			shippings[i].set("transferPaymentStatus",newpayment.status);
+			shippings[i].set("payment",payment);
+			shippings[i].save();
 		}
 		response.success(pingObj);
 	  },
