@@ -284,7 +284,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 		}
 		else
 		{	
-			var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
+			var cql = "select include payment,include cargo,include flight,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
 			for(var i=0; i<shippingList.length;i++)
 			{
 			    if(i != shippingList.length -1)
