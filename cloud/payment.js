@@ -323,6 +323,81 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 	});
 });
 
+AV.Cloud.define("PaymentTransferToSender", function (request, response) {
+    var shippingId = request.params.shippingId;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+	
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+		
+	console.log("Payment - PaymentTransferToSender: transfer creation: order_no->" + order_no + ", UserId->" + userId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shippping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			shippping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			shipping.save();
+		
+			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			payment.save().then(function (py){
+				var myPayment = new Payment();
+				myPayment.set("paymentChannel", "soontake");
+				myPayment.set("total", py.get("total"));
+				myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+				myPayment.set("type", "transfer");
+				myPayment.set("user",cargo.get("owner"));//cargo user
+				myPayment.set("orderNo",order_no);
+				myPayment.save().then(function (tp){
+					flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var paymentRelation = flightUser.relation('paymentHistory');
+								 paymentRelation.add(tp);
+								 var newTotalMoney = flightUser.get("totalMoney") + payment.get("total");
+								 flightUser.set("totalMoney",newTotalMoney)
+								 flightUser.save().then(function(user){
+								    var totalAmount = payment.get("total");
+								    pushModule.PushPaymentTransferToSenderSucceedToFlightUser(payment,totalAmount,shipping,flightUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+							     var cargoUser = cargoObj.get("owner");
+								 //var totalAmount = payment.get("total");
+							     pushModule.PushPaymentTransferToSenderSucceedToCargoUser(payment,totalAmount,shipping,cargoUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				    response.success(myPayment);
+				});
+			});
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
 var CreatePayment = function (user, pingObj, type, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
@@ -333,7 +408,7 @@ var CreatePayment = function (user, pingObj, type, response) {
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 	myPayment.set("type", type);
 	myPayment.set("user",user);
-	myPayment.set("transactionId",pingObj.id)
+	myPayment.set("transactionId",pingObj.id);
 	myPayment.set("orderNo",pingObj.order_no);
 	myPayment.save(null, {
 	  success: function(payment) {
