@@ -193,7 +193,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 				else
 					cql += "'" + shippingList[i] + "')";
 			}
-			console.write("cql->" + cql);
+			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
 				  for (var shipping in shippings) {
@@ -275,7 +275,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 				else
 					cql += "'" + shippingList[i] + "')";
 			}
-			console.write("cql->" + cql);
+			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (shippings) {
 			      var isDuplicatePayment = false;
 				  for (var shipping in shippings) {
