@@ -305,13 +305,13 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 				  else
 				  {
 					var user = users[0];
-				    var newtotalMoney = user.get("totalMoney") - amount;
+				    var newtotalMoney = user.get("totalMoney") - (amount/100);
 				    user.set("totalMoney", newtotalMoney);
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
-					CreateShippingPaymentWithBalance(newPayment,charge,shippings,response);
+					CreateShippingPaymentWithBalance(newPayment,shippings,response);
 				  }
 			 }, function (error) {
 				console.log(error.message);
@@ -355,8 +355,8 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
     var myPayment = new Payment();
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
 	
-	myPayment.set("paymentChannel", pingObj.channel);
-	myPayment.set("total", (pingObj.amount/100));
+	myPayment.set("paymentChannel", newpayment.channel);
+	myPayment.set("total", (newpayment.amount/100));
 	myPayment.set("status", newpayment.status);
 	myPayment.set("type", newpayment.type);
 	myPayment.set("user",newpayment.user);
@@ -364,11 +364,11 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 	myPayment.set("usingCredit",newpayment.usingCredit);
 	myPayment.set("usingVoucher",newpayment.usingVoucher);
 	myPayment.set("voucherCode",newpayment.voucherCode);
-	myPayment.set("transactionId",pingObj.id)
-	myPayment.set("orderNo",pingObj.order_no);
+	//myPayment.set("transactionId",pingObj.id)
+	myPayment.set("orderNo",newpayment.order_no);
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - " + newpayment.type + ": payment creation succeed: transactionId->" + pingObj.id + ", UserId->" + newpayment.user.id + ", order_no->" + pingObj.order_no); 
+	    console.log("Payment - " + newpayment.type + ": payment creation succeed: UserId->" + newpayment.user.id + ", order_no->" + newpayment.order_no); 
 		
 		//add payment history to user
 		var user = newpayment.user;
@@ -377,6 +377,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 		user.save();
 		
 		//update shipping
+		console.log("shippings->" + JSON.stringify(shippings);
 		for(var i=0; i<shippings.length;i++)
 		{
 			shippings[i].set("paymentStatus",newpayment.status);
@@ -384,7 +385,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 			shippings[i].set("payment",payment);
 			shippings[i].save();
 		}
-		response.success(pingObj);
+		response.success(payment);
 	  },
 	  error: function(message, error) {
 		console.log(error.message);
@@ -393,7 +394,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 	});
 };
 
-var CreateShippingPaymentWithBalance = function (newpayment, pingObj, shippings, response) {
+var CreateShippingPaymentWithBalance = function (newpayment, shippings, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
