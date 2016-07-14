@@ -377,12 +377,12 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 		user.save();
 		
 		//update shipping
-		console.log("shippings->" + JSON.stringify(shippings));
 		for(var i=0; i<shippings.length;i++)
 		{
 			shippings[i].set("paymentStatus",newpayment.status);
 			shippings[i].set("transferPaymentStatus",newpayment.status);
 			shippings[i].set("payment",payment);
+			console.log("shippings->" + JSON.stringify(shippings[i]));
 			shippings[i].save();
 		}
 		response.success(pingObj);
