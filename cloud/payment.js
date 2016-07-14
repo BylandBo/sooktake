@@ -382,6 +382,8 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 		user.save();
 		
 		//update shipping
+		console.log("shippings->" + JSON.stringify(shippings));
+		console.log("shippings.length->" + shippings.length);
 		for(var i=0; i<shippings.length;i++)
 		{
 			shippings[i].set("paymentStatus",newpayment.status);
