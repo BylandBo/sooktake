@@ -308,8 +308,9 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 				  else
 				  {
 					var user = users[0];
-				    var newtotalMoney = user.get("totalMoney") - (amount/100);
-				    user.set("totalMoney", newtotalMoney);
+				    //var newtotalMoney = user.get("totalMoney") - (amount/100);
+					var newFrozenMoney = user.get("forzenMoney") + (amount/100);
+				    user.set("forzenMoney", newtotalMoney);
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
@@ -366,7 +367,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 								 var paymentRelation = flightUser.relation('paymentHistory');
 								 paymentRelation.add(tp);
 								 var newTotalMoney = flightUser.get("totalMoney") + payment.get("total");
-								 flightUser.set("totalMoney",newTotalMoney)
+								 flightUser.set("totalMoney",newTotalMoney);
 								 flightUser.save().then(function(user){
 								    var totalAmount = payment.get("total");
 								    pushModule.PushPaymentTransferToSenderSucceedToFlightUser(payment,totalAmount,shipping,flightUser);
@@ -381,8 +382,14 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 						   {
 							   success: function(cargoObj) {
 							     var cargoUser = cargoObj.get("owner");
-								 //var totalAmount = payment.get("total");
-							     pushModule.PushPaymentTransferToSenderSucceedToCargoUser(payment,totalAmount,shipping,cargoUser);
+								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("usingBalance");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("usingBalance");
+								 cargoUser.set("totalMoney",newTotalMoney);
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentTransferToSenderSucceedToCargoUser(payment,totalAmount,shipping,cargoUser);
+								 });
 								},
 							   error: function(message, error) {
 								 console.log(error.message);
