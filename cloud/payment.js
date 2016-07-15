@@ -347,7 +347,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
-			shippping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 			shipping.save();
 		
 			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
@@ -507,8 +507,8 @@ var CreateShippingPaymentWithBalance = function (newpayment, shippings, response
 		//update shipping
 		for(var i=0; i<shippings.length;i++)
 		{
-			shippings[i].set("paymentStatus",newpayment.status);
-			shippings[i].set("transferPaymentStatus",newpayment.status);
+			shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			shippings[i].set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 			shippings[i].set("payment",payment);
 			shippings[i].save().then(function(shipping){
 			    var totalAmount = payment.get("total");

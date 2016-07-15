@@ -171,8 +171,7 @@ var PaymentChargeShippingList = function(payment,event){
 						// The object was retrieved successfully.
 						for(var i=0; i<shippings.length; i++)
 						{
-							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
-							shippings[i].set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
+							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 							shippings[i].save().then(function(shipping){
 							    var totalAmount = (data.amount/100) + payment.get("usingBalance");
 								pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shipping,user);
