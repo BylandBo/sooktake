@@ -217,8 +217,8 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					var user = users[0];
 					if(isFirstTimePayment)//if first time payment, froze the user balance amount
 					{
-					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + (usingBalance/100) + ", new forzenMoney->"+ (user.get("forzenMoney") + usingBalance/100) +", old forzenMoney->" + user.get("forzenMoney") + ";  totalMoney->" + user.get("totalMoney"));
-					  var newforzenMoney = user.get("forzenMoney") + (usingBalance/100);
+					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + (amount/100) + ", new forzenMoney->"+ (user.get("forzenMoney") + amount/100) +", old forzenMoney->" + user.get("forzenMoney") + ";  totalMoney->" + user.get("totalMoney"));
+					  var newforzenMoney = user.get("forzenMoney") + (amount/100);
 					  user.set("forzenMoney",newforzenMoney);
 					}
 					else
@@ -383,7 +383,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 							   success: function(cargoObj) {
 							     var cargoUser = cargoObj.get("owner");
 								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("usingBalance");
-								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("usingBalance");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
 								 cargoUser.set("totalMoney",newTotalMoney);
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
