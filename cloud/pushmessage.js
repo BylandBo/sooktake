@@ -94,27 +94,29 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 
     pushQuery.equalTo("user", cargoUser);
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
-
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-            alert:content,
-			body:content,
-			objectId:cargo.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_CARGO,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            console.log("PushCargoAssigned message: " + cargoUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
-            // Push was successful
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+    if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:cargo.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_CARGO,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				console.log("PushCargoAssigned message: " + cargoUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
+				// Push was successful
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 
@@ -194,26 +196,29 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
     pushQuery.equalTo("user", flightUser);
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
 
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-			alert:content,
-			body:content,
-			objectId:flight.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            // Push was successful
-            console.log("PushFlightAssigned message: " + flightUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+	if(flightUser != null && flightUser != "" && typeof flightUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:flight.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushFlightAssigned message: " + flightUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 exports.PushUserDetailVerifyStatus = function (userDetail) {
@@ -241,27 +246,30 @@ exports.PushUserDetailVerifyStatus = function (userDetail) {
 
     pushQuery.equalTo("user", userDetail.get("owner"));
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
-
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-			alert:message,
-			body:message,
-			objectId:userDetail.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            // Push was successful
-            console.log(userDetail.get("owner").id + ", " + message);
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+	var owner = userDetail.get("owner");
+	if(owner != null && owner != "" && typeof owner !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:message,
+				body:message,
+				objectId:userDetail.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log(userDetail.get("owner").id + ", " + message);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 exports.PushShippingStatusUpdateToUser = function (shipping) {
@@ -331,26 +339,29 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
     pushQuery.equalTo("user", cargoUser);
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
 
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-			alert:content,
-			body:content,
-			objectId:shipping.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            // Push was successful
-            console.log("PushShippingStatusUpdateToUser message: Cargo: " + cargo.id + " to User: " + cargo.get("owner").id);
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+	if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:shipping.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushShippingStatusUpdateToUser message: Cargo: " + cargo.id + " to User: " + cargo.get("owner").id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 
@@ -407,26 +418,29 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
     pushQuery.equalTo("user", cargoUser);
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
 
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-            alert:content,
-			body:content,
-			objectId:cargo.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_CARGO,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            console.log("PushShippingCancelToUser message: " + cargoUser.id + " Cargo: " + cargo.id);
-            // Push was successful
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+	if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:cargo.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_CARGO,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				console.log("PushShippingCancelToUser message: " + cargoUser.id + " Cargo: " + cargo.id);
+				// Push was successful
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
@@ -482,26 +496,29 @@ exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
     pushQuery.equalTo("user", flightUser);
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
 
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-            alert:content,
-			body:content,
-			objectId:flight.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_CARGO,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            console.log("PushShippingCancelToFlightUser message: " + flightUser.id + " Cargo: " + cargo.id);
-            // Push was successful
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+	if(flightUser != null && flightUser != "" && typeof flightUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:flight.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_CARGO,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				console.log("PushShippingCancelToFlightUser message: " + flightUser.id + " Cargo: " + cargo.id);
+				// Push was successful
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 exports.PushPaymentTopupSucceedToUser = function (payment,amount,user) {
@@ -523,26 +540,29 @@ exports.PushPaymentTopupSucceedToUser = function (payment,amount,user) {
 	var pushQuery = new AV.Query(AV.Installation);
 	pushQuery.equalTo("user", user);
 
-	AV.Push.send({
-		where: pushQuery, // Set our Installation query
-		data: {
-			alert:content,
-			body:content,
-			objectId:payment.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
-			action:PF_PUSH_MESSAGE_ACTION
-		}
-	}, {
-		success: function () {
-			// Push was successful
-			console.log("PushPaymentTopupSucceedToUser message: Payment: " + payment.id + " to User: " + user.id);
-		},
-		error: function (error) {
-			// Handle error
-			console.log(error.message);
-		}
-	});
+	if(user != null && user != "" && typeof user !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:payment.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushPaymentTopupSucceedToUser message: Payment: " + payment.id + " to User: " + user.id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 exports.PushWithdrawSucceedToUser = function (payment,amount,user) {
@@ -564,26 +584,29 @@ exports.PushWithdrawSucceedToUser = function (payment,amount,user) {
 	var pushQuery = new AV.Query(AV.Installation);
 	pushQuery.equalTo("user", user);
 
-	AV.Push.send({
-		where: pushQuery, // Set our Installation query
-		data: {
-			alert:content,
-			body:content,
-			objectId:payment.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
-			action:PF_PUSH_MESSAGE_ACTION
-		}
-	}, {
-		success: function () {
-			// Push was successful
-			console.log("PushWithdrawSucceedToUser message: Payment: " + payment.id + " to User: " + user.id);
-		},
-		error: function (error) {
-			// Handle error
-			console.log(error.message);
-		}
-	});
+	if(user != null && user != "" && typeof user !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:payment.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushWithdrawSucceedToUser message: Payment: " + payment.id + " to User: " + user.id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 
@@ -648,27 +671,29 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 
 				pushQuery.equalTo("user", cargoUser);
 				//pushQuery.equalTo("appIdentifier", messageModule.appName());
-
-				AV.Push.send({
-					where: pushQuery, // Set our Installation query
-					data: {
-						alert:content,
-						body:content,
-						objectId:cargo.id,
-						sound:'default',
-						type:PF_PUSH_MESSAGE_TYPE_CHARGE,
-						action:PF_PUSH_MESSAGE_ACTION
-					}
-				}, {
-					success: function () {
-						console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
-						// Push was successful
-					},
-					error: function (error) {
-						// Handle error
-						console.log(error.message);
-					}
-				});
+				if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
+				{
+					AV.Push.send({
+						where: pushQuery, // Set our Installation query
+						data: {
+							alert:content,
+							body:content,
+							objectId:cargo.id,
+							sound:'default',
+							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							action:PF_PUSH_MESSAGE_ACTION
+						}
+					}, {
+						success: function () {
+							console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
+							// Push was successful
+						},
+						error: function (error) {
+							// Handle error
+							console.log(error.message);
+						}
+					});
+				}
 		}
 	});
 }
@@ -750,26 +775,29 @@ exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shi
     pushQuery.equalTo("user", flightUser);
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
 
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-			alert:content,
-			body:content,
-			objectId:flight.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            // Push was successful
-            console.log("PushChargeShippingListSucceedToFlightUser message: " + flightUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+	if(flightUser != null && flightUser != "" && typeof flightUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:flight.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushChargeShippingListSucceedToFlightUser message: " + flightUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 exports.PushPaymentTransferToSenderSucceedToFlightUser = function (payment,amount,shipping,user) {
@@ -849,26 +877,29 @@ exports.PushPaymentTransferToSenderSucceedToFlightUser = function (payment,amoun
     pushQuery.equalTo("user", flightUser);
     //pushQuery.equalTo("appIdentifier", messageModule.appName());
 
-    AV.Push.send({
-        where: pushQuery, // Set our Installation query
-        data: {
-			alert:content,
-			body:content,
-			objectId:flight.id,
-			sound:'default',
-			type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-			action:PF_PUSH_MESSAGE_ACTION
-        }
-    }, {
-        success: function () {
-            // Push was successful
-            console.log("PushPaymentTransferToSenderSucceedToFlightUser message: " + flightUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
-        },
-        error: function (error) {
-            // Handle error
-            console.log(error.message);
-        }
-    });
+	if(flightUser != null && flightUser != "" && typeof flightUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:flight.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushPaymentTransferToSenderSucceedToFlightUser message: " + flightUser.id + " Cargo: " + cargo.id + " Flight: " + flight.id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
 }
 
 exports.PushPaymentTransferToSenderSucceedToCargoUser = function (payment,amount,shipping,user) {
@@ -932,27 +963,29 @@ exports.PushPaymentTransferToSenderSucceedToCargoUser = function (payment,amount
 
 				pushQuery.equalTo("user", cargoUser);
 				//pushQuery.equalTo("appIdentifier", messageModule.appName());
-
-				AV.Push.send({
-					where: pushQuery, // Set our Installation query
-					data: {
-						alert:content,
-						body:content,
-						objectId:cargo.id,
-						sound:'default',
-						type:PF_PUSH_MESSAGE_TYPE_CHARGE,
-						action:PF_PUSH_MESSAGE_ACTION
-					}
-				}, {
-					success: function () {
-						console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
-						// Push was successful
-					},
-					error: function (error) {
-						// Handle error
-						console.log(error.message);
-					}
-				});
+				if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
+				{
+					AV.Push.send({
+						where: pushQuery, // Set our Installation query
+						data: {
+							alert:content,
+							body:content,
+							objectId:cargo.id,
+							sound:'default',
+							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							action:PF_PUSH_MESSAGE_ACTION
+						}
+					}, {
+						success: function () {
+							console.log("PushChargeShippingListSucceedToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
+							// Push was successful
+						},
+						error: function (error) {
+							// Handle error
+							console.log(error.message);
+						}
+					});
+				}
 		}
 	});
 }
