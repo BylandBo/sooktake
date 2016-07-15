@@ -310,7 +310,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					var user = users[0];
 				    //var newtotalMoney = user.get("totalMoney") - (amount/100);
 					var newFrozenMoney = user.get("forzenMoney") + (amount/100);
-				    user.set("forzenMoney", newtotalMoney);
+				    user.set("forzenMoney", newFrozenMoney);
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
