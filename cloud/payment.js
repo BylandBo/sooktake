@@ -337,7 +337,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
         .update(new Date().getTime().toString())
         .digest('hex').substr(0, 16);
 		
-	console.log("Payment - PaymentTransferToSender: transfer creation: order_no->" + order_no + ", UserId->" + userId); 
+	console.log("Payment - PaymentTransferToSender: transfer creation: order_no->" + order_no + ", shippingId->" + shippingId); 
 	
 	shippingQuery.include("payment");
 	shippingQuery.include("cargo");
