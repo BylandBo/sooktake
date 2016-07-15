@@ -83,6 +83,8 @@ var PF_SHIPPING_PAYMENT_WITHDRAW = "withdraw";
 
 var PF_SHIPPING_PAYMENT_CHARGE = "charge"; 
 
+var PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND = "requestRefund";
+
 //public method
 exports.PF_SHIPPING_PAYMENT_STATUS_PENDING = function () {
     return PF_SHIPPING_PAYMENT_STATUS_PENDING;
@@ -117,6 +119,10 @@ exports.PF_SHIPPING_PAYMENT_CHARGE = function () {
 exports.PF_SHIPPING_PAYMENT_STATUS_PROCESSING = function () {
     return PF_SHIPPING_PAYMENT_STATUS_PROCESSING;
 }
+exports.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND = function () {
+    return PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND;
+}
+
 
 
 exports.Assign_Type_Cargo = function () {
