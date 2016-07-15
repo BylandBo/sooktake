@@ -441,7 +441,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
 	
 	myPayment.set("paymentChannel", pingObj.channel);
-	myPayment.set("total", (pingObj.amount/100));
+	myPayment.set("total", (Payment.amount/100));
 	myPayment.set("status", newpayment.status);
 	myPayment.set("type", newpayment.type);
 	myPayment.set("user",newpayment.user);
