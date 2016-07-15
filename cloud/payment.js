@@ -570,8 +570,6 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 							     var flightUser = flightObj.get("owner");
 								 var paymentRelation = flightUser.relation('paymentHistory');
 								 paymentRelation.add(rp);
-								 var newTotalMoney = flightUser.get("totalMoney") - payment.get("total");
-								 flightUser.set("totalMoney",newTotalMoney);
 								 flightUser.save().then(function(user){
 								    var totalAmount = payment.get("total");
 								    pushModule.PushPaymentRefundToFlightUser(payment,totalAmount,shipping,flightUser);
@@ -586,10 +584,8 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 						   {
 							   success: function(cargoObj) {
 							     var cargoUser = cargoObj.get("owner");
-								 var newTotalMoney = cargoUser.get("totalMoney") + payment.get("total");
-								 var newForzenMoney = cargoUser.get("forzenMoney") + payment.get("total");
-								 cargoUser.set("totalMoney",newTotalMoney);
-								 cargoUser.set("forzenMoney",newForzenMoney);
+								 var paymentRelation = cargoUser.relation('paymentHistory');
+								 paymentRelation.add(rp);
 								 cargoUser.save().then(function(user){
 									var totalAmount = payment.get("total");
 									pushModule.PushPaymentRefundToCargotUser(payment,totalAmount,shipping,cargoUser);
