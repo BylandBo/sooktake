@@ -549,9 +549,6 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
-			
-			shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
-			shipping.save();
 		
 			payment.save().then(function (py){
 				var myPayment = new Payment();
@@ -564,6 +561,10 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 				myPayment.set("reasonCode",reasonCode);
 				myPayment.set("reason",reason);
 				myPayment.save().then(function (rp){
+				    shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
+					shippping.set("refundPayment",myPayment);
+					shipping.save();
+					
 					flight.fetch({include: "owner"},
 						   {
 							   success: function(flightObj) {
@@ -599,6 +600,139 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 				    response.success(myPayment);
 				});
 			});
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
+AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
+    var shippingId = request.params.shippingId;
+	var reasonCode = request.params.reasonCode;
+	var reason = request.params.reason;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+
+		
+	console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("refundPayment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shippping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			var refundPayment = shipping.get("refundPayment");
+
+			shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
+			shipping.save().then(function (sp){
+					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
+					refundPayment.save();
+					
+				    flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundRejectToFlightUser(payment,totalAmount,shipping,flightUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+							     var cargoUser = cargoObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundRejectToCargotUser(payment,totalAmount,shipping,cargoUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				    console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    response.success(refundPayment);
+			});
+	
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
+AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
+    var shippingId = request.params.shippingId;
+	var reasonCode = request.params.reasonCode;
+	var reason = request.params.reason;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+
+		
+	console.log("Payment - PaymentApproveRefundRequest: refund approve by shipper: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("refundPayment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shippping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			var refundPayment = shipping.get("refundPayment");
+
+			shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND());
+			shipping.save().then(function (sp){
+			        payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+					payment.save();
+					
+					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+					refundPayment.save();
+					
+				    flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundApproveToFlightUser(payment,totalAmount,shipping,flightUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+								 var cargoUser = cargoObj.get("owner");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentRefundApproveToCargotUser(payment,totalAmount,shipping,cargoUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				    console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    response.success(refundPayment);
+			});
+	
 		}, function (error) {
 			console.log(error.message);
 			response.error(messageModule.errorMsg());
