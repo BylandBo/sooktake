@@ -550,55 +550,53 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 		
-			payment.save().then(function (py){
-				var myPayment = new Payment();
-				myPayment.set("paymentChannel", "soontake");
-				myPayment.set("total", py.get("total"));
-				myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
-				myPayment.set("type", "refund");
-				myPayment.set("user",cargo.get("owner"));//cargo user
-				myPayment.set("orderNo",order_no);
-				myPayment.set("reasonCode",reasonCode);
-				myPayment.set("reason",reason);
-				myPayment.save().then(function (rp){
-				    shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
-					shippping.set("refundPayment",myPayment);
-					shipping.save();
-					
-					flight.fetch({include: "owner"},
-						   {
-							   success: function(flightObj) {
-							     var flightUser = flightObj.get("owner");
-								 var paymentRelation = flightUser.relation('paymentHistory');
-								 paymentRelation.add(rp);
-								 flightUser.save().then(function(user){
-								    var totalAmount = payment.get("total");
-								    pushModule.PushPaymentRefundToFlightUser(payment,totalAmount,shipping,flightUser);
-								 });
-								},
-							   error: function(message, error) {
-								 console.log(error.message);
-								 response.error(messageModule.errorMsg());
-							    }
-						   });
-					cargo.fetch({include: "owner"},
-						   {
-							   success: function(cargoObj) {
-							     var cargoUser = cargoObj.get("owner");
-								 var paymentRelation = cargoUser.relation('paymentHistory');
-								 paymentRelation.add(rp);
-								 cargoUser.save().then(function(user){
-									var totalAmount = payment.get("total");
-									pushModule.PushPaymentRefundToCargotUser(payment,totalAmount,shipping,cargoUser);
-								 });
-								},
-							   error: function(message, error) {
-								 console.log(error.message);
-								 response.error(messageModule.errorMsg());
-							    }
-						   });
-				    response.success(myPayment);
-				});
+			var myPayment = new Payment();
+			myPayment.set("paymentChannel", "soontake");
+			myPayment.set("total", py.get("total"));
+			myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+			myPayment.set("type", "refund");
+			myPayment.set("user",cargo.get("owner"));//cargo user
+			myPayment.set("orderNo",order_no);
+			myPayment.set("reasonCode",reasonCode);
+			myPayment.set("reason",reason);
+			myPayment.save().then(function (rp){
+				shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
+				shippping.set("refundPayment",myPayment);
+				shipping.save();
+				
+				flight.fetch({include: "owner"},
+					   {
+						   success: function(flightObj) {
+							 var flightUser = flightObj.get("owner");
+							 var paymentRelation = flightUser.relation('paymentHistory');
+							 paymentRelation.add(rp);
+							 flightUser.save().then(function(user){
+								var totalAmount = payment.get("total");
+								pushModule.PushPaymentRefundToFlightUser(payment,totalAmount,shipping,flightUser);
+							 });
+							},
+						   error: function(message, error) {
+							 console.log(error.message);
+							 response.error(messageModule.errorMsg());
+							}
+					   });
+				cargo.fetch({include: "owner"},
+					   {
+						   success: function(cargoObj) {
+							 var cargoUser = cargoObj.get("owner");
+							 var paymentRelation = cargoUser.relation('paymentHistory');
+							 paymentRelation.add(rp);
+							 cargoUser.save().then(function(user){
+								var totalAmount = payment.get("total");
+								pushModule.PushPaymentRefundToCargotUser(payment,totalAmount,shipping,cargoUser);
+							 });
+							},
+						   error: function(message, error) {
+							 console.log(error.message);
+							 response.error(messageModule.errorMsg());
+							}
+					   });
+				response.success(myPayment);
 			});
 		}, function (error) {
 			console.log(error.message);
