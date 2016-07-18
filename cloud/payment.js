@@ -552,7 +552,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 		
 			var myPayment = new Payment();
 			myPayment.set("paymentChannel", "soontake");
-			myPayment.set("total", py.get("total"));
+			myPayment.set("total", payment.get("total"));
 			myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 			myPayment.set("type", "refund");
 			myPayment.set("user",cargo.get("owner"));//cargo user
