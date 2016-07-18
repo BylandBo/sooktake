@@ -531,7 +531,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 	var reason = request.params.reason;
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
-	var paymentQuery = new AV.Query(Payment);
+	var myPayment = new Payment();
 	
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
@@ -552,54 +552,54 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 		
 		 console.log("reasonCode->" + reasonCode + ", reason->" + reason);
 		 console.log("cargo owner->" + cargo.get("owner"));
-			var myPayment = new Payment();
-			myPayment.set("paymentChannel", "soontake");
-			myPayment.set("total", payment.get("total"));
-			myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
-			myPayment.set("type", "refund");
-			myPayment.set("user",cargo.get("owner"));//cargo user
-			myPayment.set("orderNo",order_no);
-			myPayment.set("reasonCode",reasonCode);
-			myPayment.set("reason",reason);
-			myPayment.save().then(function (rp){
-				shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
-				shippping.set("refundPayment",myPayment);
-				shipping.save();
-				
-				flight.fetch({include: "owner"},
-					   {
-						   success: function(flightObj) {
-							 var flightUser = flightObj.get("owner");
-							 var paymentRelation = flightUser.relation('paymentHistory');
-							 paymentRelation.add(rp);
-							 flightUser.save().then(function(user){
-								var totalAmount = payment.get("total");
-								pushModule.PushPaymentRefundToFlightUser(payment,totalAmount,shipping,flightUser);
-							 });
-							},
-						   error: function(message, error) {
-							 console.log(error.message);
-							 response.error(messageModule.errorMsg());
-							}
-					   });
-				cargo.fetch({include: "owner"},
+		    cargo.fetch({include: "owner"},
 					   {
 						   success: function(cargoObj) {
-							 var cargoUser = cargoObj.get("owner");
-							 var paymentRelation = cargoUser.relation('paymentHistory');
-							 paymentRelation.add(rp);
-							 cargoUser.save().then(function(user){
-								var totalAmount = payment.get("total");
-								pushModule.PushPaymentRefundToCargotUser(payment,totalAmount,shipping,cargoUser);
-							 });
+							var cargoUser = cargoObj.get("owner");
+							myPayment.set("paymentChannel", "soontake");
+							myPayment.set("total", payment.get("total"));
+							myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+							myPayment.set("type", "refund");
+							myPayment.set("user",cargoUser);//cargo user
+							myPayment.set("orderNo",order_no);
+							myPayment.set("reasonCode",reasonCode);
+							myPayment.set("reason",reason);
+							myPayment.save().then(function (rp){
+								shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
+								shippping.set("refundPayment",myPayment);
+								shipping.save();
+								
+								flight.fetch({include: "owner"},
+									   {
+										   success: function(flightObj) {
+											 var flightUser = flightObj.get("owner");
+											 var paymentRelation = flightUser.relation('paymentHistory');
+											 paymentRelation.add(rp);
+											 flightUser.save().then(function(user){
+												var totalAmount = payment.get("total");
+												pushModule.PushPaymentRefundToFlightUser(payment,totalAmount,shipping,flightUser);
+											 });
+											},
+										   error: function(message, error) {
+											 console.log(error.message);
+											 response.error(messageModule.errorMsg());
+											}
+									   });
+									   
+								var paymentRelation = cargoUser.relation('paymentHistory');
+								paymentRelation.add(rp);
+								cargoUser.save().then(function(user){
+								    var totalAmount = payment.get("total");
+									pushModule.PushPaymentRefundToCargotUser(payment,totalAmount,shipping,cargoUser);
+								});
+								response.success(myPayment);
+							});
 							},
 						   error: function(message, error) {
 							 console.log(error.message);
 							 response.error(messageModule.errorMsg());
 							}
 					   });
-				response.success(myPayment);
-			});
 		}, function (error) {
 			console.log(error.message);
 			response.error(messageModule.errorMsg());
