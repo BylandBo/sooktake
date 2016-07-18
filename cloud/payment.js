@@ -559,7 +559,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			myPayment.set("type", "refund");
 			myPayment.set("user",cargo.get("owner"));//cargo user
 			myPayment.set("orderNo",order_no);
-			myPayment.set("reasonCode",reasonCode);
+			myPayment.set("reasonCode",reasonCode.toString());
 			myPayment.set("reason",reason);
 			myPayment.save(null, {
 					  success: function(rp) {
