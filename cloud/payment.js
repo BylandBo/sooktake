@@ -550,6 +550,8 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 		
+		 console.log("reasonCode->" + reasonCode + ", reason->" + reason);
+		 console.log("cargo owner->" + cargo.get("owner"));
 			var myPayment = new Payment();
 			myPayment.set("paymentChannel", "soontake");
 			myPayment.set("total", payment.get("total"));
