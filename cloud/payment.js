@@ -545,7 +545,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 	shippingQuery.include("payment");
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
-	shippingQuery.get(shippingId).then(function(shippping){
+	shippingQuery.get(shippingId).then(function(shipping){
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
@@ -624,7 +624,7 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 	shippingQuery.include("refundPayment");
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
-	shippingQuery.get(shippingId).then(function(shippping){
+	shippingQuery.get(shippingId).then(function(shipping){
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
@@ -687,7 +687,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 	shippingQuery.include("refundPayment");
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
-	shippingQuery.get(shippingId).then(function(shippping){
+	shippingQuery.get(shippingId).then(function(shipping){
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
