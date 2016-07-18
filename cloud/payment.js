@@ -342,12 +342,12 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 	shippingQuery.include("payment");
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
-	shippingQuery.get(shippingId).then(function(shippping){
+	shippingQuery.get(shippingId).then(function(shipping){
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
-			shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 			shipping.save();
 		
 			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
@@ -563,8 +563,8 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			myPayment.set("reason",reason);
 			myPayment.save(null, {
 					  success: function(rp) {
-						shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
-						shippping.set("refundPayment",myPayment);
+						shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
+						shipping.set("refundPayment",myPayment);
 						shipping.save();
 						
 						flight.fetch({include: "owner"},
@@ -636,7 +636,7 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 			var flight = shipping.get("flight");
 			var refundPayment = shipping.get("refundPayment");
 
-			shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
 			shipping.save().then(function (sp){
 					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
 					refundPayment.save();
@@ -699,7 +699,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 			var flight = shipping.get("flight");
 			var refundPayment = shipping.get("refundPayment");
 
-			shippping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND());
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND());
 			shipping.save().then(function (sp){
 			        payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 					payment.save();
