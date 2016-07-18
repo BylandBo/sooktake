@@ -38,10 +38,10 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		}
 		else
 		{
-		    var sys = require('sys')
-			var exec = require('child_process').exec;
-			function puts(error, stdout, stderr) { console.log(stdout) }
-			exec("ping api.pingxx.com", puts);
+		    // var sys = require('sys')
+			// var exec = require('child_process').exec;
+			// function puts(error, stdout, stderr) { console.log(stdout) }
+			// exec("ping api.pingxx.com", puts);
 			
 			var user = users[0];
 			console.log("Payment - Topup: charge creation starting, order_no->" + order_no );
@@ -94,10 +94,10 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 		}
 		else
 		{
-			var sys = require('sys')
-			var exec = require('child_process').exec;
-			function puts(error, stdout, stderr) { console.log(stdout) }
-			exec("ping api.pingxx.com", puts);
+			// var sys = require('sys')
+			// var exec = require('child_process').exec;
+			// function puts(error, stdout, stderr) { console.log(stdout) }
+			// exec("ping api.pingxx.com", puts);
 			
 			var user = users[0];
 			if(user.get("isBindWechat") == "YES")
@@ -180,10 +180,10 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 		}
 		else
 		{
-		    var sys = require('sys')
-			var exec = require('child_process').exec;
-			function puts(error, stdout, stderr) { console.log(stdout) }
-			exec("ping api.pingxx.com", puts);
+		    // var sys = require('sys')
+			// var exec = require('child_process').exec;
+			// function puts(error, stdout, stderr) { console.log(stdout) }
+			// exec("ping api.pingxx.com", puts);
 			
 			var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
 			for(var i=0; i<shippingList.length;i++)
