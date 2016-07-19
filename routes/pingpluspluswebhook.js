@@ -134,8 +134,10 @@ var transfer = function(payment,event){
 	payment.set("transactionNumber",data.transaction_no);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
-		var balance = user.get("forzenMoney") + (data.amount/100);
-		user.set("forzenMoney",balance);
+		var frozenBalance = user.get("forzenMoney") - (data.amount/100);
+		var totalBalance = user.get("totalMoney") - (data.amount/100);
+		user.set("forzenMoney",frozenBalance);
+		user.set("totalMoney",totalBalance);
 		user.save().then(function(result){
 			console.log("ping++ Webhook: Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.id + " with amount->" + (data.amount/100));
 			pushModule.PushWithdrawSucceedToUser(payment,(data.amount/100),user);
