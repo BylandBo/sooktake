@@ -1188,7 +1188,7 @@ exports.PushPaymentRefundRejectToFlightUser = function (payment,amount,shipping,
     var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
-    var content = "包裹"+cargo.get("type")+"的客户退款申请运费¥"+amount+ "已经被您拒绝";
+    var content = "包裹["+cargo.get("type")+"]的客户退款被拒绝";
 		
 	//add message history
 	var History = AV.Object.extend(classnameModule.GetHistoryClass());

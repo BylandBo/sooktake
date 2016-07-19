@@ -106,6 +106,9 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 			   if(wechatInfo != null)
 			   {
 					console.log("Payment - WithdrawToWechat: transfer creation starting, order_no->" + order_no );
+					var FrozenMoney = user.get("forzenMoney") + amount;
+					user.set("forzenMoney",FrozenMoney);
+					user.save();
 				    var openId = wechatInfo.get("openId");
 				  	pingpp.transfers.create({
 					  order_no:  order_no,
@@ -549,9 +552,6 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
-		
-			console.log("reasonCode->" + reasonCode + ", reason->" + reason);
-			console.log("cargo owner->" + JSON.stringify(cargo.get("owner")));
 			
 			myPayment.set("paymentChannel", "soontake");
 			myPayment.set("total", payment.get("total"));
@@ -639,6 +639,8 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
 			shipping.save().then(function (sp){
 					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
+					refundPayment.set("reasonCode",reasonCode);
+					refundPayment.set("reason",reason);
 					refundPayment.save();
 					
 				    flight.fetch({include: "owner"},
