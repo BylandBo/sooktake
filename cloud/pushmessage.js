@@ -706,7 +706,7 @@ exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shi
     var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
-    var content = "包裹"+cargo.get("type")+"的运费¥"+amount+"已成功转入平台, 完成任务后，运费将到账您的账户";
+    var content = "包裹["+cargo.get("type")+"]的运费¥"+amount+"已成功转入平台, 完成任务后，运费将到账您的账户";
 		
 	//add message history
 	var History = AV.Object.extend(classnameModule.GetHistoryClass());
@@ -808,7 +808,7 @@ exports.PushPaymentTransferToSenderSucceedToFlightUser = function (payment,amoun
     var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
-    var content = "包裹"+cargo.get("type")+"的运费¥"+amount+"已成功转入您的账户";
+    var content = "包裹["+cargo.get("type")+"]的运费¥"+amount+"已成功转入您的账户";
 		
 	//add message history
 	var History = AV.Object.extend(classnameModule.GetHistoryClass());
@@ -1086,7 +1086,7 @@ exports.PushPaymentRefundToFlightUser = function (payment,amount,shipping,user) 
     var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
-    var content = "包裹"+cargo.get("type")+"的客户申请退款运费¥"+amount;
+    var content = "包裹["+cargo.get("type")+"]的客户申请退款运费¥"+amount;
 		
 	//add message history
 	var History = AV.Object.extend(classnameModule.GetHistoryClass());
@@ -1466,7 +1466,7 @@ exports.PushPaymentRefundApproveToFlightUser = function (payment,amount,shipping
     var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
-    var content = "包裹"+cargo.get("type")+"的客户退款申请运费¥"+amount+ "已经被您批准";
+    var content = "包裹["+cargo.get("type")+"]的客户退款申请运费¥"+amount+ "已经被您批准";
 		
 	//add message history
 	var History = AV.Object.extend(classnameModule.GetHistoryClass());
