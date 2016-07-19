@@ -767,3 +767,52 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 			response.error(messageModule.errorMsg());
 	});
 });
+
+AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) {
+    var shippingId = request.params.shippingId;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+		
+	console.log("Payment - PaymentChargeShippingListCancel: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+			shipping.save();
+		
+			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+			payment.save().then(function (py){
+			    cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+							     var cargoUser = cargoObj.get("owner");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentChargeShippingListCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
+									pushModule.PushPaymentChargeShippingListCancelToFlightUser(payment,totalAmount,shipping,flight.get("owner"));
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				response.success(payment);
+			});
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
