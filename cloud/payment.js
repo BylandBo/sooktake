@@ -638,6 +638,7 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
 			shipping.save().then(function (sp){
+					console.log("Payment - PaymentRejectRefundRequest: refund reject reason->" + reason + "; reasonCode->" + reasonCode.toString()); 
 					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
 					refundPayment.set("reasonCode",reasonCode.toString());
 					refundPayment.set("reason",reason);
