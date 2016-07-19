@@ -739,7 +739,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 								 response.error(messageModule.errorMsg());
 							    }
 						   });
-				    console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    console.log("Payment - PaymentRejectRefundRequest: refund approve by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
 				    response.success(refundPayment);
 			});
 	
