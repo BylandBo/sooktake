@@ -639,7 +639,7 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
 			shipping.save().then(function (sp){
 					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
-					refundPayment.set("reasonCode",reasonCode);
+					refundPayment.set("reasonCode",reasonCode.toString());
 					refundPayment.set("reason",reason);
 					refundPayment.save();
 					
@@ -707,6 +707,8 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 					payment.save();
 					
 					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+					refundPayment.set("reasonCode",reasonCode.toString());
+					refundPayment.set("reason",reason);
 					refundPayment.save();
 					
 				    flight.fetch({include: "owner"},
