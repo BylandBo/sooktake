@@ -555,7 +555,13 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			
 			if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
 			{
+			    console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" already refunded"); 
 				response.error({code: 101, message: "退款申请已经批准"});
+			}
+			else if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND())
+			{
+			    console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" already requested"); 
+				response.error({code: 102, message: "退款申请已经发出，请等待"});
 			}
 			else
 			{
