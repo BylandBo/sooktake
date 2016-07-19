@@ -106,7 +106,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 			   if(wechatInfo != null)
 			   {
 					console.log("Payment - WithdrawToWechat: transfer creation starting, order_no->" + order_no );
-					var FrozenMoney = user.get("forzenMoney") + amount;
+					var FrozenMoney = user.get("forzenMoney") + (amount/100);
 					user.set("forzenMoney",FrozenMoney);
 					user.save();
 				    var openId = wechatInfo.get("openId");
