@@ -553,6 +553,12 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
+			if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
+			{
+				response.error({code: 101, message: "退款申请已经批准"});
+			}
+			else
+			{
 			myPayment.set("paymentChannel", "soontake");
 			myPayment.set("total", payment.get("total"));
 			myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
@@ -606,6 +612,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 						response.error(messageModule.errorMsg());
 					  }
 			});
+		  }
 		}, function (error) {
 			console.log(error.message);
 			response.error(messageModule.errorMsg());
@@ -700,7 +707,12 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			var refundPayment = shipping.get("refundPayment");
-
+			if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
+			{
+				response.error({code: 101, message: "退款申请已经批准"});
+			}
+			else
+			{
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND());
 			shipping.save().then(function (sp){
 			        payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
@@ -742,6 +754,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 				    console.log("Payment - PaymentRejectRefundRequest: refund approve by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
 				    response.success(refundPayment);
 			});
+		   }
 	
 		}, function (error) {
 			console.log(error.message);
