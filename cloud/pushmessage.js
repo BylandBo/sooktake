@@ -1675,7 +1675,7 @@ exports.PushPaymentChargeShippingListCancelToCargoUser = function (payment,amoun
 	  },
 	  {
 		success: function(post) {
-		    var content = "您已经取消包裹["+cargo.get("type")+"]的客户付款运费¥"+amount；
+		    var content = "您已经取消包裹["+cargo.get("type")+"]的客户付款运费¥"+amount;
 	
 			//add message history
 			var History = AV.Object.extend(classnameModule.GetHistoryClass());
