@@ -6,7 +6,6 @@ var AV = require('leanengine');
 var crypto = require('crypto');
 var WXPay = require('weixin-pay');
 var fs  = require("fs");
-var xml2js = require('xml2js');
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -18,11 +17,6 @@ var wxpay = WXPay({
     partner_key: '5dacd15d3208ef852ec6a763e6f656', //微信商户平台API密钥 
     pfx: fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
 });
-
-var parseXML = function(xml, fn){
-	var parser = new xml2js.Parser({ trim:true, explicitArray:false, explicitRoot:false });
-	parser.parseString(xml, fn||function(err, result){});
-};
 
 //******Functions Definition******//
 AV.Cloud.define("PaymentTopup", function (request, response) {
@@ -67,9 +61,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				}
 				else
 				{
-				 var object = parseXML(charge);
-				 console.log(object);
-				 CreatePayment(user,object,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
+				 CreatePayment(user,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
 				}
 			});
 		}
