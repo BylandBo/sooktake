@@ -13,7 +13,7 @@ var fs  = require("fs");
 var MERCHANT_ID = "1355707002" //微信商户号
 var APP_ID = "wx2897d2d3645a2cc1" //weixin pay APP ID
 var SECRET_KEY = "5dacd15d3208ef852ec6a763e6f656f1" //微信商户平台API密钥
-var pfx = fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
+var pfx = fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12') //微信商户平台证书
 var wxpayID = { appid:APP_ID, mch_id:MERCHANT_ID };
 
 var wxpay = WXPay({
