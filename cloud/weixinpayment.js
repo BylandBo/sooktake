@@ -61,7 +61,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				}
 				else
 				{
-				 CreatePayment(user,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
+				 //CreatePayment(user,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
 				}
 			});
 		}
