@@ -15,7 +15,7 @@ pingpp.setPrivateKeyPath("/home/leanengine/app/pingpluspluskeys/rsa_private_key.
 
 /*payment function*/
 
-AV.Cloud.define("PaymentTopup", function (request, response) {
+AV.Cloud.define("PingPaymentTopup", function (request, response) {
     var amount = request.params.amount;
 	var channel = request.params.channel;
 	var userId = request.params.userId;
@@ -67,7 +67,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	});
 });
 
-AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
+AV.Cloud.define("PingPaymentWithdrawToWechat", function (request, response) {
     var amount = request.params.amount;
 	var userId = request.params.userId;
 
@@ -155,7 +155,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	});
 });
 
-AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
+AV.Cloud.define("PingPaymentChargeShippingList", function (request, response) {
     var shippingList = request.params.shippingList;
 	var amount = request.params.amount;
 	var usingBalance = request.params.usingBalance;
@@ -260,7 +260,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 	});
 });
 
-AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, response) {
+AV.Cloud.define("PingPaymentChargeShippingListWithBalance", function (request, response) {
     var shippingList = request.params.shippingList;
 	var amount = request.params.amount;
 	var usingBalance = request.params.usingBalance;
@@ -327,7 +327,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 	});
 });
 
-AV.Cloud.define("PaymentTransferToSender", function (request, response) {
+AV.Cloud.define("PingPaymentTransferToSender", function (request, response) {
     var shippingId = request.params.shippingId;
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
