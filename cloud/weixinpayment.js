@@ -53,7 +53,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				spbill_create_ip: ip,
 				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook',
 				trade_type: 'NATIVE',
-				product_id: '1234567890'
+				device_info: 'WEB'
 			});
 			console.log("sign:" + sign);
 			
@@ -64,7 +64,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				spbill_create_ip: ip,
 				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook',
 				trade_type: 'NATIVE',
-				product_id: '1234567890'
+				device_info: 'WEB'
 			}, function(err, charge){
 				console.log(charge);
 				if(err != null){
