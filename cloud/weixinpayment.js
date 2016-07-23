@@ -56,7 +56,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				product_id: '1234567890'
 			});
 			
-			console.log("querystring: " + querystring);
+			console.log("querystring: " + JSON.stringify(querystring));
 	
 			var sign = wxpay.sign({
 				body: 'Soontake 充值',
