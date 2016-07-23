@@ -8,5 +8,6 @@ require('./cloud/pushmessage');
 require('./cloud/hook');
 require('./cloud/payment');
 require('./cloud/weixinpayment')
+require('./cloud/util')
 
 module.exports = AV.Cloud;

@@ -2,21 +2,36 @@
 var classnameModule = require('./classname');
 var messageModule = require('./message');
 var pushModule = require('./pushmessage');
+var util = require('./util');
 var AV = require('leanengine');
 var crypto = require('crypto');
+var md5 = require('MD5');
 var WXPay = require('weixin-pay');
 var fs  = require("fs");
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
 var APP_ID = "wx2897d2d3645a2cc1" //weixin pay APP ID
- 
+var SECRET_KEY = "5dacd15d3208ef852ec6a763e6f656f1" //微信商户平台API密钥
+var pfx = fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
+var wxpayID = { appid:APP_ID, mch_id:MERCHANT_ID };
+
 var wxpay = WXPay({
     appid: APP_ID,
     mch_id: MERCHANT_ID,
     partner_key: '5dacd15d3208ef852ec6a763e6f656f1', //微信商户平台API密钥 
     pfx: fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
 });
+
+var sign = function(param){
+	var querystring = Object.keys(param).filter(function(key){
+		return param[key] !== undefined && param[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
+	}).sort().map(function(key){
+		return key + '=' + param[key];
+	}).join("&") + "&key=" + this.options.partner_key;
+
+	return md5(querystring).toUpperCase();
+};
 
 //******Functions Definition******//
 AV.Cloud.define("PaymentTopup", function (request, response) {
@@ -44,9 +59,8 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		{			
 			var user = users[0];
 			console.log("Payment - Topup: charge creation starting, order_no->" + order_no );
-			console.log("options:" + JSON.stringify(wxpay.options));
-	
-			var sign = wxpay.sign({
+			
+			var opts = {
 				body: 'Soontake 充值',
 				out_trade_no: order_no,
 				total_fee: 1,
@@ -54,8 +68,17 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook',
 				trade_type: 'NATIVE',
 				device_info: 'WEB'
-			});
-			console.log("sign:" + sign);
+			};
+			opts.nonce_str = util.generateNonceString();
+			util.mix(opts, wxpayID);
+			console.log("opts: " + JSON.stringify(opts));
+			
+			var querystring = Object.keys(opts).filter(function(key){
+				return opts[key] !== undefined && opts[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
+			}).sort().map(function(key){
+				return key + '=' + opts[key];
+			}).join("&") + "&key=" + SECRET_KEY;
+			console.log("querystring: " + querystring);
 			
 			wxpay.createUnifiedOrder({
 				body: 'Soontake 充值',
