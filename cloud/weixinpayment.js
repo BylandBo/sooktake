@@ -14,7 +14,7 @@ var APP_ID = "wx2897d2d3645a2cc1" //weixin pay APP ID
 var wxpay = WXPay({
     appid: APP_ID,
     mch_id: MERCHANT_ID,
-    partner_key: '5dacd15d3208ef852ec6a763e6f656', //微信商户平台API密钥 
+    partner_key: '5dacd15d3208ef852ec6a763e6f656f1', //微信商户平台API密钥 
     pfx: fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
 });
 
