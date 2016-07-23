@@ -44,13 +44,14 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		{			
 			var user = users[0];
 			console.log("Payment - Topup: charge creation starting, order_no->" + order_no );
+			console.log("options:" + wxpay.options)
 			wxpay.createUnifiedOrder({
 				body: 'Soontake 充值',
 				out_trade_no: order_no,
 				total_fee: 1,
 				spbill_create_ip: ip,
 				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook',
-				trade_type: 'APP',
+				trade_type: 'NATIVE',
 				product_id: '1234567890'
 			}, function(err, charge){
 				console.log(charge);
