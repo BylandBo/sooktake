@@ -44,7 +44,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 		{			
 			var user = users[0];
 			console.log("Payment - Topup: charge creation starting, order_no->" + order_no );
-			console.log("options:" + wxpay.options)
+			console.log("options:" + JSON.stringify(wxpay.options));
 			wxpay.createUnifiedOrder({
 				body: 'Soontake 充值',
 				out_trade_no: order_no,
