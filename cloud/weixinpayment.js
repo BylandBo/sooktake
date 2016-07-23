@@ -45,6 +45,23 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			var user = users[0];
 			console.log("Payment - Topup: charge creation starting, order_no->" + order_no );
 			console.log("options:" + JSON.stringify(wxpay.options));
+			
+			var querystring = Object.keys({
+				body: 'Soontake 充值',
+				out_trade_no: order_no,
+				total_fee: 1,
+				spbill_create_ip: ip,
+				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook',
+				trade_type: 'NATIVE',
+				product_id: '1234567890'
+			}).filter(function(key){
+				return param[key] !== undefined && param[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
+			}).sort().map(function(key){
+				return key + '=' + param[key];
+			}).join("&") + "&key=" + this.options.partner_key;
+
+			console.log("query: " + querystring);
+	
 			var sign = wxpay.sign({
 				body: 'Soontake 充值',
 				out_trade_no: order_no,
