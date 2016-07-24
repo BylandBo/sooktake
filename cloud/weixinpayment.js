@@ -87,9 +87,9 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			var resultString = '';
 			Object.keys(sortObjects).forEach(function(key) {
 			  if(resultString == '')
-				resultString += key + "=" + o[key];
+				resultString += key + "=" + sortObjects[key];
 			  else
-			    resultString += "&" + key + "=" + o[key];
+			    resultString += "&" + key + "=" + sortObjects[key];
 			});
 			resultString += "&key=" + SECRET_KEY;
 			console.log("resultString: " + resultString);
