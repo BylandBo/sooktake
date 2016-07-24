@@ -56,6 +56,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				spbill_create_ip: ip,
 				notify_url: WebHookUrl,
 				trade_type: 'NATIVE',
+				attach: messageModule.PF_SHIPPING_PAYMENT_TOPUP()
 			}, function(err, charge){
 				console.log(charge);
 				if(err != null || charge.return_code != 'SUCCESS'){
