@@ -28,7 +28,7 @@ var sign = function(param){
 		return param[key] !== undefined && param[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
 	}).sort().map(function(key){
 		return key + '=' + param[key];
-	}).join("&") + "&key=" + this.options.partner_key;
+	}).join("&") + "&key=" + SECRET_KEY;
 
 	console.log("queryString: " + querystring);
 	
