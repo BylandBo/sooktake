@@ -61,10 +61,10 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			console.log("Payment - Topup: charge creation starting, order_no->" + order_no );
 			
 			var opts = {
-				body: 'Soontake 充值',
-				out_trade_no: order_no,
-				total_fee: 1,
-				spbill_create_ip: ip,
+				body: 'Soontake 充值' ,
+				out_trade_no: order_no ,
+				total_fee: 1 ,
+				spbill_create_ip: ip ,
 				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook',
 				trade_type: 'NATIVE',
 				device_info: 'WEB'
