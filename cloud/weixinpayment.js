@@ -77,22 +77,9 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				return opts[key] !== undefined && opts[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
 			}).sort().map(function(key){
 				return key + '=' + opts[key];
-			}).join("&") + "&key=" + SECRET_KEY;
+			}).join("& ") + "&key=" + SECRET_KEY;
 			console.log("querystring: " + querystring);
-		
-		    var sortObjects = Object.keys(opts).filter(function(key){
-				return opts[key] !== undefined && opts[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
-			}).sort();
 			
-			var resultString = '';
-			Object.keys(sortObjects).forEach(function(key) {
-			  if(resultString == '')
-				resultString += sortObjects[key] + "=" + opts[sortObjects];
-			  else
-			    resultString += "&" + sortObjects[key] + "=" + opts[sortObjects];
-			});
-			resultString += "&key=" + SECRET_KEY;
-			console.log("resultString: " + resultString);
 			
 			wxpay.createUnifiedOrder({
 				body: 'Soontake 充值',
