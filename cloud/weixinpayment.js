@@ -75,7 +75,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			
 			    opts.nonce_str = opts.nonce_str || util.generateNonceString();
 				util.mix(opts, wxpayID);
-				opts.sign = this.sign(opts);
+				opts.sign = sign(opts);
 				console.log("opts: " + JSON.stringify(opts));
 				request({
 					url: "https://api.mch.weixin.qq.com/pay/unifiedorder",
