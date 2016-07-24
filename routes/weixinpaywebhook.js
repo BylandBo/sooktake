@@ -1,17 +1,17 @@
 var router = require('express').Router();
+var xml2js = require('xml2js');
 var classnameModule = require('/home/leanengine/app' + '/cloud/classname.js');
 var messageModule = require('/home/leanengine/app' + '/cloud/message.js');
 var pushModule = require('/home/leanengine/app' + '/cloud/pushmessage.js');
-
 var AV = require('leanengine');
-
-var crypto = require("crypto"),
-fs  = require("fs");
 
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
   
   var postData = JSON.stringify(request.body);
+  var jsonData = parseXML(request.body);
+  console.log("Weixinpay Webhook jsondata: " + JSON.stringify(jsonData));
+   
   var resp = function (ret, status_code) {
       response.writeHead(status_code, {
         "Content-Type": "text/plain; charset=utf-8"
@@ -21,8 +21,6 @@ router.post('/', function(request, response) {
   var event = JSON.parse(postData);
   console.log("Weixinpay Webhook: data: " + postData);
   
-  var signature = request.headers['x-pingplusplus-signature'];
-  if (verify_signature(postData, signature, pub_key_path)) {
 	try {
       if (event.type === undefined) {
         return resp('Event no type column', 400);
@@ -79,9 +77,13 @@ router.post('/', function(request, response) {
       return resp('JSON serializ failed', 400);
     }
 	console.log('ping++ Webhook: TransactionId->'+event.data.object.id+' signature verification succeeded');
-	} else {
-	  console.log('ping++ Webhook: TransactionId->'+event.data.object.id+' signature verification failed');
-   }
 });
+
+parseXML = function(xml, fn){
+	var parser = new xml2js.Parser({ trim:true, explicitArray:false, explicitRoot:false });
+	parser.parseString(xml, fn||function(err, result){
+		return result;
+	});
+};
 
 module.exports = router;
