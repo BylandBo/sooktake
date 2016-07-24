@@ -78,7 +78,8 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			}).sort().map(function(key){
 				return key + '=' + opts[key];
 			}).join("& ") + "&key=" + SECRET_KEY;
-			console.log("querystring: " + querystring.replace(' ',''));
+			querystring = querystring.replace(' ','');
+			console.log("querystring: " + querystring);
 			var querystring2 = Object.keys(opts).filter(function(key){
 				return opts[key] !== undefined && opts[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
 			}).sort().map(function(key){
@@ -89,7 +90,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				return opts[key] !== undefined && opts[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
 			}).sort().map(function(key){
 				return key + '=' + opts[key];
-			}).join("& ") + "&key=" + SECRET_KEY;
+			}).join("&") + "&key=" + SECRET_KEY;
 			console.log("querystring3: " + querystring3);
 			
 			
