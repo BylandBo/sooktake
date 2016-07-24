@@ -79,6 +79,12 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				return key + '=' + opts[key];
 			}).join("& ") + "&key=" + SECRET_KEY;
 			console.log("querystring: " + querystring);
+			var querystring2 = Object.keys(opts).filter(function(key){
+				return opts[key] !== undefined && opts[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
+			}).sort().map(function(key){
+				return key + '=' + opts[key];
+			});
+			console.log("querystring2: " + JSON.stringify(querystring2));
 			
 			
 			wxpay.createUnifiedOrder({
