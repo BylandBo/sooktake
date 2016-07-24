@@ -78,7 +78,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			}).sort().map(function(key){
 				return key + '=' + opts[key];
 			}).join("& ") + "&key=" + SECRET_KEY;
-			querystring = querystring.replace(' ','');
+			querystring = querystring.replace(/ /g,'');
 			console.log("querystring: " + querystring);
 			var querystring2 = Object.keys(opts).filter(function(key){
 				return opts[key] !== undefined && opts[key] !== '' && ['pfx', 'partner_key', 'sign', 'key'].indexOf(key)<0;
