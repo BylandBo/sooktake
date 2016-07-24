@@ -83,11 +83,11 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
 	myPayment.set("type", type);
 	myPayment.set("user",user);
-	myPayment.set("transactionId",wxObj.prepay_id);
+	myPayment.set("transactionNumber",wxObj.prepay_id);
 	myPayment.set("orderNo",params.order_no);
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - " + type + ": payment creation succeed: transactionId->" + wxObj.prepay_id + ", UserId->" + user.id + ", order_no->" + params.order_no); 
+	    console.log("Payment - " + type + ": payment creation succeed: transactionNumber->" + wxObj.prepay_id + ", UserId->" + user.id + ", order_no->" + params.order_no); 
 		//add payment history to user
 		var paymentRelation = user.relation('paymentHistory');
 		paymentRelation.add(payment);
