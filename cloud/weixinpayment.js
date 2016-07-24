@@ -66,8 +66,8 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				total_fee: 1 ,
 				spbill_create_ip: ip ,
 				trade_type: 'NATIVE',
-				device_info: 'WEB',
-				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook'
+				device_info: 'WEB'
+				//notify_url: 'https://soontake.avosapps.us/weixinpaywebhook'
 			};
 			opts.nonce_str = util.generateNonceString();
 			util.mix(opts, wxpayID);
