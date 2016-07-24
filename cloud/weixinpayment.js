@@ -8,6 +8,7 @@ var crypto = require('crypto');
 var md5 = require('MD5');
 var WXPay = require('weixin-pay');
 var fs  = require("fs");
+var request = require('request');
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -71,12 +72,24 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				device_info: 'WEB',
 				notify_url: 'https://soontake.avosapps.us/weixinpaywebhook'
 			};
-			opts.nonce_str = util.generateNonceString();
-			util.mix(opts, wxpayID);
-			console.log("opts: " + JSON.stringify(opts));
 			
-			sign(opts);
-			
+			    opts.nonce_str = opts.nonce_str || util.generateNonceString();
+				util.mix(opts, wxpayID);
+				opts.sign = this.sign(opts);
+				console.log("opts: " + JSON.stringify(opts));
+				request({
+					url: "https://api.mch.weixin.qq.com/pay/unifiedorder",
+					method: 'POST',
+					body: util.buildXML(opts),
+					agentOptions: {
+						pfx: pfx,
+						passphrase: MERCHANT_ID
+					}
+				}, function(err, response, body){
+					util.parseXML(body, fn);
+					console.log("err: " + JSON.stringify(err));
+					console.log("body: " + JSON.stringify(body));
+				});
 			
 			wxpay.createUnifiedOrder({
 				body: 'Soontake 充值',
