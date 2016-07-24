@@ -25,7 +25,7 @@ router.post('/', function(request, response) {
 	
   var data = JSON.parse(postData);
   try {
-    if (data.return_code !=== "SUCCESS") {
+    if (data.return_code != "SUCCESS") {
 	  return resp(returnFAILxml(data.return_msg), 400);
     }
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
