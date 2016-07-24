@@ -77,19 +77,8 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				util.mix(opts, wxpayID);
 				opts.sign = sign(opts);
 				console.log("opts: " + JSON.stringify(opts));
-				request({
-					url: "https://api.mch.weixin.qq.com/pay/unifiedorder",
-					method: 'POST',
-					body: util.buildXML(opts),
-					agentOptions: {
-						pfx: pfx,
-						passphrase: MERCHANT_ID
-					}
-				}, function(err, response, body){
-					util.parseXML(body, fn);
-					console.log("err: " + JSON.stringify(err));
-					console.log("body: " + JSON.stringify(body));
-				});
+				console.log("xml: " + util.buildXML(opts));
+				
 			
 			wxpay.createUnifiedOrder({
 				body: 'Soontake 充值',
