@@ -61,7 +61,7 @@ AV.Cloud.define("PingPaymentTopup", function (request, response) {
 				response.error(err.message);
 			  }
 			  else
-			    CreatePayment(user,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
+			    PingCreatePayment(user,charge,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
 			});
 		}
 	});
@@ -133,7 +133,7 @@ AV.Cloud.define("PingPaymentWithdrawToWechat", function (request, response) {
 						  }
 						  else
 						  {
-					        CreatePayment(user,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+					        PingCreatePayment(user,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
 						  }
 					});
 			   }
@@ -249,7 +249,7 @@ AV.Cloud.define("PingPaymentChargeShippingList", function (request, response) {
 					  {
 						var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE()};
 						console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
-						CreateShippingPayment(newPayment,charge,shippings,response);
+						PingCreateShippingPayment(newPayment,charge,shippings,response);
 					  }
 					});
 			     }
@@ -318,7 +318,7 @@ AV.Cloud.define("PingPaymentChargeShippingListWithBalance", function (request, r
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
 					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
-					CreateShippingPaymentWithBalance(newPayment,shippings,response);
+					PingCreateShippingPaymentWithBalance(newPayment,shippings,response);
 				  }
 			 }, function (error) {
 				console.log(error.message);
@@ -408,7 +408,7 @@ AV.Cloud.define("PingPaymentTransferToSender", function (request, response) {
 	});
 });
 
-var CreatePayment = function (user, pingObj, type, response) {
+var PingCreatePayment = function (user, pingObj, type, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -437,7 +437,7 @@ var CreatePayment = function (user, pingObj, type, response) {
 	});
 };
 
-var CreateShippingPayment = function (newpayment, pingObj, shippings, response) {
+var PingCreateShippingPayment = function (newpayment, pingObj, shippings, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -481,7 +481,7 @@ var CreateShippingPayment = function (newpayment, pingObj, shippings, response) 
 	});
 };
 
-var CreateShippingPaymentWithBalance = function (newpayment, shippings, response) {
+var PingCreateShippingPaymentWithBalance = function (newpayment, shippings, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -528,7 +528,7 @@ var CreateShippingPaymentWithBalance = function (newpayment, shippings, response
 	});
 };
 
-AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
+AV.Cloud.define("PingPaymentSendRefundRequest", function (request, response) {
     var shippingId = request.params.shippingId;
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;
@@ -625,7 +625,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 	});
 });
 
-AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
+AV.Cloud.define("PingPaymentRejectRefundRequest", function (request, response) {
     var shippingId = request.params.shippingId;
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;
@@ -690,7 +690,7 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 	});
 });
 
-AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
+AV.Cloud.define("PingPaymentApproveRefundRequest", function (request, response) {
     var shippingId = request.params.shippingId;
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;
@@ -768,7 +768,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 	});
 });
 
-AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) {
+AV.Cloud.define("PingPaymentChargeShippingListCancel", function (request, response) {
     var shippingId = request.params.shippingId;
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
