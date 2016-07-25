@@ -87,7 +87,7 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 	myPayment.set("orderNo",params.order_no);
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - " + type + ": payment creation succeed: transactionNumber->" + wxObj.prepay_id + ", UserId->" + user.id + ", order_no->" + params.order_no); 
+	    console.log("Payment - " + type + ": payment creation succeed: transactionNumber->" + wxObj.prepay_id + ", UserId->" + user.id + ", order_no->" + params.order_no + ", amount->"+(params.amount/100)); 
 		//add payment history to user
 		var paymentRelation = user.relation('paymentHistory');
 		paymentRelation.add(payment);
