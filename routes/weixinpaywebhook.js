@@ -8,11 +8,12 @@ var AV = require('leanengine');
 var returnSUCCESSxml = function(msg){ return buildXML({return_code: 'SUCCESS',return_msg:msg})};
 var returnFAILxml = function(msg){ buildXML({return_code: 'FAIL',return_msg:msg})};
 
-router.post('/', function(request, response) {
+router.post('/', function(request, response, body) {
   request.setEncoding('utf8');
   
   console.log("Weixinpay Webhook: hello");
-  console.log("Weixinpay Webhook: data: " + JSON.stringify(request));
+  console.log("Weixinpay Webhook: data: " + body);
+  console.log("Weixinpay Webhook: request: " + request);
   
   var postData = parseXML(request);
   console.log("Weixinpay Webhook jsondata: " + JSON.stringify(postData));
