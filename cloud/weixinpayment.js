@@ -95,7 +95,7 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 		
 		var newObj = {
 			appid: APP_ID,
-			noncestr: wxObj.noncestr,
+			noncestr: wxObj.nonce_str,
 			package: 'Sign=WXPay',
 			partnerid: MERCHANT_ID,
 			prepayid: wxObj.prepay_id,
