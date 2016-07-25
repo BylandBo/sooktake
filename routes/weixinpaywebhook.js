@@ -11,7 +11,7 @@ var returnFAILxml = function(msg){ buildXML({return_code: 'FAIL',return_msg:msg}
 router.post('/', function(request, response) {
   request.setEncoding('utf8');
   
-  console.log("Weixinpay Webhook: helo");
+  console.log("Weixinpay Webhook: hello");
   console.log("Weixinpay Webhook: data: " + JSON.stringify(request));
   
   var postData = parseXML(request);
