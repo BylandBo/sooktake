@@ -102,7 +102,7 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 		paymentRelation.add(payment);
 		user.save();
 		
-		var obj = newAPPReturnObj(wxObj);
+		var obj = newAPPReturnObj(wxObj,out_trade_no);
 		response.success(obj);
 	  },
 	  error: function(message, error) {
@@ -112,7 +112,7 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 	});
 };
 
-var newAPPReturnObj = function (wxObj){
+var newAPPReturnObj = function (wxObj,out_trade_no){
 	var newObj = {
 		appid: APP_ID,
 		noncestr: wxObj.nonce_str,
@@ -120,10 +120,12 @@ var newAPPReturnObj = function (wxObj){
 		partnerid: MERCHANT_ID,
 		prepayid: wxObj.prepay_id,
 		timestamp: parseInt(Date.now()/1000),
-		sign: ''
+		sign: '',
+		out_trade_no: ''
 	};
 	var newSign = wxpay.sign(newObj);
 	newObj.sign = newSign;
+	newObj.out_trade_no = out_trade_no;
 	console.log("Return to APP: " + JSON.stringify(newObj));
 	return newObj;
 }
