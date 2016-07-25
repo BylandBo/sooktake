@@ -93,19 +93,8 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 		paymentRelation.add(payment);
 		user.save();
 		
-		var newObj = {
-			appid: APP_ID,
-			noncestr: wxObj.nonce_str,
-			package: 'Sign=WXPay',
-			partnerid: MERCHANT_ID,
-			prepayid: wxObj.prepay_id,
-			timestamp: parseInt(Date.now()/1000),
-			sign: ''
-		};
-		var newSign = wxpay.sign(newObj);
-		newObj.sign = newSign;
-		console.log("Return to APP: " + JSON.stringify(newObj));
-		response.success(newObj);
+		var obj = newAPPReturnObj(wxObj);
+		response.success(obj);
 	  },
 	  error: function(message, error) {
 		console.log(error.message);
@@ -113,3 +102,19 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 	  }
 	});
 };
+
+var newAPPReturnObj = function (wxObj){
+	var newObj = {
+		appid: APP_ID,
+		noncestr: wxObj.nonce_str,
+		package: 'Sign=WXPay',
+		partnerid: MERCHANT_ID,
+		prepayid: wxObj.prepay_id,
+		timestamp: parseInt(Date.now()/1000),
+		sign: ''
+	};
+	var newSign = wxpay.sign(newObj);
+	newObj.sign = newSign;
+	console.log("Return to APP: " + JSON.stringify(newObj));
+	return newObj;
+}
