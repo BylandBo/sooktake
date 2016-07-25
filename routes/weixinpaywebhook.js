@@ -12,8 +12,7 @@ router.post('/', function(request, response, body) {
   request.setEncoding('utf8');
   
   console.log("Weixinpay Webhook: hello");
-  console.log("Weixinpay Webhook: data: " + body);
-  console.log("Weixinpay Webhook: request: " + request);
+  console.log("Weixinpay Webhook: request: " + JSON.stringify(request));
   
   var postData = parseXML(request);
   console.log("Weixinpay Webhook jsondata: " + JSON.stringify(postData));

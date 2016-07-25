@@ -102,7 +102,7 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 		paymentRelation.add(payment);
 		user.save();
 		
-		var obj = newAPPReturnObj(wxObj,out_trade_no);
+		var obj = newAPPReturnObj(wxObj,params.order_no);
 		response.success(obj);
 	  },
 	  error: function(message, error) {
