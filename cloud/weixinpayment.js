@@ -78,7 +78,8 @@ AV.Cloud.define("QueryWXOrder", function (request, response) {
 	
 	console.log("Payment - QueryWXOrder: out_trade_no->" + out_trade_no);
 	wxpay.queryOrder({ out_trade_no:out_trade_no }, function(err, order){
-		console.log(order);
+		console.log("Payment - QueryWXOrder result:"+ order);
+		response.success(order);
 	});
 });
 
