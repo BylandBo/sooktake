@@ -76,7 +76,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 AV.Cloud.define("QueryWXOrder", function (request, response) {
     var out_trade_no = request.params.out_trade_no;
 	
-	console.log("Payment - QueryWXOrder: out_trade_no->" + out_trade_no;
+	console.log("Payment - QueryWXOrder: out_trade_no->" + out_trade_no);
 	wxpay.queryOrder({ out_trade_no:out_trade_no }, function(err, order){
 		console.log(order);
 	});
