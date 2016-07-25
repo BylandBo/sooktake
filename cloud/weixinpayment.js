@@ -34,7 +34,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	var ip = request.meta.remoteAddress;
 	
 	var params = {amount:amount,channel:channel,userId:userId,order_no:order_no};
-	console.log("Payment - Topup: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100)); 
+	console.log("Payment - Topup: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100));
 	var userQuery = new AV.Query(AV.User);
 	AV.Cloud.useMasterKey();
 	userQuery.equalTo("objectId", userId);
@@ -52,7 +52,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			wxpay.createUnifiedOrder({
 				body: 'Soontake 充值',
 				out_trade_no: order_no,
-				total_fee: 1,
+				total_fee: amount,
 				spbill_create_ip: ip,
 				notify_url: WebHookUrl,
 				trade_type: 'APP',
