@@ -18,7 +18,7 @@ var wxpay = WXPay({
     appid: APP_ID,
     mch_id: MERCHANT_ID,
     partner_key: API_KEY, //微信商户平台API密钥 
-    pfx: '',//fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
+    pfx: fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
 });
 
 //******Functions Definition******//
