@@ -99,7 +99,7 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 			package: 'Sign=WXPay',
 			partnerid: MERCHANT_ID,
 			prepayid: wxObj.prepay_id,
-			timestamp: (new Date()),
+			timestamp: parseInt(new Date()),
 			sign: ''
 		};
 		var newSign = wxpay.sign(newObj);
