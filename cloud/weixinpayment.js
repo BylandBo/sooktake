@@ -93,7 +93,19 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 		paymentRelation.add(payment);
 		user.save();
 		
-		response.success(wxObj);
+		var newObj = {
+			appid: APP_ID,
+			noncestr: wxObj.noncestr,
+			package: 'Sign=WXPay',
+			partnerid: MERCHANT_ID,
+			prepayid: wxObj.prepay_id,
+			timestamp: (new Date()),
+			sign: ''
+		};
+		var newSign = wxpay.sign(newObj);
+		newObj.sign = newSign;
+		console.log("Return to APP: " + JSON.stringify(newObj));
+		response.success(newObj);
 	  },
 	  error: function(message, error) {
 		console.log(error.message);
