@@ -56,16 +56,16 @@ router.post('/', function(request, response) {
 					case "charge.succeeded":
 					  // asyn handling to charge succeed
 					  if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_TOPUP()){
-						topup(payment,event);
+						topupping(payment,event);
 					  }
 					  else if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE()){
-					    PaymentChargeShippingList(payment,event);
+					    PaymentChargeShippingListping(payment,event);
 					  }
 					  return resp("OK", 200);
 					  break;
 				    case "transfer.succeeded":
 					  // asyn handling to refund succeed
-					  transfer(payment,event);
+					  transferping(payment,event);
 					  return resp("OK", 200);
 					  break;
 					case "refund.succeeded":
@@ -109,7 +109,7 @@ var verify_signature = function(raw_data, signature, pub_key_path) {
   }
 }
 
-var topup = function(payment,event){
+var topupping = function(payment,event){
 	var data = event.data.object;
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	payment.set("transactionNumber",data.transaction_no);
@@ -128,7 +128,7 @@ var topup = function(payment,event){
 	});
 }
 
-var transfer = function(payment,event){
+var transferping = function(payment,event){
 	var data = event.data.object;
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	payment.set("transactionNumber",data.transaction_no);
@@ -149,7 +149,7 @@ var transfer = function(payment,event){
 	});
 }
 
-var PaymentChargeShippingList = function(payment,event){
+var PaymentChargeShippingListping = function(payment,event){
     var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 			

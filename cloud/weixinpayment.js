@@ -6,6 +6,7 @@ var AV = require('leanengine');
 var crypto = require('crypto');
 var WXPay = require('weixin-pay');
 var fs  = require("fs");
+var xml2js = require('xml2js');
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -74,12 +75,15 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 });
 
 AV.Cloud.define("QueryWXOrder", function (request, response) {
-    var out_trade_no = request.params.out_trade_no;
+    var out_trade_no = request.params.outTradeNo;
 	
 	console.log("Payment - QueryWXOrder: out_trade_no->" + out_trade_no);
 	wxpay.queryOrder({ out_trade_no:out_trade_no }, function(err, order){
 		console.log("Payment - QueryWXOrder result:"+ order);
-		response.success(order);
+		var orderJson = JSON.parse(parseXML(order));
+		paymentCallback(orderJson);
+		console.log("Payment - QueryWXOrder json result:"+ orderJson);
+		response.success(orderJson);
 	});
 });
 
@@ -130,3 +134,58 @@ var newAPPReturnObj = function (wxObj,out_trade_no){
 	console.log("Return to APP: " + JSON.stringify(newObj));
 	return newObj;
 }
+
+var topupCallback = function(payment,data){
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+	payment.set("transactionId",data.transaction_id);
+	payment.save().then(function(result){
+	    var user = payment.get("user");
+	    var balance = user.get("totalMoney") + data.total_fee;
+		user.set("totalMoney",balance);
+		user.save().then(function(result){
+			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + data.total_fee);
+			pushModule.PushPaymentTopupSucceedToUser(payment,data.total_fee,user);
+		},function (error) {
+			console.log(error.message);
+		});
+	},function (error) {
+		console.log(error.message);
+	});
+}
+
+var paymentCallback = function(order){
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var paymentQuery = new AV.Query(Payment);
+	
+	paymentQuery.equalTo("orderNo", order.out_trade_no);
+	paymentQuery.include("user");
+	paymentQuery.find({
+        success: function (payments) {
+		     if(payments.length <= 0)
+			 {
+				console.log("paymentCallback: Unknown payment with out_trade_no: " + order.out_trade_no);
+			 }
+			 else
+			 {
+				 var payment = payments[0];
+				 switch (order.attach) {
+					case messageModule.PF_SHIPPING_PAYMENT_TOPUP():
+						topupCallback(payment,order);
+					  break;
+					default:
+					  return resp(returnFAILxml('Unknown Event type'), 400);
+					  break;
+				  }
+			 }
+        },
+        error: function (error) {
+            console.log(error.message);
+        }
+    });
+}
+parseXML = function(xml, fn){
+	var parser = new xml2js.Parser({ trim:true, explicitArray:false, explicitRoot:false });
+	parser.parseString(xml, fn||function(err, result){
+		return result;
+	});
+};
