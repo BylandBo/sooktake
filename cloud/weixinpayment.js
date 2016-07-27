@@ -4,9 +4,9 @@ var messageModule = require('./message');
 var pushModule = require('./pushmessage');
 var AV = require('leanengine');
 var crypto = require('crypto');
-var WXPay = require('weixin-pay');
+//var WXPay = require('weixin-pay');
+var WXPay = require('./wxpay');
 var fs  = require("fs");
-var xml2js = require('xml2js');
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -74,14 +74,101 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	});
 });
 
+AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
+    var amount = request.params.amount;
+	var userId = request.params.userId;
+
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+	
+	
+	console.log("Payment - WithdrawToWechat: transfer creation: order_no->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
+	
+	var userQuery = new AV.Query(AV.User);
+	AV.Cloud.useMasterKey();
+	userQuery.equalTo("objectId", userId);
+	userQuery.include("wechatInfo");
+	userQuery.find().then(function (users) {
+		if(users.length <= 0)
+		{
+			console.log("Payment - WithdrawToWechat: cannot find user " + userId );
+		}
+		else if(users[0].get("totalMoney") < (amount/100))
+		{
+			 console.log("Payment - WithdrawToWechat: transfer creation error: user balance not enough, order_no->" + order_no );
+			 response.error({code: 135, message: "user balance not enough"});//135: user balance not enough
+		}
+		else
+		{
+			var user = users[0];
+			if(user.get("isBindWechat") == "YES")
+			{
+			   var wechatInfo = user.get("wechatInfo");
+			   if(wechatInfo != null)
+			   {
+					console.log("Payment - WithdrawToWechat: transfer creation starting, order_no->" + order_no );
+					var FrozenMoney = user.get("forzenMoney") + (amount/100);
+					user.set("forzenMoney",FrozenMoney);
+					user.save();
+				    var openId = wechatInfo.get("openId");
+				  	pingpp.transfers.create({
+					  order_no:  order_no,
+					  app:       { id: APP_ID },
+					  channel:   "wx",
+					  amount:    amount,
+					  currency:  "cny",
+					  type:      "b2c",
+					  recipient:   openId,
+					  description: "soontake 取款"
+					}, function(err, transfer) {
+						  if(err != null)
+						  {
+						    console.log("Payment - WithdrawToWechat: transfer creation error, order_no->" + order_no );
+							console.log(err);
+							response.error(err.message);
+						  }
+						  else if(transfer.status == messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
+						  {
+						    console.log("Payment - WithdrawToWechat: transfer creation error:"+ transfer.failure_msg +", order_no->" + order_no );
+							response.error({code: 136, message: transfer.failure_msg});//135: user balance not enough
+						  }
+						  else
+						  {
+					        PingCreatePayment(user,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+						  }
+					});
+			   }
+			   else
+			    {
+				  var errormsg = "Payment - WithdrawToWechat: cannot find wechat info for user: " + userId;
+				  console.log(errormsg);
+				  response.error(errormsg);
+				}
+			}
+			else{
+				var errormsg2 = "Payment - WithdrawToWechat: user: " + userId + " is not bind with wechat account";
+				console.log(errormsg2);
+				response.error(errormsg2);
+			}
+		}
+	},function (error) {
+			console.log(error.message);
+	});
+});
+
 AV.Cloud.define("QueryWXOrder", function (request, response) {
     var out_trade_no = request.params.outTradeNo;
 	
 	console.log("Payment - QueryWXOrder: out_trade_no->" + out_trade_no);
 	wxpay.queryOrder({ out_trade_no:out_trade_no }, function(err, order){
 		console.log("Payment - QueryWXOrder result:"+ JSON.stringify(order));
-		paymentCallback(order);
-		response.success(order);
+        if(err != null)
+          response.error(err);		
+		else{
+		    paymentCallback(order);
+			response.success(order);
+		}
 	});
 });
 
@@ -138,11 +225,12 @@ var topupCallback = function(payment,data){
 	payment.set("transactionId",data.transaction_id);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
-	    var balance = user.get("totalMoney") + parseInt(data.total_fee);
+		var amount = (parseInt(data.total_fee))/100;
+	    var balance = user.get("totalMoney") + amount;
 		user.set("totalMoney",balance);
 		user.save().then(function(result){
-			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + data.total_fee);
-			pushModule.PushPaymentTopupSucceedToUser(payment,data.total_fee,user);
+			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
+			pushModule.PushPaymentTopupSucceedToUser(payment,amount,user);
 		},function (error) {
 			console.log(error.message);
 		});
@@ -169,6 +257,9 @@ var paymentCallback = function(order){
 				  var payment = payments[0];
 				  switch (order.attach) {
 					case messageModule.PF_SHIPPING_PAYMENT_TOPUP():
+						topupCallback(payment,order);
+					  break;
+					case messageModule.PF_SH:
 						topupCallback(payment,order);
 					  break;
 					default:

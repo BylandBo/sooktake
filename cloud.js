@@ -6,7 +6,9 @@ require('./cloud/message');
 require('./cloud/function');
 require('./cloud/pushmessage');
 require('./cloud/hook');
-require('./cloud/payment');
+require('./cloud/util')
+require('./cloud/wxpay')
 require('./cloud/weixinpayment')
+
 
 module.exports = AV.Cloud;
