@@ -138,7 +138,7 @@ var topupCallback = function(payment,data){
 	payment.set("transactionId",data.transaction_id);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
-	    var balance = user.get("totalMoney") + data.total_fee;
+	    var balance = user.get("totalMoney") + parseInt(data.total_fee);
 		user.set("totalMoney",balance);
 		user.save().then(function(result){
 			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + data.total_fee);
@@ -165,8 +165,9 @@ var paymentCallback = function(order){
 			 }
 			 else
 			 {
-				 var payment = payments[0];
-				 switch (order.attach) {
+			    if(order.return_code === 'SUCCESS'){
+				  var payment = payments[0];
+				  switch (order.attach) {
 					case messageModule.PF_SHIPPING_PAYMENT_TOPUP():
 						topupCallback(payment,order);
 					  break;
@@ -174,6 +175,9 @@ var paymentCallback = function(order){
 					  return resp(returnFAILxml('Unknown Event type'), 400);
 					  break;
 				  }
+			    }
+				else
+				 console.log("paymentCallback: payment with out_trade_no: " + order.out_trade_no + " not successfully");
 			 }
         },
         error: function (error) {
@@ -181,9 +185,3 @@ var paymentCallback = function(order){
         }
     });
 }
-parseXML = function(xml, fn){
-	var parser = new xml2js.Parser({ trim:true, explicitArray:false, explicitRoot:false });
-	parser.parseString(xml, fn||function(err, result){
-		return result;
-	});
-};

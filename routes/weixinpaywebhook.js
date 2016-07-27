@@ -45,8 +45,6 @@ router.post('/', function(request, response, body) {
 				 var payment = payments[0];
 				 switch (data.attach) {
 					case messageModule.PF_SHIPPING_PAYMENT_TOPUP():
-					  // asyn handling to charge succeed
-						topup(payment,data);
 					  return resp(returnSUCCESSxml('OK'), 200);
 					  break;
 					default:
@@ -79,22 +77,5 @@ buildXML = function(json){
 	return builder.buildObject(json);
 };
 
-var topup = function(payment,data){
-	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-	payment.set("transactionId",data.transaction_id);
-	payment.save().then(function(result){
-	    var user = payment.get("user");
-	    var balance = user.get("totalMoney") + data.total_fee;
-		user.set("totalMoney",balance);
-		user.save().then(function(result){
-			console.log("wx Webhook: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + data.total_fee);
-			pushModule.PushPaymentTopupSucceedToUser(payment,data.total_fee,user);
-		},function (error) {
-			console.log(error.message);
-		});
-	},function (error) {
-		console.log(error.message);
-	});
-}
 
 module.exports = router;
