@@ -82,6 +82,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
         .update(new Date().getTime().toString())
         .digest('hex').substr(0, 16);
 	
+	var ip = request.meta.remoteAddress;
 	
 	console.log("Payment - WithdrawToWechat: transfer creation: order_no->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
 	
@@ -198,6 +199,27 @@ var CreateTopupPayment = function (user, wxObj,params,type, response) {
 	});
 };
 
+var topupCallback = function(payment,data){
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+	payment.set("transactionId",data.transaction_id);
+	payment.save().then(function(result){
+	    var user = payment.get("user");
+		var amount = (parseInt(data.total_fee))/100;
+	    var balance = user.get("totalMoney") + amount;
+		user.set("totalMoney",balance);
+		user.save().then(function(result){
+			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
+			pushModule.PushPaymentTopupSucceedToUser(payment,amount,user);
+		},function (error) {
+			console.log(error.message);
+		});
+	},function (error) {
+		console.log(error.message);
+	});
+}
+
+
+/*Withdraw*/
 var CreateWithDrawPayment = function (user, wxObj,params,type, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
@@ -230,43 +252,6 @@ var CreateWithDrawPayment = function (user, wxObj,params,type, response) {
 	});
 };
 
-var newAPPReturnObj = function (wxObj,out_trade_no){
-	var newObj = {
-		appid: APP_ID,
-		noncestr: wxObj.nonce_str,
-		package: 'Sign=WXPay',
-		partnerid: MERCHANT_ID,
-		prepayid: wxObj.prepay_id,
-		timestamp: parseInt(Date.now()/1000),
-		sign: '',
-		outTradeNo: ''
-	};
-	var newSign = wxpay.sign(newObj);
-	newObj.sign = newSign;
-	newObj.outTradeNo = out_trade_no;
-	console.log("Return to APP: " + JSON.stringify(newObj));
-	return newObj;
-}
-
-var topupCallback = function(payment,data){
-	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-	payment.set("transactionId",data.transaction_id);
-	payment.save().then(function(result){
-	    var user = payment.get("user");
-		var amount = (parseInt(data.total_fee))/100;
-	    var balance = user.get("totalMoney") + amount;
-		user.set("totalMoney",balance);
-		user.save().then(function(result){
-			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
-			pushModule.PushPaymentTopupSucceedToUser(payment,amount,user);
-		},function (error) {
-			console.log(error.message);
-		});
-	},function (error) {
-		console.log(error.message);
-	});
-}
-
 var withdrawCallback = function(payment,data){
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	payment.set("transactionId",data.payment_no);
@@ -288,6 +273,7 @@ var withdrawCallback = function(payment,data){
 	});
 }
 
+/*Common function*/
 var paymentCallback = function(order){
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
@@ -324,4 +310,22 @@ var paymentCallback = function(order){
             console.log(error.message);
         }
     });
+}
+
+var newAPPReturnObj = function (wxObj,out_trade_no){
+	var newObj = {
+		appid: APP_ID,
+		noncestr: wxObj.nonce_str,
+		package: 'Sign=WXPay',
+		partnerid: MERCHANT_ID,
+		prepayid: wxObj.prepay_id,
+		timestamp: parseInt(Date.now()/1000),
+		sign: '',
+		outTradeNo: ''
+	};
+	var newSign = wxpay.sign(newObj);
+	newObj.sign = newSign;
+	newObj.outTradeNo = out_trade_no;
+	console.log("Return to APP: " + JSON.stringify(newObj));
+	return newObj;
 }
