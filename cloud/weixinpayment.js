@@ -244,7 +244,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 						else
 						{
 						  var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
-						  console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
+						  //console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
 						  CreateShippingPayment(newPayment,charge,shippings,response);
 						}
 					});
@@ -313,7 +313,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
 					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
-					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
+					//console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
 					CreateShippingPaymentWithBalance(newPayment,shippings,response);
 				  }
 			 }, function (error) {
@@ -830,11 +830,11 @@ var CreateShippingPayment = function (newpayment, wxObj, shippings, response) {
 	myPayment.set("usingCredit",newpayment.usingCredit);
 	myPayment.set("usingVoucher",newpayment.usingVoucher);
 	myPayment.set("voucherCode",newpayment.voucherCode);
-	myPayment.set("transactionNumber",wxObj.wxObj);
+	myPayment.set("transactionNumber",wxObj.prepay_id);
 	myPayment.set("orderNo",newpayment.order_no);
 	myPayment.save(null, {
 	  success: function(payment) {
-	    console.log("Payment - " + newpayment.type + ": payment creation succeed: transactionNumber->" + wxObj.wxObj + ", UserId->" + newpayment.user.id + ", order_no->" + newpayment.order_no); 
+	    console.log("Payment - " + newpayment.type + ": payment creation succeed: transactionNumber->" + wxObj.prepay_id + ", UserId->" + newpayment.user.id + ", order_no->" + newpayment.order_no); 
 		
 		//add payment history to user
 		var user = newpayment.user;
@@ -869,7 +869,7 @@ var shippingChargeCallback = function(payment,data){
 	payment.save().then(function(result){
 	    var user = payment.get("user");
 		user.save().then(function(result){
-			console.log("shippingChargeCallback: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + (data.amount/100));
+			console.log("shippingChargeCallback: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
 			shippingQuery.equalTo("payment", payment);
 			shippingQuery.include("cargo");
 			shippingQuery.include("flight");
@@ -880,7 +880,7 @@ var shippingChargeCallback = function(payment,data){
 						{
 							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 							shippings[i].save().then(function(shipping){
-							    var totalAmount = (data.amount/100) + payment.get("usingBalance");
+							    var totalAmount = payment.get("total");
 								pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shipping,user);
 								pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shipping,user);
 							});
