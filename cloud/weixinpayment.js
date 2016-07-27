@@ -165,6 +165,7 @@ AV.Cloud.define("QueryWXOrder", function (request, response) {
           response.error(err);		
 		else{
 		    paymentCallback(order);
+			console.log("return query result to APP" + JSON.stringify(order));
 			response.success(order);
 		}
 	});
@@ -293,9 +294,6 @@ var paymentCallback = function(order){
 				  var payment = payments[0];
 				  switch (order.attach) {
 					case messageModule.PF_SHIPPING_PAYMENT_TOPUP():
-						topupCallback(payment,order);
-					  break;
-					case messageModule.PF_SH:
 						topupCallback(payment,order);
 					  break;
 					default:
