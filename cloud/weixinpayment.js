@@ -130,11 +130,11 @@ var newAPPReturnObj = function (wxObj,out_trade_no){
 		prepayid: wxObj.prepay_id,
 		timestamp: parseInt(Date.now()/1000),
 		sign: '',
-		out_trade_no: ''
+		outTradeNo: ''
 	};
 	var newSign = wxpay.sign(newObj);
 	newObj.sign = newSign;
-	newObj.out_trade_no = out_trade_no;
+	newObj.outTradeNo = out_trade_no;
 	console.log("Return to APP: " + JSON.stringify(newObj));
 	return newObj;
 }
