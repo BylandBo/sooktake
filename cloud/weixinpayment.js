@@ -84,6 +84,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	
 	var ip = request.meta.remoteAddress;
 	
+	var params = {amount:amount,channel:"wx",userId:userId,order_no:order_no};
 	console.log("Payment - WithdrawToWechat: transfer creation: order_no->" + order_no + ", UserId->" + userId + ", channel->"+ "wx" + ", amount->" + (amount/100)); 
 	
 	var userQuery = new AV.Query(AV.User);
