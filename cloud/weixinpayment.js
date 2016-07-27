@@ -256,6 +256,443 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 	});
 });
 
+AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, response) {
+    var shippingList = request.params.shippingList;
+	var amount = request.params.amount;
+	var usingBalance = request.params.usingBalance;
+	var usingCredit = request.params.usingCredit;
+	var usingVoucher = request.params.usingVoucher;
+	var voucherCode = request.params.voucherCode;
+	var userId = request.params.userId;
+
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+
+	var ip = request.meta.remoteAddress;
+	
+	console.log("Payment - PaymentChargeShippingListWithBalance: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", amount->" + (amount/100) + ", usingBalance->" + (usingBalance/100)); 
+	var userQuery = new AV.Query(AV.User);
+	AV.Cloud.useMasterKey();
+	userQuery.equalTo("objectId", userId);
+	userQuery.include("wechatInfo");
+	userQuery.find().then(function (users) {
+		if(users.length <= 0)
+		{
+			console.log("Payment - PaymentChargeShippingListWithBalance: cannot find user " + userId );
+		}
+		else
+		{	
+			var cql = "select include payment,include cargo,include flight,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
+			for(var i=0; i<shippingList.length;i++)
+			{
+			    if(i != shippingList.length -1)
+					cql += "'" + shippingList[i] + "',";
+				else
+					cql += "'" + shippingList[i] + "')";
+			}
+			console.log("cql->" + cql);
+			AV.Query.doCloudQuery(cql).then(function (result) {
+			      var isDuplicatePayment = false;
+				  var shippings = result.results;
+				  for (var j=0; j<shippings.length; j++) {
+					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
+					  {
+					    isDuplicatePayment = true;
+						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
+					  }
+				  }
+				  if(isDuplicatePayment)
+				   response.error({code: 100, message: "duplicate payment"});
+				  else
+				  {
+					var user = users[0];
+				    //var newtotalMoney = user.get("totalMoney") - (amount/100);
+					var newFrozenMoney = user.get("forzenMoney") + (amount/100);
+				    user.set("forzenMoney", newFrozenMoney);
+					
+					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
+					var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:"usingBalance",user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
+					console.log("Payment - PaymentChargeShippingListWithBalance: parameter info->" + JSON.stringify(newPayment));
+					CreateShippingPaymentWithBalance(newPayment,shippings,response);
+				  }
+			 }, function (error) {
+				console.log(error.message);
+			});
+		}
+	});
+});
+
+AV.Cloud.define("PaymentTransferToSender", function (request, response) {
+    var shippingId = request.params.shippingId;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+	
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+		
+	console.log("Payment - PaymentTransferToSender: transfer creation: order_no->" + order_no + ", shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			shipping.save();
+		
+			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			payment.save().then(function (py){
+				var myPayment = new Payment();
+				myPayment.set("paymentChannel", "soontake");
+				myPayment.set("total", py.get("total"));
+				myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+				myPayment.set("type", "transfer");
+				myPayment.set("user",cargo.get("owner"));//cargo user
+				myPayment.set("orderNo",order_no);
+				myPayment.save().then(function (tp){
+					flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var paymentRelation = flightUser.relation('paymentHistory');
+								 paymentRelation.add(tp);
+								 var newTotalMoney = flightUser.get("totalMoney") + payment.get("total");
+								 flightUser.set("totalMoney",newTotalMoney);
+								 flightUser.save().then(function(user){
+								    var totalAmount = payment.get("total");
+								    pushModule.PushPaymentTransferToSenderSucceedToFlightUser(payment,totalAmount,shipping,flightUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+							     var cargoUser = cargoObj.get("owner");
+								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("usingBalance");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 cargoUser.set("totalMoney",newTotalMoney);
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentTransferToSenderSucceedToCargoUser(payment,totalAmount,shipping,cargoUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				    response.success(myPayment);
+				});
+			});
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
+AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
+    var shippingId = request.params.shippingId;
+	var reasonCode = request.params.reasonCode;
+	var reason = request.params.reason;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var myPayment = new Payment();
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+	
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+		
+	console.log("Payment - PaymentSendRefundRequest: refund creation: order_no->" + order_no + ", shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
+			{
+			    console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" already refunded"); 
+				response.error({code: 101, message: "退款申请已经批准"});
+			}
+			else if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND())
+			{
+			    console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" already requested"); 
+				response.error({code: 102, message: "退款申请已经发出，请等待"});
+			}
+			else
+			{
+			myPayment.set("paymentChannel", "soontake");
+			myPayment.set("total", payment.get("total"));
+			myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+			myPayment.set("type", "refund");
+			myPayment.set("user",cargo.get("owner"));//cargo user
+			myPayment.set("orderNo",order_no);
+			myPayment.set("reasonCode",reasonCode.toString());
+			myPayment.set("reason",reason);
+			myPayment.save(null, {
+					  success: function(rp) {
+						shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
+						shipping.set("refundPayment",myPayment);
+						shipping.save();
+						
+						flight.fetch({include: "owner"},
+							   {
+								   success: function(flightObj) {
+									 var flightUser = flightObj.get("owner");
+									 var paymentRelation = flightUser.relation('paymentHistory');
+									 paymentRelation.add(rp);
+									 flightUser.save().then(function(user){
+										var totalAmount = payment.get("total");
+										pushModule.PushPaymentRefundToFlightUser(payment,totalAmount,shipping,flightUser);
+									 });
+									},
+								   error: function(message, error) {
+									 console.log(error.message);
+									 response.error(messageModule.errorMsg());
+									}
+							   });
+						cargo.fetch({include: "owner"},
+							   {
+								   success: function(cargoObj) {
+									 var cargoUser = cargoObj.get("owner");
+									 var paymentRelation = cargoUser.relation('paymentHistory');
+									 paymentRelation.add(rp);
+									 cargoUser.save().then(function(user){
+										var totalAmount = payment.get("total");
+										pushModule.PushPaymentRefundToCargotUser(payment,totalAmount,shipping,cargoUser);
+									 });
+									},
+								   error: function(message, error) {
+									 console.log(error.message);
+									 response.error(messageModule.errorMsg());
+									}
+							   });
+						response.success(rp);
+					  },
+					  error: function(message, error) {
+						console.log(error.message);
+						response.error(messageModule.errorMsg());
+					  }
+			});
+		  }
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
+AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
+    var shippingId = request.params.shippingId;
+	var reasonCode = request.params.reasonCode;
+	var reason = request.params.reason;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+
+		
+	console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("refundPayment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			var refundPayment = shipping.get("refundPayment");
+
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
+			shipping.save().then(function (sp){
+					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
+					refundPayment.set("reasonCode",reasonCode.toString());
+					refundPayment.set("reason",reason);
+					refundPayment.save();
+					
+				    flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundRejectToFlightUser(payment,totalAmount,shipping,flightUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+							     var cargoUser = cargoObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundRejectToCargotUser(payment,totalAmount,shipping,cargoUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				    console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    response.success(refundPayment);
+			});
+	
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
+AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
+    var shippingId = request.params.shippingId;
+	var reasonCode = request.params.reasonCode;
+	var reason = request.params.reason;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+
+		
+	console.log("Payment - PaymentApproveRefundRequest: refund approve by shipper: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("refundPayment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			var refundPayment = shipping.get("refundPayment");
+			if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
+			{
+				response.error({code: 101, message: "退款申请已经批准"});
+			}
+			else
+			{
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND());
+			shipping.save().then(function (sp){
+			        payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+					payment.save();
+					
+					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+					//refundPayment.set("reasonCode",reasonCode.toString());
+					//refundPayment.set("reason",reason);
+					refundPayment.save();
+					
+				    flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundApproveToFlightUser(payment,totalAmount,shipping,flightUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+								 var cargoUser = cargoObj.get("owner");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentRefundApproveToCargotUser(payment,totalAmount,shipping,cargoUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				    console.log("Payment - PaymentRejectRefundRequest: refund approve by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    response.success(refundPayment);
+			});
+		   }
+	
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
+AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) {
+    var shippingId = request.params.shippingId;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+		
+	console.log("Payment - PaymentChargeShippingListCancel: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+			shipping.save();
+		
+			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+			payment.save().then(function (py){
+			    cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+							     var cargoUser = cargoObj.get("owner");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentChargeShippingListCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
+									pushModule.PushPaymentChargeShippingListCancelToFlightUser(payment,totalAmount,shipping,flight.get("owner"));
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				response.success(payment);
+			});
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
 AV.Cloud.define("QueryWXOrder", function (request, response) {
     var out_trade_no = request.params.outTradeNo;
 	
@@ -460,6 +897,54 @@ var shippingChargeCallback = function(payment,data){
 		console.log(error.message);
 	});
 }
+
+/*shipping charge with balance*/
+var CreateShippingPaymentWithBalance = function (newpayment, shippings, response) {
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var myPayment = new Payment();
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+	
+	myPayment.set("paymentChannel", newpayment.channel);
+	myPayment.set("total", (newpayment.amount/100));
+	myPayment.set("status", newpayment.status);
+	myPayment.set("type", newpayment.type);
+	myPayment.set("user",newpayment.user);
+	myPayment.set("usingBalance",newpayment.usingBalance/100);
+	myPayment.set("usingCredit",newpayment.usingCredit);
+	myPayment.set("usingVoucher",newpayment.usingVoucher);
+	myPayment.set("voucherCode",newpayment.voucherCode);
+	myPayment.set("orderNo",newpayment.order_no);
+	myPayment.save(null, {
+	  success: function(payment) {
+	    console.log("Payment - " + newpayment.type + ": payment creation succeed: UserId->" + newpayment.user.id + ", order_no->" + newpayment.order_no); 
+		//add payment history to user
+		var user = newpayment.user;
+		var paymentRelation = user.relation('paymentHistory');
+		paymentRelation.add(payment);
+		user.save();
+		
+		//update shipping
+		for(var i=0; i<shippings.length;i++)
+		{
+			shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			shippings[i].set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+			shippings[i].set("payment",payment);
+			shippings[i].save().then(function(shipping){
+			    var totalAmount = payment.get("total");
+				pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shipping,user);
+				pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shipping,user);
+			});
+		}
+		response.success(payment);
+	  },
+	  error: function(message, error) {
+		console.log(error.message);
+		response.error(messageModule.errorMsg());
+	  }
+	});
+};
+
 
 /*Common function*/
 var paymentCallback = function(order){
