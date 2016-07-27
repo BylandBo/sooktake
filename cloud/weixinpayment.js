@@ -155,6 +155,107 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	});
 });
 
+AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
+    var shippingList = request.params.shippingList;
+	var amount = request.params.amount;
+	var usingBalance = request.params.usingBalance;
+	var usingCredit = request.params.usingCredit;
+	var usingVoucher = request.params.usingVoucher;
+	var voucherCode = request.params.voucherCode;
+	var channel = request.params.channel;
+	var userId = request.params.userId;
+
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+
+	var ip = request.meta.remoteAddress;
+	
+	console.log("Payment - PaymentChargeShippingList: charge creation: order_no->" + order_no + ", UserId->" + userId + ", ip->" + ip + ", channel->"+ channel + ", amount->" + (amount/100) + ", usingBalance->" + (usingBalance/100)); 
+	var userQuery = new AV.Query(AV.User);
+	AV.Cloud.useMasterKey();
+	userQuery.equalTo("objectId", userId);
+	userQuery.include("wechatInfo");
+	userQuery.include("details");
+	userQuery.find().then(function (users) {
+		if(users.length <= 0)
+		{
+			console.log("Payment - PaymentChargeShippingList: cannot find user " + userId );
+		}
+		else
+		{	
+			var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
+			for(var i=0; i<shippingList.length;i++)
+			{
+			    if(i != shippingList.length -1)
+					cql += "'" + shippingList[i] + "',";
+				else
+					cql += "'" + shippingList[i] + "')";
+			}
+			console.log("cql->" + cql);
+			AV.Query.doCloudQuery(cql).then(function (result) {
+			      var isDuplicatePayment = false;
+				  var isFirstTimePayment = true;
+				  
+				  var shippings = result.results;
+				  for (var j=0; j<shippings.length; j++) {
+					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
+					  {
+					    isDuplicatePayment = true;
+						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
+					  }
+					  if(shippings[j].get("payment") != null && shippings[j].get("payment") != "")
+					  {
+						isFirstTimePayment = false;
+					  }  
+				  }
+				  if(isDuplicatePayment)
+				     response.error({code: 100, message: "duplicate payment"});
+				  else
+				  {
+					var user = users[0];
+					if(isFirstTimePayment)//if first time payment, froze the user balance amount
+					{
+					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + (amount/100) + ", new forzenMoney->"+ (user.get("forzenMoney") + amount/100) +", old forzenMoney->" + user.get("forzenMoney") + ";  totalMoney->" + user.get("totalMoney"));
+					  var newforzenMoney = user.get("forzenMoney") + (amount/100);
+					  user.set("forzenMoney",newforzenMoney);
+					}
+					else
+					{
+						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + (usingBalance/100) + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney"));
+					}
+					var finalAmount = amount - usingBalance;
+					console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
+					wxpay.createUnifiedOrder({
+						body: 'Soontake 寄货人付款',
+						out_trade_no: order_no,
+						total_fee: finalAmount,
+						spbill_create_ip: ip,
+						notify_url: WebHookUrl,
+						trade_type: 'APP',
+						attach: messageModule.PF_SHIPPING_PAYMENT_CHARGE()
+					}, function(err, charge){
+						console.log(charge);
+						if(err != null || charge.return_code != 'SUCCESS'){
+						 console.log("Payment - PaymentChargeShippingList: charge creation error, order_no->" + order_no );
+						 console.log(err);
+						 response.error(err.message);
+						}
+						else
+						{
+						  var newPayment = {amount:amount,usingBalance:usingBalance,usingCredit:usingCredit,usingVoucher:usingVoucher,voucherCode:voucherCode,channel:channel,user:user,status:messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),type:messageModule.PF_SHIPPING_PAYMENT_CHARGE(),order_no:order_no};
+						  console.log("Payment - PaymentChargeShippingList: parameter info->" + JSON.stringify(newPayment));
+						  CreateShippingPayment(newPayment,charge,shippings,response);
+						}
+					});
+			     }
+			 }, function (error) {
+				console.log(error.message);
+			});
+		}
+	});
+});
+
 AV.Cloud.define("QueryWXOrder", function (request, response) {
     var out_trade_no = request.params.outTradeNo;
 	
@@ -254,6 +355,7 @@ var CreateWithDrawPayment = function (user, wxObj,params,type, response) {
 	});
 };
 
+//actually no callback from weixin
 var withdrawCallback = function(payment,data){
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	payment.set("transactionId",data.payment_no);
@@ -267,6 +369,90 @@ var withdrawCallback = function(payment,data){
 		user.save().then(function(result){
 			console.log("withdrawCallback: Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.payment_no + " with amount->" + amount);
 			pushModule.PushWithdrawSucceedToUser(payment,amount,user);
+		},function (error) {
+			console.log(error.message);
+		});
+	},function (error) {
+		console.log(error.message);
+	});
+}
+
+/*shipping payment*/
+var CreateShippingPayment = function (newpayment, wxObj, shippings, response) {
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var myPayment = new Payment();
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+	
+	myPayment.set("paymentChannel", newpayment.channel);
+	myPayment.set("total", (Payment.amount/100));
+	myPayment.set("status", newpayment.status);
+	myPayment.set("type", newpayment.type);
+	myPayment.set("user",newpayment.user);
+	myPayment.set("usingBalance",newpayment.usingBalance/100);
+	myPayment.set("usingCredit",newpayment.usingCredit);
+	myPayment.set("usingVoucher",newpayment.usingVoucher);
+	myPayment.set("voucherCode",newpayment.voucherCode);
+	myPayment.set("transactionNumber",wxObj.wxObj);
+	myPayment.set("orderNo",newpayment.order_no);
+	myPayment.save(null, {
+	  success: function(payment) {
+	    console.log("Payment - " + newpayment.type + ": payment creation succeed: transactionNumber->" + wxObj.wxObj + ", UserId->" + newpayment.user.id + ", order_no->" + newpayment.order_no); 
+		
+		//add payment history to user
+		var user = newpayment.user;
+		var paymentRelation = user.relation('paymentHistory');
+		paymentRelation.add(payment);
+		user.save();
+		
+		//update shipping
+		for(var i=0; i<shippings.length;i++)
+		{
+			shippings[i].set("paymentStatus",newpayment.status);
+			shippings[i].set("transferPaymentStatus",newpayment.status);
+			shippings[i].set("payment",payment);
+			shippings[i].save();
+		}
+		var obj = newAPPReturnObj(wxObj,newpayment.order_no);
+		response.success(obj);
+	  },
+	  error: function(message, error) {
+		console.log(error.message);
+		response.error(messageModule.errorMsg());
+	  }
+	});
+};
+
+var shippingChargeCallback = function(payment,data){
+    var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+			
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
+	payment.set("transactionId",data.transaction_id);
+	payment.save().then(function(result){
+	    var user = payment.get("user");
+		user.save().then(function(result){
+			console.log("shippingChargeCallback: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + (data.amount/100));
+			shippingQuery.equalTo("payment", payment);
+			shippingQuery.include("cargo");
+			shippingQuery.include("flight");
+			shippingQuery.find({
+					success: function (shippings) {
+						// The object was retrieved successfully.
+						for(var i=0; i<shippings.length; i++)
+						{
+							shippings[i].set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+							shippings[i].save().then(function(shipping){
+							    var totalAmount = (data.amount/100) + payment.get("usingBalance");
+								pushModule.PushChargeShippingListSucceedToCargoUser(payment,totalAmount,shipping,user);
+								pushModule.PushChargeShippingListSucceedToFlightUser(payment,totalAmount,shipping,user);
+							});
+						}
+					},
+					error: function (error) {
+						console.log(error.message);
+					}
+				});
 		},function (error) {
 			console.log(error.message);
 		});
@@ -295,6 +481,9 @@ var paymentCallback = function(order){
 				  switch (order.attach) {
 					case messageModule.PF_SHIPPING_PAYMENT_TOPUP():
 						topupCallback(payment,order);
+					  break;
+					case messageModule.PF_SHIPPING_PAYMENT_CHARGE():
+						shippingChargeCallback(payment,order);
 					  break;
 					default:
 					  return resp(returnFAILxml('Unknown Event type'), 400);
