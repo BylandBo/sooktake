@@ -67,7 +67,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				}
 				else
 				{
-				  CreatePayment(user,charge,params,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
+				  CreateTopupPayment(user,charge,params,messageModule.PF_SHIPPING_PAYMENT_TOPUP(),response);
 				}
 			});
 		}
@@ -89,6 +89,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 	AV.Cloud.useMasterKey();
 	userQuery.equalTo("objectId", userId);
 	userQuery.include("wechatInfo");
+	userQuery.include("details");
 	userQuery.find().then(function (users) {
 		if(users.length <= 0)
 		{
@@ -112,31 +113,25 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 					user.set("forzenMoney",FrozenMoney);
 					user.save();
 				    var openId = wechatInfo.get("openId");
-				  	pingpp.transfers.create({
-					  order_no:  order_no,
-					  app:       { id: APP_ID },
-					  channel:   "wx",
-					  amount:    amount,
-					  currency:  "cny",
-					  type:      "b2c",
-					  recipient:   openId,
-					  description: "soontake 取款"
-					}, function(err, transfer) {
-						  if(err != null)
-						  {
-						    console.log("Payment - WithdrawToWechat: transfer creation error, order_no->" + order_no );
-							console.log(err);
-							response.error(err.message);
-						  }
-						  else if(transfer.status == messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
-						  {
-						    console.log("Payment - WithdrawToWechat: transfer creation error:"+ transfer.failure_msg +", order_no->" + order_no );
-							response.error({code: 136, message: transfer.failure_msg});//135: user balance not enough
-						  }
-						  else
-						  {
-					        PingCreatePayment(user,transfer,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
-						  }
+					wxpay.createBusinessPayToWeixin({
+						desc: 'Soontake 取款',
+						partner_trade_no: order_no,
+						openid: openId,
+						check_name: 'OPTION_CHECK',
+						re_user_name: user.get("details").get("realname"),
+						amount: amount,
+						spbill_create_ip: ip
+					}, function(err, charge){
+						console.log(charge);
+						if(err != null || charge.return_code != 'SUCCESS'){
+						 console.log("Payment - WithdrawToWechat: charge creation error, order_no->" + order_no );
+						 console.log(err);
+						 response.error(err.message);
+						}
+						else
+						{
+						  CreateWithDrawPayment(user,charge,params,messageModule.PF_SHIPPING_PAYMENT_WITHDRAW(),response);
+						}
 					});
 			   }
 			   else
@@ -154,6 +149,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 		}
 	},function (error) {
 			console.log(error.message);
+			response.error(error.message);
 	});
 });
 
@@ -172,7 +168,7 @@ AV.Cloud.define("QueryWXOrder", function (request, response) {
 	});
 });
 
-var CreatePayment = function (user, wxObj,params,type, response) {
+var CreateTopupPayment = function (user, wxObj,params,type, response) {
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
@@ -194,6 +190,38 @@ var CreatePayment = function (user, wxObj,params,type, response) {
 		
 		var obj = newAPPReturnObj(wxObj,params.order_no);
 		response.success(obj);
+	  },
+	  error: function(message, error) {
+		console.log(error.message);
+		response.error(messageModule.errorMsg());
+	  }
+	});
+};
+
+var CreateWithDrawPayment = function (user, wxObj,params,type, response) {
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var myPayment = new Payment();
+	
+	myPayment.set("paymentChannel", params.channel);
+	myPayment.set("total", (params.amount/100));
+	myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+	myPayment.set("type", type);
+	myPayment.set("user",user);
+	myPayment.set("orderNo",params.order_no);
+	myPayment.save(null, {
+	  success: function(payment) {
+	    console.log("Payment - " + type + ": payment creation succeed: transactionId->" + wxObj.payment_no + ", UserId->" + user.id + ", order_no->" + params.order_no + ", amount->"+(params.amount/100)); 
+		//add payment history to user
+		var paymentRelation = user.relation('paymentHistory');
+		paymentRelation.add(payment);
+		user.save();
+		if(wxObj.return_code === "SUCCESS"){
+			withdrawCallback(payment,wxObj);
+			response.success(wxObj);
+		}
+		else
+		    response.error({code: wxObj.return_code, message: wxObj.return_msg});
 	  },
 	  error: function(message, error) {
 		console.log(error.message);
@@ -231,6 +259,27 @@ var topupCallback = function(payment,data){
 		user.save().then(function(result){
 			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
 			pushModule.PushPaymentTopupSucceedToUser(payment,amount,user);
+		},function (error) {
+			console.log(error.message);
+		});
+	},function (error) {
+		console.log(error.message);
+	});
+}
+
+var withdrawCallback = function(payment,data){
+	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+	payment.set("transactionId",data.payment_no);
+	payment.save().then(function(result){
+	    var user = payment.get("user");
+		var amount = payment.get("total");
+		var frozenBalance = user.get("forzenMoney") - amount;
+		var totalBalance = user.get("totalMoney") - amount;
+		user.set("forzenMoney",frozenBalance);
+		user.set("totalMoney",totalBalance);
+		user.save().then(function(result){
+			console.log("withdrawCallback: Payment - Withdraw success for user->" + user.id + " with transactionId-> " + data.payment_no + " with amount->" + amount);
+			pushModule.PushWithdrawSucceedToUser(payment,amount,user);
 		},function (error) {
 			console.log(error.message);
 		});

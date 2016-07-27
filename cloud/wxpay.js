@@ -13,6 +13,7 @@ function WXPay() {
 
 	this.options = arguments[0];
 	this.wxpayID = { appid:this.options.appid, mch_id:this.options.mch_id };
+	this.wxbusinesspayID = { mch_appid:this.options.appid, mchid:this.options.mch_id };
 };
 
 WXPay.mix = function(){
@@ -181,6 +182,25 @@ WXPay.mix('refund',function(order, fn){
 		url: "https://api.mch.weixin.qq.com/secapi/pay/refund",
 		method: "POST",
 		body: util.buildXML({xml: order}),
+		agentOptions: {
+			pfx: this.options.pfx,
+			passphrase: this.options.mch_id
+		}
+	}, function(err, response, body){
+		util.parseXML(body, fn);
+	});
+});
+
+WXPay.mix('createBusinessPayToWeixin', function(opts, fn){
+
+	opts.nonce_str = opts.nonce_str || util.generateNonceString();
+	util.mix(opts, this.wxbusinesspayID);
+	opts.sign = this.sign(opts);
+
+	request({
+		url: "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers",
+		method: 'POST',
+		body: util.buildXML(opts),
 		agentOptions: {
 			pfx: this.options.pfx,
 			passphrase: this.options.mch_id
