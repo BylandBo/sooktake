@@ -61,7 +61,7 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 			}, function(err, charge){
 				console.log(charge);
 				if(err != null || charge.return_code != 'SUCCESS' || (charge.err_code != null&&charge.err_code != '')){
-			     console.log("Payment - Topup: charge creation error, order_no->" + order_no );
+			     console.log("Payment - Topup: charge creation error, order_no->" + order_no + ", err_code->" + charge.err_code + ", err_desc->" + charge.err_code_des );
 				 console.log(err);
 				 if(err != null)
 					response.error(err.message);
@@ -875,8 +875,8 @@ var shippingChargeCallback = function(payment,data){
 	payment.set("transactionId",data.transaction_id);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
-		var forzenMoney = user.get("forzenMoney") - (payment.get("total") - payment.get("usingBalance"));
-		user.set('forzenMoney',forzenMoney);
+		var totalMoney = user.get("totalMoney") + (payment.get("total") - payment.get("usingBalance"));
+		user.set('totalMoney',totalMoney);
 		user.save().then(function(result){
 			console.log("shippingChargeCallback: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
 			shippingQuery.equalTo("payment", payment);
