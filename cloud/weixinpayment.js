@@ -60,10 +60,13 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 				attach: messageModule.PF_SHIPPING_PAYMENT_TOPUP()
 			}, function(err, charge){
 				console.log(charge);
-				if(err != null || charge.return_code != 'SUCCESS'){
+				if(err != null || charge.return_code != 'SUCCESS' || (charge.err_code != null&&charge.err_code != '')){
 			     console.log("Payment - Topup: charge creation error, order_no->" + order_no );
 				 console.log(err);
-				 response.error(err.message);
+				 if(err != null)
+					response.error(err.message);
+				 else
+					response.error({code: charge.err_code, message: charge.err_code_des});
 				}
 				else
 				{
@@ -125,10 +128,12 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 						spbill_create_ip: ip
 					}, function(err, charge){
 						console.log(charge);
-						if(err != null || charge.return_code != 'SUCCESS'){
+						if(err != null || charge.return_code != 'SUCCESS' || (charge.err_code != null&&charge.err_code != '')){
 						 console.log("Payment - WithdrawToWechat: charge creation error, order_no->" + order_no );
-						 console.log(err);
-						 response.error(err.message);
+						if(err != null)
+							response.error(err.message);
+						else
+							response.error({code: charge.err_code, message: charge.err_code_des});
 						}
 						else
 						{
@@ -236,10 +241,12 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 						attach: messageModule.PF_SHIPPING_PAYMENT_CHARGE()
 					}, function(err, charge){
 						console.log(charge);
-						if(err != null || charge.return_code != 'SUCCESS'){
+						if(err != null || charge.return_code != 'SUCCESS' || (charge.err_code != null&&charge.err_code != '')){
 						 console.log("Payment - PaymentChargeShippingList: charge creation error, order_no->" + order_no );
-						 console.log(err);
-						 response.error(err.message);
+						 if(err != null)
+							response.error(err.message);
+						 else
+							response.error({code: charge.err_code, message: charge.err_code_des});
 						}
 						else
 						{
@@ -703,7 +710,7 @@ AV.Cloud.define("QueryWXOrder", function (request, response) {
           response.error(err);		
 		else{
 		    paymentCallback(order);
-			console.log("return query result to APP" + JSON.stringify(order));
+			console.log("return query result to APP: out_trade_no->" + out_trade_no);
 			response.success(order);
 		}
 	});
@@ -822,7 +829,7 @@ var CreateShippingPayment = function (newpayment, wxObj, shippings, response) {
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
 	
 	myPayment.set("paymentChannel", newpayment.channel);
-	myPayment.set("total", (Payment.amount/100));
+	myPayment.set("total", (newpayment.amount/100));
 	myPayment.set("status", newpayment.status);
 	myPayment.set("type", newpayment.type);
 	myPayment.set("user",newpayment.user);
