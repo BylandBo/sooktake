@@ -970,8 +970,8 @@ var paymentCallback = function(order){
 			 }
 			 else
 			 {
-			    if(order.return_code != 'SUCCESS' || (charge.err_code != null && charge.err_code != ''))
-				   console.log("paymentCallback: payment with out_trade_no: " + order.out_trade_no + " not successfully with error->"+ charge.err_code + ", error_desc->" + charge.err_code_des);
+			    if(order.return_code != 'SUCCESS' || (order.err_code != null && order.err_code != ''))
+				   console.log("paymentCallback: payment with out_trade_no: " + order.out_trade_no + " not successfully with error->"+ order.err_code + ", error_desc->" + order.err_code_des);
 			    else
 				{
 				  var payment = payments[0];
