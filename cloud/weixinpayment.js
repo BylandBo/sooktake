@@ -875,6 +875,8 @@ var shippingChargeCallback = function(payment,data){
 	payment.set("transactionId",data.transaction_id);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
+		var forzenMoney = user.get("forzenMoney") - (payment.get("total") - payment.get("usingBalance"));
+		user.set('forzenMoney',forzenMoney);
 		user.save().then(function(result){
 			console.log("shippingChargeCallback: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
 			shippingQuery.equalTo("payment", payment);
@@ -968,7 +970,10 @@ var paymentCallback = function(order){
 			 }
 			 else
 			 {
-			    if(order.return_code === 'SUCCESS'){
+			    if(order.return_code != 'SUCCESS' || (charge.err_code != null && charge.err_code != ''))
+				   console.log("paymentCallback: payment with out_trade_no: " + order.out_trade_no + " not successfully with error->"+ charge.err_code + ", error_desc->" + charge.err_code_des);
+			    else
+				{
 				  var payment = payments[0];
 				  switch (order.attach) {
 					case messageModule.PF_SHIPPING_PAYMENT_TOPUP():
@@ -982,8 +987,6 @@ var paymentCallback = function(order){
 					  break;
 				  }
 			    }
-				else
-				 console.log("paymentCallback: payment with out_trade_no: " + order.out_trade_no + " not successfully");
 			 }
         },
         error: function (error) {
