@@ -122,7 +122,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 						desc: 'Soontake 取款',
 						partner_trade_no: order_no,
 						openid: openId,
-						check_name: 'OPTION_CHECK',
+						check_name: 'NO_CHECK',
 						re_user_name: user.get("details").get("realname"),
 						amount: amount,
 						spbill_create_ip: ip
