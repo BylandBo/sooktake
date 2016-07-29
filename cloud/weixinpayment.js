@@ -229,6 +229,9 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					{
 						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + (usingBalance/100) + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney"));
 					}
+					
+					if(channel == messageModule.PF_SHIPPING_PAYMENT_CHANNEL_WEIXIN())
+					{
 					var finalAmount = amount - usingBalance;
 					console.log("Payment - PaymentChargeShippingList: charge creation starting, order_no->" + order_no );
 					wxpay.createUnifiedOrder({
@@ -255,6 +258,11 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 						  CreateShippingPayment(newPayment,charge,shippings,response);
 						}
 					});
+				   }
+				   else if(channel == messageModule.PF_SHIPPING_PAYMENT_CHANNEL_ALIPAY())
+				   {
+				    //todo
+				   }
 			     }
 			 }, function (error) {
 				console.log(error.message);
