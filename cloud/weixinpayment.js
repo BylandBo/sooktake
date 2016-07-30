@@ -660,14 +660,17 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 });
 
 AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) {
-    var shippingId = request.params.shippingId;
+    var shippingList = request.params.shippingList;
 	
 	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
 	
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
-		
+	
+    for(var s=0; s <shippingList.length; s++)
+    {	
+	var shippingId = shippingList[s];
 	console.log("Payment - PaymentChargeShippingListCancel: shippingId->" + shippingId); 
 	
 	shippingQuery.include("payment");
@@ -706,6 +709,7 @@ AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) 
 			console.log(error.message);
 			response.error(messageModule.errorMsg());
 	});
+   }
 });
 
 AV.Cloud.define("QueryWXOrder", function (request, response) {
