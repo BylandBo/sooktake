@@ -1750,3 +1750,46 @@ exports.PushPaymentChargeShippingListCancelToCargoUser = function (payment,amoun
 		}
 	});
 }
+
+exports.PushPaymentTopupCancelToCargoUser = function (payment,amount,user) {
+    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
+    var myPushMessage = new PushMessage();
+    
+	var content = "您已经取消充值¥"+amount+"到您的Soontake帐号"
+	
+	myPushMessage.set("groupId", payment.id);
+	myPushMessage.add("dataList",payment);
+	myPushMessage.set("text", content);
+	myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+	myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_SYSTEM);
+	myPushMessage.set("sendTo", user);
+	myPushMessage.set("counter", 1);
+	myPushMessage.save();	
+	
+	var pushQuery = new AV.Query(AV.Installation);
+	pushQuery.equalTo("user", user);
+
+	if(user != null && user != "" && typeof user !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:payment.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushPaymentTopupCancelToCargoUser message: Payment: " + payment.id + " to User: " + user.id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
+}

@@ -77,6 +77,42 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 	});
 });
 
+AV.Cloud.define("PaymentTopupCancel", function (request, response) {
+    var prepayId = request.params.prepayId;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	console.log("Payment - PaymentTopupCancel: prepayId->" + prepayId); 
+	
+	paymentQuery.include("user");
+	paymentQuery.equalTo("transactionNumber",prepayId);
+	paymentQuery.find().then(function(payments){
+			if(payments.length <= 0)
+			{
+				console.log("Payment - PaymentTopupCancel: cannot find payment: prepayId->" + prepayId );
+			}
+			else
+			{
+	        var payment = payments[0];			
+			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+			payment.save().then(function (py){
+			     var cargoUser = payment.get("user");
+				 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+				 cargoUser.set("forzenMoney",newForzenMoney);
+				 cargoUser.save().then(function(user){
+					var totalAmount = payment.get("total");
+					pushModule.PushPaymentTopupCancelToCargoUser(payment,totalAmount,cargoUser);
+				 });
+				response.success(payment);
+			});
+		   }
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
 AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
     var amount = request.params.amount;
 	var userId = request.params.userId;
