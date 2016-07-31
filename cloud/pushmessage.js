@@ -349,7 +349,7 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 				body:content,
 				objectId:shipping.id,
 				sound:'default',
-				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+				type:PF_PUSH_MESSAGE_TYPE_CARGO,
 				action:PF_PUSH_MESSAGE_ACTION
 			}
 		}, {
@@ -506,7 +506,7 @@ exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
 				body:content,
 				objectId:flight.id,
 				sound:'default',
-				type:PF_PUSH_MESSAGE_TYPE_CARGO,
+				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
 				action:PF_PUSH_MESSAGE_ACTION
 			}
 		}, {
@@ -681,7 +681,7 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 							body:content,
 							objectId:cargo.id,
 							sound:'default',
-							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							type:PF_PUSH_MESSAGE_TYPE_CARGO,
 							action:PF_PUSH_MESSAGE_ACTION
 						}
 					}, {
@@ -973,7 +973,7 @@ exports.PushPaymentTransferToSenderSucceedToCargoUser = function (payment,amount
 							body:content,
 							objectId:cargo.id,
 							sound:'default',
-							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							type:PF_PUSH_MESSAGE_TYPE_CARGO,
 							action:PF_PUSH_MESSAGE_ACTION
 						}
 					}, {
@@ -1061,7 +1061,7 @@ exports.PushPaymentRefundToCargotUser = function (payment,amount,shipping,user) 
 							body:content,
 							objectId:cargo.id,
 							sound:'default',
-							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							type:PF_PUSH_MESSAGE_TYPE_CARGO,
 							action:PF_PUSH_MESSAGE_ACTION
 						}
 					}, {
@@ -1353,7 +1353,7 @@ exports.PushPaymentRefundRejectToCargotUser = function (payment,amount,shipping,
 							body:content,
 							objectId:cargo.id,
 							sound:'default',
-							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							type:PF_PUSH_MESSAGE_TYPE_CARGO,
 							action:PF_PUSH_MESSAGE_ACTION
 						}
 					}, {
@@ -1441,7 +1441,7 @@ exports.PushPaymentRefundApproveToCargotUser = function (payment,amount,shipping
 							body:content,
 							objectId:cargo.id,
 							sound:'default',
-							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							type:PF_PUSH_MESSAGE_TYPE_CARGO,
 							action:PF_PUSH_MESSAGE_ACTION
 						}
 					}, {
@@ -1733,7 +1733,7 @@ exports.PushPaymentChargeShippingListCancelToCargoUser = function (payment,amoun
 							body:content,
 							objectId:cargo.id,
 							sound:'default',
-							type:PF_PUSH_MESSAGE_TYPE_CHARGE,
+							type:PF_PUSH_MESSAGE_TYPE_CARGO,
 							action:PF_PUSH_MESSAGE_ACTION
 						}
 					}, {
