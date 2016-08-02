@@ -166,7 +166,9 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 						console.log(charge);
 						if(err != null || charge.return_code != 'SUCCESS' || (charge.err_code != null&&charge.err_code != '')){
 						 console.log("Payment - WithdrawToWechat: charge creation error, order_no->" + order_no );
-						if(err != null)
+						if(charge.err_code == messageModule.PF_SHIPPING_PAYMENT_ERROR_SENDNUM_LIMIT())
+						    response.error({code: 137, message: charge.err_code_des});
+						else if(err != null)
 							response.error(err.message);
 						else
 							response.error({code: charge.err_code, message: charge.err_code_des});
