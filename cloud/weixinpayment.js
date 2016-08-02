@@ -695,6 +695,87 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 	});
 });
 
+AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
+    var shippingId = request.params.shippingId;
+	var reasonCode = request.params.reasonCode;
+	var reason = request.params.reason;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+
+		
+	console.log("Payment - PaymentCancelRefundRequest: refund cancel by shipper: shippingId->" + shippingId); 
+	
+	if(shippingId == null || shippingId == '')
+	{
+		response.error({code: 103, message: "没有退款申请"});
+	}
+			
+	shippingQuery.include("payment");
+	shippingQuery.include("refundPayment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			var refundPayment = shipping.get("refundPayment");
+			if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
+			{
+				response.error({code: 101, message: "退款申请已经批准"});
+			}
+			else
+			{
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+			shipping.save().then(function (sp){
+			        payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+					payment.save();
+					
+					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCELREFUND());
+					refundPayment.save();
+					
+				    flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundCancelToFlightUser(payment,totalAmount,shipping,flightUser);
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+								 var cargoUser = cargoObj.get("owner");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 response.error(messageModule.errorMsg());
+							    }
+						   });
+				    console.log("Payment - PaymentRejectRefundRequest: refund approve by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    response.success(refundPayment);
+			});
+		   }
+	
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+});
+
 AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) {
     var shippingList = request.params.shippingList;
 	
