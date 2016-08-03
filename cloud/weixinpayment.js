@@ -1173,7 +1173,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 			    for(var i=0; i++; i<shippings.length)
 				{
 					var payment = shippings[i].get("payment");
-					var compareDate =  var myDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+					var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
 					if(payment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.get("createdAt")))
 					{
 					  //call transfer to sender method
