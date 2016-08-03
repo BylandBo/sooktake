@@ -6,7 +6,7 @@ var AV = require('leanengine');
 var crypto = require('crypto');
 //var WXPay = require('weixin-pay');
 var WXPay = require('./wxpay');
-var fs  = require("fs");
+var fs  = require('fs');
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -98,8 +98,8 @@ AV.Cloud.define("PaymentTopupCancel", function (request, response) {
 			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
 			payment.save().then(function (py){
 			     var cargoUser = payment.get("user");
-				 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
-				 cargoUser.set("forzenMoney",newForzenMoney);
+				 //var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+				 //cargoUser.set("forzenMoney",newForzenMoney);
 				 cargoUser.save().then(function(user){
 					var totalAmount = payment.get("total");
 					pushModule.PushPaymentTopupCancelToCargoUser(payment,totalAmount,cargoUser);
@@ -714,7 +714,7 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
     var shippingQuery = new AV.Query(Shipping);
 
 		
-	console.log("Payment - PaymentCancelRefundRequest: refund cancel by shipper: shippingId->" + shippingId); 
+	console.log("Payment - PaymentCancelRefundRequest: refund cancel by cargoer: shippingId->" + shippingId); 
 	
 	if(shippingId == null || shippingId == '')
 	{
@@ -1148,3 +1148,42 @@ var newAPPReturnObj = function (wxObj,out_trade_no){
 	console.log("Return to APP: " + JSON.stringify(newObj));
 	return newObj;
 }
+
+AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
+    var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+	
+	shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
+	shippingQuery.containsAll("transferPaymentStatus", [messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND()]);
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.find({
+        success: function (shippings) {
+		     if(shippings.length <= 0)
+			 {
+				console.log("AutoPaymentAfterPackageSentJob: no payments to update");
+				response.success(true);
+			 }
+			 else
+			 {
+			    for(var i=0; i++; i<shippings.length)
+				{
+					var payment = shippings[i].get("payment");
+					var compareDate =  var myDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+					if(payment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.get("createdAt")))
+					{
+					  //call transfer to sender method
+					}
+				}
+			 }
+        },
+        error: function (error) {
+            console.log(error.message);
+			response.error(false);
+        }
+    });
+});
