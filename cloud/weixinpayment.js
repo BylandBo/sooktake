@@ -502,7 +502,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			myPayment.set("paymentChannel", "soontake");
 			myPayment.set("total", payment.get("total"));
 			myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
-			myPayment.set("type", "refund");
+			myPayment.set("type", messageModule.PF_SHIPPING_PAYMENT_REFUND());
 			myPayment.set("user",cargo.get("owner"));//cargo user
 			myPayment.set("orderNo",order_no);
 			myPayment.set("reasonCode",reasonCode.toString());
@@ -1165,7 +1165,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
         success: function (shippings) {
 		     if(shippings.length <= 0)
 			 {
-				console.log("AutoPaymentAfterPackageSentJob: no payments to update");
+				console.log("AutoPaymentAfterPackageSentJob: no payment to update");
 				response.success(true);
 			 }
 			 else
@@ -1173,12 +1173,78 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 			    for(var i=0; i++; i<shippings.length)
 				{
 					var payment = shippings[i].get("payment");
-					var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-					if(payment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.get("createdAt")))
+					if(payment != null && payment !='')
 					{
-					  //call transfer to sender method
+						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						if(payment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.get("createdAt")))
+						{
+						  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
+						  //call transfer to sender method
+						  AV.Cloud.run('PaymentTransferToSender', { shippingId: shippings[i].id}, {
+							success: function (paymentResult) {
+								console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
+							},
+							error: function (error) {
+								console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
+							}
+						  });
+						}
 					}
 				}
+				response.success(true);
+			 }
+        },
+        error: function (error) {
+            console.log(error.message);
+			response.error(false);
+        }
+    });
+});
+
+AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
+    var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+    var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+	
+	shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
+	shippingQuery.containsAll("transferPaymentStatus", [messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND()]);
+	shippingQuery.include("payment");
+	shippingQuery.include("refundPayment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.find({
+        success: function (shippings) {
+		     if(shippings.length <= 0)
+			 {
+				console.log("AutoPaymentRefundJob: no refund payment to update");
+				response.success(true);
+			 }
+			 else
+			 {
+			    for(var i=0; i++; i<shippings.length)
+				{
+					var refundPayment = shippings[i].get("refundPayment");
+					if(refundPayment != null && refundPayment !='')
+					{
+						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						if(refundPayment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.get("createdAt")))
+						{
+						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
+						  //call approve refund method
+						  AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shippings[i].id,reasonCode:'',reason:''}, {
+							success: function (paymentResult) {
+								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
+							},
+							error: function (error) {
+								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
+							}
+						  });
+						}
+					}
+				}
+				response.success(true);
 			 }
         },
         error: function (error) {
