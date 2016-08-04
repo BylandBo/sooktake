@@ -102,7 +102,7 @@ AV.Cloud.define("PaymentTopupCancel", function (request, response) {
 				 //cargoUser.set("forzenMoney",newForzenMoney);
 				 cargoUser.save().then(function(user){
 					var totalAmount = payment.get("total");
-					pushModule.PushPaymentTopupCancelToCargoUser(payment,totalAmount,cargoUser);
+					//pushModule.PushPaymentTopupCancelToCargoUser(payment,totalAmount,cargoUser);
 				 });
 				response.success(payment);
 			});
