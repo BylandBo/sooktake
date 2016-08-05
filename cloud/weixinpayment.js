@@ -1172,19 +1172,15 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 			 }
 	      else
 			 {
-			    console.log("AutoPaymentAfterPackageSentJob: hello1");
 			    for(var i=0;i<shippings.length;i++)
 				{
-				    console.log("AutoPaymentAfterPackageSentJob: hello2");
 					var payment = shippings[i].get("payment");
-					console.log("AutoPaymentAfterPackageSentJob: hello3");
-					console.log("AutoPaymentAfterPackageSentJob: payment->" + JSON.stringify(payment));
 					if(payment != null && payment !='')
 					{
 						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
 						var compareDate = new Date(new Date().getTime()-(10*60*1000));
-						 console.log("AutoPaymentAfterPackageSentJob: payment type->" + payment.get("type") + ", compareDate->" + compareDate + ", payment create date->" + payment.get("createdAt"));
-						if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.get("createdAt")))
+						 console.log("AutoPaymentAfterPackageSentJob: payment type->" + payment.get("type") + ", compareDate->" + compareDate + ", payment create date->" + payment.created_at);
+						if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.created_at))
 						{
 						  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
 						  //call transfer to sender method
