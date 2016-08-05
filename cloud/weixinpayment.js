@@ -1177,9 +1177,8 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					var payment = shippings[i].get("payment");
 					if(payment != null && payment !='')
 					{
-						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						var compareDate = new Date(new Date().getTime()-(10*60*1000));
-						 console.log("AutoPaymentAfterPackageSentJob: payment type->" + payment.get("type") + ", compareDate->" + compareDate + ", payment create date->" + payment.getCreatedAt());
+						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						//var compareDate = new Date(new Date().getTime()-(10*60*1000));
 						if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.getCreatedAt()))
 						{
 						  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
@@ -1227,8 +1226,8 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 					var refundPayment = shippings[i].get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
-						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						var compareDate = new Date(new Date().getTime()-(10*60*1000));
+						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						//var compareDate = new Date(new Date().getTime()-(10*60*1000));
 						if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
 						{
 						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
