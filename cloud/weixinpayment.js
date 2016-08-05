@@ -7,6 +7,7 @@ var crypto = require('crypto');
 //var WXPay = require('weixin-pay');
 var WXPay = require('./wxpay');
 var fs  = require('fs');
+var async = require("async");
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -1252,28 +1253,28 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 			 }
 			 else
 			 {
-			    for(var i=0; i<shippings.length; i++)
-				{
-					var refundPayment = shippings[i].get("refundPayment");
-					if(refundPayment != null && refundPayment !='')
-					{
-						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						var compareDate = new Date(new Date().getTime()-(10*60*1000));
-						if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
-						{
-						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
-						  //call approve refund method
-						  AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shippings[i].id,reasonCode:'',reason:''}, {
-							success: function (paymentResult) {
-								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
-							},
-							error: function (error) {
-								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
-							}
-						  });
-						}
-					}
-				}
+			    // for(var i=0; i<shippings.length; i++)
+				// {
+					// var refundPayment = shippings[i].get("refundPayment");
+					// if(refundPayment != null && refundPayment !='')
+					// {
+						// //var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						// var compareDate = new Date(new Date().getTime()-(10*60*1000));
+						// if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
+						// {
+						  // console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
+						  // //call approve refund method
+						  // AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shippings[i].id,reasonCode:'',reason:''}, {
+							// success: function (paymentResult) {
+								// console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
+							// },
+							// error: function (error) {
+								// console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
+							// }
+						  // });
+						// }
+					// }
+				// }
 				async.each(shippings, function(shipping, callback) {
 				 var refundPayment = shipping.get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
