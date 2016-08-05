@@ -1172,28 +1172,59 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 			 }
 	      else
 			 {
-			    for(var i=0;i<shippings.length;i++)
+			    // for(var i=0;i<shippings.length;i++)
+				// {
+					// var payment = shippings[i].get("payment");
+					// if(payment != null && payment !='')
+					// {
+						// var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						// //var compareDate = new Date(new Date().getTime()-(10*60*1000));
+						// if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.getCreatedAt()))
+						// {
+						  // console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
+						  // //call transfer to sender method
+						  // AV.Cloud.run('PaymentTransferToSender', { shippingId: shippings[i].id}, {
+							// success: function (paymentResult) {
+								// console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
+							// },
+							// error: function (error) {
+								// console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
+							// }
+						  // });
+						// }
+					// }
+				// }
+				async.each(shippings, function(shipping, callback) {
+				var payment = shipping.get("payment");
+				if(payment != null && payment !='')
 				{
-					var payment = shippings[i].get("payment");
-					if(payment != null && payment !='')
+					var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+					//var compareDate = new Date(new Date().getTime()-(10*60*1000));
+					if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.getCreatedAt()))
 					{
-						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						//var compareDate = new Date(new Date().getTime()-(10*60*1000));
-						if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.getCreatedAt()))
-						{
-						  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
-						  //call transfer to sender method
-						  AV.Cloud.run('PaymentTransferToSender', { shippingId: shippings[i].id}, {
-							success: function (paymentResult) {
-								console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
-							},
-							error: function (error) {
-								console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
-							}
-						  });
+					  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
+					  //call transfer to sender method
+					  AV.Cloud.run('PaymentTransferToSender', { shippingId: shipping.id}, {
+						success: function (paymentResult) {
+							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
+							callback();
+						},
+						error: function (error) {
+							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
 						}
+					  });
 					}
 				}
+				}, function(err) {
+					// if any of the file processing produced an error, err would equal that error
+					if( err ) {
+					  // One of the iterations produced an error.
+					  // All processing will now stop.
+					  console.log('A file failed to process');
+					} else {
+					  console.log('All files have been processed successfully');
+					}
+				});
 				response.success(true);
 			 }
 	});
@@ -1226,8 +1257,8 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 					var refundPayment = shippings[i].get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
-						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						//var compareDate = new Date(new Date().getTime()-(10*60*1000));
+						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						var compareDate = new Date(new Date().getTime()-(10*60*1000));
 						if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
 						{
 						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
@@ -1243,6 +1274,36 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 						}
 					}
 				}
+				async.each(shippings, function(shipping, callback) {
+				 var refundPayment = shipping.get("refundPayment");
+					if(refundPayment != null && refundPayment !='')
+					{
+						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						var compareDate = new Date(new Date().getTime()-(10*60*1000));
+						if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
+						{
+						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
+						  //call approve refund method
+						  AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shipping.id,reasonCode:'',reason:''}, {
+							success: function (paymentResult) {
+								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
+							},
+							error: function (error) {
+								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
+							}
+						  });
+						}
+					}
+				}, function(err) {
+					// if any of the file processing produced an error, err would equal that error
+					if( err ) {
+					  // One of the iterations produced an error.
+					  // All processing will now stop.
+					  console.log('A file failed to process');
+					} else {
+					  console.log('All files have been processed successfully');
+					}
+				});
 				response.success(true);
 			 }
         },
