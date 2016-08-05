@@ -1161,14 +1161,11 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
-	shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
-	shippingQuery.containsAll("transferPaymentStatus", [messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING(),messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND()]);
-	shippingQuery.include("payment");
-	shippingQuery.include("cargo");
-	shippingQuery.include("flight");
-	shippingQuery.find({
-        success: function (shippings) {
-		     if(shippings.length <= 0)
+	var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where status = AND transferPaymentStatus in ('" + messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() + "','" + messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND() + "')";
+	console.log("AutoPaymentAfterPackageSentJob cql->" + cql);
+	AV.Query.doCloudQuery(cql).then(function (result) {
+		  var shippings = result.results;
+		  if(shippings.length <= 0)
 			 {
 				console.log("AutoPaymentAfterPackageSentJob: no payment to update");
 				response.success(true);
@@ -1199,12 +1196,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 				}
 				response.success(true);
 			 }
-        },
-        error: function (error) {
-            console.log(error.message);
-			response.error(false);
-        }
-    });
+	});
 });
 
 AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
@@ -1215,7 +1207,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
     var shippingQuery = new AV.Query(Shipping);
 	
 	shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
-	shippingQuery.containsAll("transferPaymentStatus", [messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND()]);
+	shippingQuery.equalTo("transferPaymentStatus", messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
 	shippingQuery.include("payment");
 	shippingQuery.include("refundPayment");
 	shippingQuery.include("cargo");
