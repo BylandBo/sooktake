@@ -1161,7 +1161,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
-	var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where status = AND transferPaymentStatus in ('" + messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() + "','" + messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND() + "')";
+	var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where status = '"+messageModule.ShippingStatus_Received()+"' AND transferPaymentStatus in ('" + messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() + "','" + messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND() + "')";
 	console.log("AutoPaymentAfterPackageSentJob cql->" + cql);
 	AV.Query.doCloudQuery(cql).then(function (result) {
 		  var shippings = result.results;
