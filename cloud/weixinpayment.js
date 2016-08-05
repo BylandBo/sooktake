@@ -1165,6 +1165,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 	console.log("AutoPaymentAfterPackageSentJob cql->" + cql);
 	AV.Query.doCloudQuery(cql).then(function (result) {
 		  var shippings = result.results;
+		  console.log("AutoPaymentAfterPackageSentJob: shippings->" + JSON.stringify(shippings));
 		  if(shippings.length <= 0)
 			 {
 				console.log("AutoPaymentAfterPackageSentJob: no payment to update");
