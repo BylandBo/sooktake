@@ -1195,7 +1195,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 						// }
 					// }
 				// }
-				async.each(shippings, function(shipping, callback) {
+				async.eachSeries(shippings, function(shipping, callback) {
 				var payment = shipping.get("payment");
 				if(payment != null && payment !='')
 				{
@@ -1221,9 +1221,9 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					if( err ) {
 					  // One of the iterations produced an error.
 					  // All processing will now stop.
-					  console.log('A file failed to process');
+					  console.log('A payment failed to process');
 					} else {
-					  console.log('All files have been processed successfully');
+					  console.log('All payment have been processed successfully');
 					}
 				});
 				response.success(true);
@@ -1275,7 +1275,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 						// }
 					// }
 				// }
-				async.each(shippings, function(shipping, callback) {
+				async.eachSeries(shippings, function(shipping, callback) {
 				 var refundPayment = shipping.get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
@@ -1300,9 +1300,9 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 					if( err ) {
 					  // One of the iterations produced an error.
 					  // All processing will now stop.
-					  console.log('A file failed to process');
+					  console.log('A refund payment failed to process');
 					} else {
-					  console.log('All files have been processed successfully');
+					  console.log('All refund payment have been processed successfully');
 					}
 				});
 				response.success(true);
