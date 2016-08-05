@@ -1222,14 +1222,14 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 			 }
 			 else
 			 {
-			    for(var i=0; i++; i<shippings.length)
+			    for(var i=0; i<shippings.length; i++)
 				{
 					var refundPayment = shippings[i].get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
 						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
 						var compareDate = new Date(new Date().getTime()-(10*60*1000));
-						if(refundPayment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.get("createdAt")))
+						if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
 						{
 						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
 						  //call approve refund method
