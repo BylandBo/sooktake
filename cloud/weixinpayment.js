@@ -1179,6 +1179,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					{
 						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
 						var compareDate = new Date(new Date().getTime()-(10*60*1000));
+						 console.log("AutoPaymentAfterPackageSentJob: payment type->" + payment.get("charge") + ", compareDate->" + compareDate + ", payment create date->" + payment.get("createdAt"));
 						if(payment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.get("createdAt")))
 						{
 						  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
