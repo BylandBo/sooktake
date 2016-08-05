@@ -1165,17 +1165,19 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 	console.log("AutoPaymentAfterPackageSentJob cql->" + cql);
 	AV.Query.doCloudQuery(cql).then(function (result) {
 		  var shippings = result.results;
-		  console.log("AutoPaymentAfterPackageSentJob: shippings->" + JSON.stringify(shippings));
 		  if(shippings.length <= 0)
 			 {
 				console.log("AutoPaymentAfterPackageSentJob: no payment to update");
 				response.success(true);
 			 }
-			 else
+	      else
 			 {
+			    console.log("AutoPaymentAfterPackageSentJob: hello1");
 			    for(var i=0; i++; i<shippings.length)
 				{
+				    console.log("AutoPaymentAfterPackageSentJob: hello2");
 					var payment = shippings[i].get("payment");
+					console.log("AutoPaymentAfterPackageSentJob: hello3");
 					console.log("AutoPaymentAfterPackageSentJob: payment->" + JSON.stringify(payment));
 					if(payment != null && payment !='')
 					{
