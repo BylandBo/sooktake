@@ -152,6 +152,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 					console.log("Payment - WithdrawToWechat: transfer creation starting, order_no->" + order_no );
 					var FrozenMoney = user.get("forzenMoney") + (amount/100);
 					user.set("forzenMoney",FrozenMoney);
+					console.log("Payment - WithdrawToWechat: add frozen amount "+(amount/100)+" to user->" + user.id );
 					user.save();
 				    var openId = wechatInfo.get("openId");
 					wxpay.createBusinessPayToWeixin({
@@ -266,6 +267,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					{
 					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + (amount/100) + ", new forzenMoney->"+ (user.get("forzenMoney") + amount/100) +", old forzenMoney->" + user.get("forzenMoney") + ";  totalMoney->" + user.get("totalMoney"));
 					  var newforzenMoney = user.get("forzenMoney") + (amount/100);
+					  console.log("Payment - PaymentChargeShippingList: add frozen amount "+(amount/100)+" to user->" + user.id );
 					  user.set("forzenMoney",newforzenMoney);
 					}
 					else
@@ -357,7 +359,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
 					  {
 					    isDuplicatePayment = true;
-						console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " already be paid");
+						console.log("Payment - PaymentChargeShippingListWithBalance: ShippingId->" + shippings[j].id + " already be paid");
 					  }
 				  }
 				  if(isDuplicatePayment)
@@ -367,6 +369,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					var user = users[0];
 				    //var newtotalMoney = user.get("totalMoney") - (amount/100);
 					var newFrozenMoney = user.get("forzenMoney") + (amount/100);
+					console.log("Payment - PaymentChargeShippingListWithBalance: add frozen amount "+(amount/100)+" to user->" + user.id );
 				    user.set("forzenMoney", newFrozenMoney);
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
@@ -1175,7 +1178,8 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					var payment = shippings[i].get("payment");
 					if(payment != null && payment !='')
 					{
-						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						var compareDate = new Date(new Date().getTime()-(10*60*1000));
 						if(payment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.get("createdAt")))
 						{
 						  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
@@ -1228,7 +1232,8 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 					var refundPayment = shippings[i].get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
-						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						var compareDate = new Date(new Date().getTime()-(10*60*1000));
 						if(refundPayment.get("charge") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.get("createdAt")))
 						{
 						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
