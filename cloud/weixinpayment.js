@@ -1173,7 +1173,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 	      else
 			 {
 			    console.log("AutoPaymentAfterPackageSentJob: hello1");
-			    for(var i=0; i++; i<shippings.length)
+			    for(var i=0;i<shippings.length;i++)
 				{
 				    console.log("AutoPaymentAfterPackageSentJob: hello2");
 					var payment = shippings[i].get("payment");
