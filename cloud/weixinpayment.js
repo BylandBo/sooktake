@@ -1162,7 +1162,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
-	var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where status = '"+messageModule.ShippingStatus_Received()+"' AND transferPaymentStatus in ('" + messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() + "','" + messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND() + "')";
+	var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where status = '"+messageModule.ShippingStatus_Received()+"' AND transferPaymentStatus in ('" + messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() + "','" + messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND() + "') AND paymentStatus='" + messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() + "'";
 	console.log("AutoPaymentAfterPackageSentJob cql->" + cql);
 	AV.Query.doCloudQuery(cql).then(function (result) {
 		  var shippings = result.results;
@@ -1173,28 +1173,6 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 			 }
 	      else
 			 {
-			    // for(var i=0;i<shippings.length;i++)
-				// {
-					// var payment = shippings[i].get("payment");
-					// if(payment != null && payment !='')
-					// {
-						// var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						// //var compareDate = new Date(new Date().getTime()-(10*60*1000));
-						// if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.getCreatedAt()))
-						// {
-						  // console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
-						  // //call transfer to sender method
-						  // AV.Cloud.run('PaymentTransferToSender', { shippingId: shippings[i].id}, {
-							// success: function (paymentResult) {
-								// console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
-							// },
-							// error: function (error) {
-								// console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
-							// }
-						  // });
-						// }
-					// }
-				// }
 				async.eachSeries(shippings, function(shipping, callback) {
 				var payment = shipping.get("payment");
 				if(payment != null && payment !='')
@@ -1240,6 +1218,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 	
 	shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
 	shippingQuery.equalTo("transferPaymentStatus", messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
+	shippingQuery.equalTo("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	shippingQuery.include("payment");
 	shippingQuery.include("refundPayment");
 	shippingQuery.include("cargo");
@@ -1253,28 +1232,6 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 			 }
 			 else
 			 {
-			    // for(var i=0; i<shippings.length; i++)
-				// {
-					// var refundPayment = shippings[i].get("refundPayment");
-					// if(refundPayment != null && refundPayment !='')
-					// {
-						// //var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						// var compareDate = new Date(new Date().getTime()-(10*60*1000));
-						// if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
-						// {
-						  // console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
-						  // //call approve refund method
-						  // AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shippings[i].id,reasonCode:'',reason:''}, {
-							// success: function (paymentResult) {
-								// console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
-							// },
-							// error: function (error) {
-								// console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
-							// }
-						  // });
-						// }
-					// }
-				// }
 				async.eachSeries(shippings, function(shipping, callback) {
 				 var refundPayment = shipping.get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
