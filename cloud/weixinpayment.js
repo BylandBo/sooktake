@@ -152,8 +152,8 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 			   {
 					console.log("Payment - WithdrawToWechat: transfer creation starting, order_no->" + order_no );
 					var FrozenMoney = user.get("forzenMoney") + (amount/100);
-					user.set("forzenMoney",FrozenMoney);
-					console.log("Payment - WithdrawToWechat: add frozen amount "+(amount/100)+" to user->" + user.id );
+					console.log("Payment - WithdrawToWechat: User Id->"+ user.id +" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + FrozenMoney + ", withdrawAmount->" + (amount/100)); 
+					user.set("forzenMoney",FrozenMoney);				
 					user.save();
 				    var openId = wechatInfo.get("openId");
 					wxpay.createBusinessPayToWeixin({
@@ -268,9 +268,8 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					var user = users[0];
 					if(isFirstTimePayment)//if first time payment, froze the user balance amount
 					{
-					 console.log("Payment - PaymentChargeShippingList: first time payment, forzenAmount->" + (amount/100) + ", new forzenMoney->"+ (user.get("forzenMoney") + amount/100) +", old forzenMoney->" + user.get("forzenMoney") + ";  totalMoney->" + user.get("totalMoney"));
 					  var newforzenMoney = user.get("forzenMoney") + (amount/100);
-					  console.log("Payment - PaymentChargeShippingList: add frozen amount "+(amount/100)+" to user->" + user.id );
+					  console.log("Payment - PaymentChargeShippingList: User Id->"+ user.id +" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + newforzenMoney + ", Amount->" + (amount/100)); 
 					  user.set("forzenMoney",newforzenMoney);
 					}
 					else
@@ -372,7 +371,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					var user = users[0];
 				    //var newtotalMoney = user.get("totalMoney") - (amount/100);
 					var newFrozenMoney = user.get("forzenMoney") + (amount/100);
-					console.log("Payment - PaymentChargeShippingListWithBalance: add frozen amount "+(amount/100)+" to user->" + user.id );
+					console.log("Payment - PaymentChargeShippingListWithBalance: User Id->"+ user.id +" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + newFrozenMoney + ", Amount->" + (amount/100)); 
 				    user.set("forzenMoney", newFrozenMoney);
 					
 					console.log("Payment - PaymentChargeShippingListWithBalance: charge creation starting, order_no->" + order_no );
@@ -430,6 +429,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 								 var paymentRelation = flightUser.relation('paymentHistory');
 								 paymentRelation.add(tp);
 								 var newTotalMoney = flightUser.get("totalMoney") + payment.get("total");
+								 console.log("Payment - PaymentTransferToSender: flightUser totalMoney: before->" + flightUser.get("totalMoney") + ", after->" + newTotalMoney); 
 								 flightUser.set("totalMoney",newTotalMoney);
 								 flightUser.save().then(function(user){
 								    var totalAmount = payment.get("total");
@@ -447,6 +447,8 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 							     var cargoUser = cargoObj.get("owner");
 								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("usingBalance");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" totalMoney: before->" + cargoUser.get("totalMoney") + ", after->" + newTotalMoney); 
+								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
 								 cargoUser.set("totalMoney",newTotalMoney);
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
@@ -690,6 +692,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 							   success: function(cargoObj) {
 								 var cargoUser = cargoObj.get("owner");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 console.log("Payment - PaymentApproveRefundRequest: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
 									var totalAmount = payment.get("total");
@@ -775,6 +778,7 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 							   success: function(cargoObj) {
 								 var cargoUser = cargoObj.get("owner");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 console.log("Payment - PaymentCancelRefundRequest: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
 									var totalAmount = payment.get("total");
@@ -829,6 +833,7 @@ AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) 
 							   success: function(cargoObj) {
 							     var cargoUser = cargoObj.get("owner");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 console.log("Payment - PaymentApproveRefundRequest: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
 									var totalAmount = payment.get("total");
@@ -903,6 +908,7 @@ var topupCallback = function(payment,data){
 	    var user = payment.get("user");
 		var amount = (parseInt(data.total_fee))/100;
 	    var balance = user.get("totalMoney") + amount;
+		console.log("paymentCallback: Payment - Topup: User->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + balance); 
 		user.set("totalMoney",balance);
 		user.save().then(function(result){
 			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
@@ -958,6 +964,8 @@ var withdrawCallback = function(payment,data){
 		var amount = payment.get("total");
 		var frozenBalance = user.get("forzenMoney") - amount;
 		var totalBalance = user.get("totalMoney") - amount;
+		console.log("withdrawCallback: Payment - Withdraw: User Id->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + totalBalance); 
+		console.log("withdrawCallback: Payment - Withdraw: User Id->"+user.id+" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + frozenBalance); 
 		user.set("forzenMoney",frozenBalance);
 		user.set("totalMoney",totalBalance);
 		user.save().then(function(result){
@@ -1025,7 +1033,8 @@ var shippingChargeCallback = function(payment,data){
 	payment.set("transactionId",data.transaction_id);
 	payment.save().then(function(result){
 	    var user = payment.get("user");
-		var totalMoney = user.get("totalMoney") + (payment.get("total") - payment.get("usingBalance"));
+		var totalMoney = user.get("totalMoney") + (payment.get("total") - payment.get("usingBalance")); 
+		console.log("shippingChargeCallback: Payment - PaymentChargeShippingList: User Id->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + totalMoney + ", payment Id->" + payment.id); 
 		user.set('totalMoney',totalMoney);
 		user.save().then(function(result){
 			console.log("shippingChargeCallback: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
