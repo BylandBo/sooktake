@@ -697,7 +697,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 								 response.error(messageModule.errorMsg());
 							    }
 						   });
-				    console.log("Payment - PaymentRejectRefundRequest: refund approve by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    console.log("Payment - PaymentApproveRefundRequest: refund approve by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
 				    response.success(refundPayment);
 			});
 		   }
@@ -742,8 +742,8 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 			}
 			else
 			{
-			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
-			shipping.save().then(function (sp){
+			    shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING());
+			    shipping.save().then(function (sp){
 			        payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 					payment.save();
 					
@@ -778,7 +778,7 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 								 response.error(messageModule.errorMsg());
 							    }
 						   });
-				    console.log("Payment - PaymentRejectRefundRequest: refund approve by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+				    console.log("Payment - PaymentCancelRefundRequest: refund cancel by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
 				    response.success(refundPayment);
 			});
 		   }
