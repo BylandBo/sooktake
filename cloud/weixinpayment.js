@@ -445,7 +445,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 						   {
 							   success: function(cargoObj) {
 							     var cargoUser = cargoObj.get("owner");
-								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("usingBalance");
+								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("total");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
 								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" totalMoney: before->" + cargoUser.get("totalMoney") + ", after->" + newTotalMoney); 
 								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
@@ -1194,8 +1194,8 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 				var payment = shipping.get("payment");
 				if(payment != null && payment !='')
 				{
-					//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-					var compareDate = new Date(new Date().getTime()-(1*60*1000));
+					var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+					//var compareDate = new Date(new Date().getTime()-(1*60*1000));
 					if(payment.get("type") == messageModule.PF_SHIPPING_PAYMENT_CHARGE() && (compareDate >= payment.getCreatedAt()))
 					{
 					  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
@@ -1253,8 +1253,8 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 				 var refundPayment = shipping.get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
-						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						var compareDate = new Date(new Date().getTime()-(1*60*1000));
+						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						//var compareDate = new Date(new Date().getTime()-(1*60*1000));
 						if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
 						{
 						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
