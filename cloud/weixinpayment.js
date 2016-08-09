@@ -777,13 +777,15 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 						   {
 							   success: function(cargoObj) {
 								 var cargoUser = cargoObj.get("owner");
+								 var totalAmount = payment.get("total");
+								 pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
 								 //var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
 								 //console.log("Payment - PaymentCancelRefundRequest: cargoUser->"+cargoUser.id+" frozenMoney: before->" + //cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
 								 //cargoUser.set("forzenMoney",newForzenMoney);
-								 cargoUser.save().then(function(user){
-									var totalAmount = payment.get("total");
-									pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
-								 });
+								 //cargoUser.save().then(function(user){
+								//	var totalAmount = payment.get("total");
+								//	pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
+								 //});
 								},
 							   error: function(message, error) {
 								 console.log(error.message);
