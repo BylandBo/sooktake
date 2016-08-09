@@ -274,7 +274,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					}
 					else
 					{
-						console.log("Payment - PaymentChargeShippingList: not first time payment, forzenAmount->" + (usingBalance/100) + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney"));
+						console.log("Payment - PaymentChargeShippingList: not first time payment" + ", forzenMoney->"+ user.get("forzenMoney") + "; totalMoney->" + user.get("totalMoney"));
 					}
 					
 					if(channel == messageModule.PF_SHIPPING_PAYMENT_CHANNEL_WEIXIN())
@@ -783,8 +783,8 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 								 //console.log("Payment - PaymentCancelRefundRequest: cargoUser->"+cargoUser.id+" frozenMoney: before->" + //cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
 								 //cargoUser.set("forzenMoney",newForzenMoney);
 								 //cargoUser.save().then(function(user){
-								//	var totalAmount = payment.get("total");
-								//	pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
+								 //	var totalAmount = payment.get("total");
+								 //	pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
 								 //});
 								},
 							   error: function(message, error) {
