@@ -449,8 +449,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 							     var cargoUser = cargoObj.get("owner");
 								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("total");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
-								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" totalMoney: before->" + cargoUser.get("totalMoney") + ", after->" + newTotalMoney); 
-								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
+								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" totalMoney: before->" + cargoUser.get("totalMoney") + ", after->" + newTotalMoney);
 								 cargoUser.set("totalMoney",newTotalMoney);
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
