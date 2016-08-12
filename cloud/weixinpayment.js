@@ -592,40 +592,47 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 			var flight = shipping.get("flight");
 			var refundPayment = shipping.get("refundPayment");
 
-			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
-			shipping.save().then(function (sp){
-					refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
-					refundPayment.set("reasonCode",reasonCode.toString());
-					refundPayment.set("reason",reason);
-					refundPayment.save();
-					
-				    flight.fetch({include: "owner"},
-						   {
-							   success: function(flightObj) {
-							     var flightUser = flightObj.get("owner");
-								 var totalAmount = payment.get("total");
-								 pushModule.PushPaymentRefundRejectToFlightUser(payment,totalAmount,shipping,flightUser);
-								},
-							   error: function(message, error) {
-								 console.log(error.message);
-								 response.error(messageModule.errorMsg());
-							    }
-						   });
-					cargo.fetch({include: "owner"},
-						   {
-							   success: function(cargoObj) {
-							     var cargoUser = cargoObj.get("owner");
-								 var totalAmount = payment.get("total");
-								 pushModule.PushPaymentRefundRejectToCargotUser(payment,totalAmount,shipping,cargoUser);
-								},
-							   error: function(message, error) {
-								 console.log(error.message);
-								 response.error(messageModule.errorMsg());
-							    }
-						   });
-				    console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
-				    response.success(refundPayment);
-			});
+			if(refundPayment.get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCELREFUND())
+			{
+			    response.error({code: 111, message: "货主已经取消退款请求"});
+			}
+			else
+			{
+				shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
+				shipping.save().then(function (sp){
+						refundPayment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED());
+						refundPayment.set("reasonCode",reasonCode.toString());
+						refundPayment.set("reason",reason);
+						refundPayment.save();
+						
+						flight.fetch({include: "owner"},
+							   {
+								   success: function(flightObj) {
+									 var flightUser = flightObj.get("owner");
+									 var totalAmount = payment.get("total");
+									 pushModule.PushPaymentRefundRejectToFlightUser(payment,totalAmount,shipping,flightUser);
+									},
+								   error: function(message, error) {
+									 console.log(error.message);
+									 response.error(messageModule.errorMsg());
+									}
+							   });
+						cargo.fetch({include: "owner"},
+							   {
+								   success: function(cargoObj) {
+									 var cargoUser = cargoObj.get("owner");
+									 var totalAmount = payment.get("total");
+									 pushModule.PushPaymentRefundRejectToCargotUser(payment,totalAmount,shipping,cargoUser);
+									},
+								   error: function(message, error) {
+									 console.log(error.message);
+									 response.error(messageModule.errorMsg());
+									}
+							   });
+						console.log("Payment - PaymentRejectRefundRequest: refund reject by shipper: shippingId->" + shippingId + ", refundPaymentId->"+ refundPayment.id +" succeed"); 
+						response.success(refundPayment);
+				});
+			}
 	
 		}, function (error) {
 			console.log(error.message);
@@ -663,6 +670,10 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 			else if(shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND())
 			{
 				response.error({code: 109, message: "退款申请已经拒绝"});
+			}
+			else if(refundPayment.get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCELREFUND())
+			{
+			    response.error({code: 111, message: "货主已经取消退款请求"});
 			}
 			else
 			{
@@ -780,13 +791,6 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 								 var cargoUser = cargoObj.get("owner");
 								 var totalAmount = payment.get("total");
 								 pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
-								 //var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
-								 //console.log("Payment - PaymentCancelRefundRequest: cargoUser->"+cargoUser.id+" frozenMoney: before->" + //cargoUser.get("forzenMoney") + ", after->" + newForzenMoney); 
-								 //cargoUser.set("forzenMoney",newForzenMoney);
-								 //cargoUser.save().then(function(user){
-								 //	var totalAmount = payment.get("total");
-								 //	pushModule.PushPaymentRefundCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
-								 //});
 								},
 							   error: function(message, error) {
 								 console.log(error.message);
@@ -1290,4 +1294,50 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 			response.error(false);
         }
     });
+});
+
+AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
+    var shippingList = request.params.shippingList;
+	
+	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+	var paymentQuery = new AV.Query(Payment);
+	
+	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+    var shippingQuery = new AV.Query(Shipping);
+	
+    for(var s=0; s <shippingList.length; s++)
+    {	
+	var shippingId = shippingList[s];
+	console.log("Payment - PaymentUrgePaymentToSender: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
+			   response.error({code: 110, message: "寄货人已经付款"});
+		    else
+			{
+			   cargo.fetch({include: "owner"},
+				   {
+					   success: function(cargoObj) {
+						 var cargoUser = cargoObj.get("owner");
+						 pushModule.PushPaymentUrgePaymentToCargoUser(payment,totalAmount,shipping,cargoUser);
+						},
+					   error: function(message, error) {
+						 console.log(error.message);
+						 response.error(messageModule.errorMsg());
+						}
+				   });
+		       response.success(payment);
+			}
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+   }
 });

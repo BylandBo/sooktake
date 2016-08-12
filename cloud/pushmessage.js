@@ -1903,83 +1903,155 @@ exports.PushPaymentRefundCancelToCargoUser = function (payment,amount,shipping,c
 	var cargo = shipping.get("cargo");
 	var flight = shipping.get("flight");
 	
-	flight.fetch({
-    include: "owner"
-	  },
-	  {
-		success: function(post) {
-		    var content = "包裹["+cargo.get("type")+"]的退款申请运费¥"+amount+ "已经被您取消";
+	var content = "包裹["+cargo.get("type")+"]的退款申请运费¥"+amount+ "已经被您取消";
 	
-			//add message history
-			var History = AV.Object.extend(classnameModule.GetHistoryClass());
-			var historyRecord = new History();
-			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
-			historyRecord.set("text", content);
-			historyRecord.set("referenceId", payment.id);
-			historyRecord.save().then(
-				function (history){
-					var messageQuery = new AV.Query(PushMessage);
-					messageQuery.equalTo("groupId", cargo.id);
-					messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-					messageQuery.find().then(function (message) {
-								if(message == null || message.length <= 0)
-								{
-									myPushMessage.set("groupId", cargo.id);
-									myPushMessage.add("dataList",shipping);
-									myPushMessage.set("text", content);
-									myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-									myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
-									myPushMessage.set("sendTo", cargo.get("owner"));
-									myPushMessage.set("counter", 1);
-									myPushMessage.add("historyList",history);
-									myPushMessage.set("lastShipping",shipping);
-									myPushMessage.save();
-								}
-								else{
-									message[0].set("text", content);
-									message[0].set("counter", message[0].get("counter")+1);
-									message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
-									message[0].add("historyList",history);
-									message[0].set("lastShipping",shipping);
-									message[0].save();
-								}
-							},function (error) {
-									console.log(error.message);
-					});
-				},
-				function(error) {
-				   console.log(error.message);
-			   }
-			);
-			
-			    var pushQuery = new AV.Query(AV.Installation);
-				var cargoUser = cargo.get("owner");
-
-				pushQuery.equalTo("user", cargoUser);
-				//pushQuery.equalTo("appIdentifier", messageModule.appName());
-				if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
-				{
-					AV.Push.send({
-						where: pushQuery, // Set our Installation query
-						data: {
-							alert:content,
-							body:content,
-							objectId:cargo.id,
-							sound:'default',
-							type:PF_PUSH_MESSAGE_TYPE_CARGO,
-							action:PF_PUSH_MESSAGE_ACTION
+	//add message history
+	var History = AV.Object.extend(classnameModule.GetHistoryClass());
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", payment.id);
+	historyRecord.save().then(
+		function (history){
+			var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", cargo.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+			messageQuery.find().then(function (message) {
+						if(message == null || message.length <= 0)
+						{
+							myPushMessage.set("groupId", cargo.id);
+							myPushMessage.add("dataList",shipping);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+							myPushMessage.set("sendTo", cargo.get("owner"));
+							myPushMessage.set("counter", 1);
+							myPushMessage.add("historyList",history);
+							myPushMessage.set("lastShipping",shipping);
+							myPushMessage.save();
 						}
-					}, {
-						success: function () {
-							console.log("PushPaymentRefundCancelToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
-							// Push was successful
-						},
-						error: function (error) {
-							// Handle error
+						else{
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].add("historyList",history);
+							message[0].set("lastShipping",shipping);
+							message[0].save();
+						}
+					},function (error) {
 							console.log(error.message);
-						}
-					});
+			});
+		},
+		function(error) {
+		   console.log(error.message);
+	   }
+	);
+	
+		var pushQuery = new AV.Query(AV.Installation);
+		var cargoUser = cargo.get("owner");
+
+		pushQuery.equalTo("user", cargoUser);
+		//pushQuery.equalTo("appIdentifier", messageModule.appName());
+		if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
+		{
+			AV.Push.send({
+				where: pushQuery, // Set our Installation query
+				data: {
+					alert:content,
+					body:content,
+					objectId:cargo.id,
+					sound:'default',
+					type:PF_PUSH_MESSAGE_TYPE_CARGO,
+					action:PF_PUSH_MESSAGE_ACTION
 				}
+			}, {
+				success: function () {
+					console.log("PushPaymentRefundCancelToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
+					// Push was successful
+				},
+				error: function (error) {
+					// Handle error
+					console.log(error.message);
+				}
+			});
 		}
-	});
+}
+
+exports.PushPaymentUrgePaymentToCargoUser = function (payment,amount,shipping,cargoUser) {
+    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
+    var myPushMessage = new PushMessage();
+    
+	var cargo = shipping.get("cargo");
+	var content = "您的包裹["+cargo.get("type")+"]已经寄出，请及时付运费¥"+amount+"给代运人，谢谢";
+	
+	//add message history
+	var History = AV.Object.extend(classnameModule.GetHistoryClass());
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", payment.id);
+	historyRecord.save().then(
+		function (history){
+			var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", cargo.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+			messageQuery.find().then(function (message) {
+						if(message == null || message.length <= 0)
+						{
+							myPushMessage.set("groupId", cargo.id);
+							myPushMessage.add("dataList",shipping);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
+							myPushMessage.set("sendTo", cargo.get("owner"));
+							myPushMessage.set("counter", 1);
+							myPushMessage.add("historyList",history);
+							myPushMessage.set("lastShipping",shipping);
+							myPushMessage.save();
+						}
+						else{
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].add("historyList",history);
+							message[0].set("lastShipping",shipping);
+							message[0].save();
+						}
+					},function (error) {
+							console.log(error.message);
+			});
+		},
+		function(error) {
+		   console.log(error.message);
+	   }
+	);
+	
+	var pushQuery = new AV.Query(AV.Installation);
+	var cargoUser = cargo.get("owner");
+
+	pushQuery.equalTo("user", cargoUser);
+	//pushQuery.equalTo("appIdentifier", messageModule.appName());
+	if(cargoUser != null && cargoUser != "" && typeof cargoUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:cargo.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_CARGO,
+				action:PF_PUSH_MESSAGE_ACTION
+			}
+		}, {
+			success: function () {
+				console.log("PushPaymentUrgePaymentToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
+				// Push was successful
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}	
 }
