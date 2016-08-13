@@ -1779,6 +1779,7 @@ exports.PushPaymentTopupCancelToCargoUser = function (payment,amount,user) {
 				objectId:payment.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
+				badge: "Increment",
 				action:PF_PUSH_MESSAGE_ACTION
 			}
 		}, {
