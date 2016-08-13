@@ -1307,7 +1307,7 @@ exports.PushPaymentRefundRejectToCargotUser = function (payment,amount,shipping,
 	  },
 	  {
 		success: function(post) {
-		    var content = "¥"+amount+"退款申请被顺带君"+flight.get("owner").get("fullname")+"拒绝";
+		    var content = "顺带君"+flight.get("owner").get("fullname")+ "已经拒绝您的退款申请¥"+amount;
 	
 			//add message history
 			var History = AV.Object.extend(classnameModule.GetHistoryClass());
@@ -1396,7 +1396,7 @@ exports.PushPaymentRefundApproveToCargotUser = function (payment,amount,shipping
 	  },
 	  {
 		success: function(post) {
-		    var content = "¥"+amount+"退款申请被顺带君"+flight.get("owner").get("fullname")+"批准";
+		    var content = "顺带君"+flight.get("owner").get("fullname")+"已经批准您的退款申请¥"+amount;
 	
 			//add message history
 			var History = AV.Object.extend(classnameModule.GetHistoryClass());
