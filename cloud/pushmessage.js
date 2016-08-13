@@ -105,7 +105,8 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 				objectId:cargo.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_CARGO,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -207,7 +208,8 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -350,7 +352,8 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 				objectId:shipping.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_CARGO,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -429,7 +432,8 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 				objectId:cargo.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_CARGO,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -507,7 +511,8 @@ exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -551,8 +556,7 @@ exports.PushPaymentTopupSucceedToUser = function (payment,amount,user) {
 				objectId:payment.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_SYSTEM,
-				action:PF_PUSH_MESSAGE_ACTION,
-				badge: "Increment"
+				action:PF_PUSH_MESSAGE_ACTION
 			}
 		}, {
 			success: function () {
@@ -683,7 +687,8 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 							objectId:cargo.id,
 							sound:'default',
 							type:PF_PUSH_MESSAGE_TYPE_CARGO,
-							action:PF_PUSH_MESSAGE_ACTION
+							action:PF_PUSH_MESSAGE_ACTION,
+							badge: "Increment"
 						}
 					}, {
 						success: function () {
@@ -787,7 +792,8 @@ exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shi
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -889,7 +895,8 @@ exports.PushPaymentTransferToSenderSucceedToFlightUser = function (payment,amoun
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -975,7 +982,8 @@ exports.PushPaymentTransferToSenderSucceedToCargoUser = function (payment,amount
 							objectId:cargo.id,
 							sound:'default',
 							type:PF_PUSH_MESSAGE_TYPE_CARGO,
-							action:PF_PUSH_MESSAGE_ACTION
+							action:PF_PUSH_MESSAGE_ACTION,
+							badge: "Increment"
 						}
 					}, {
 						success: function () {
@@ -1063,7 +1071,8 @@ exports.PushPaymentRefundToCargotUser = function (payment,amount,shipping,user) 
 							objectId:cargo.id,
 							sound:'default',
 							type:PF_PUSH_MESSAGE_TYPE_CARGO,
-							action:PF_PUSH_MESSAGE_ACTION
+							action:PF_PUSH_MESSAGE_ACTION,
+							badge: "Increment"
 						}
 					}, {
 						success: function () {
@@ -1167,7 +1176,8 @@ exports.PushPaymentRefundToFlightUser = function (payment,amount,shipping,user) 
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -1269,7 +1279,8 @@ exports.PushPaymentRefundRejectToFlightUser = function (payment,amount,shipping,
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -1355,7 +1366,8 @@ exports.PushPaymentRefundRejectToCargotUser = function (payment,amount,shipping,
 							objectId:cargo.id,
 							sound:'default',
 							type:PF_PUSH_MESSAGE_TYPE_CARGO,
-							action:PF_PUSH_MESSAGE_ACTION
+							action:PF_PUSH_MESSAGE_ACTION,
+							badge: "Increment"
 						}
 					}, {
 						success: function () {
@@ -1443,7 +1455,8 @@ exports.PushPaymentRefundApproveToCargotUser = function (payment,amount,shipping
 							objectId:cargo.id,
 							sound:'default',
 							type:PF_PUSH_MESSAGE_TYPE_CARGO,
-							action:PF_PUSH_MESSAGE_ACTION
+							action:PF_PUSH_MESSAGE_ACTION,
+							badge: "Increment"
 						}
 					}, {
 						success: function () {
@@ -1547,7 +1560,8 @@ exports.PushPaymentRefundApproveToFlightUser = function (payment,amount,shipping
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -1649,7 +1663,8 @@ exports.PushPaymentChargeShippingListCancelToFlightUser = function (payment,amou
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -1735,7 +1750,8 @@ exports.PushPaymentChargeShippingListCancelToCargoUser = function (payment,amoun
 							objectId:cargo.id,
 							sound:'default',
 							type:PF_PUSH_MESSAGE_TYPE_CARGO,
-							action:PF_PUSH_MESSAGE_ACTION
+							action:PF_PUSH_MESSAGE_ACTION,
+							badge: "Increment"
 						}
 					}, {
 						success: function () {
@@ -1882,7 +1898,8 @@ exports.PushPaymentRefundCancelToFlightUser = function (payment,amount,shipping,
 				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
@@ -1963,7 +1980,8 @@ exports.PushPaymentRefundCancelToCargoUser = function (payment,amount,shipping,c
 					objectId:cargo.id,
 					sound:'default',
 					type:PF_PUSH_MESSAGE_TYPE_CARGO,
-					action:PF_PUSH_MESSAGE_ACTION
+					action:PF_PUSH_MESSAGE_ACTION,
+					badge: "Increment"
 				}
 			}, {
 				success: function () {
@@ -2042,7 +2060,8 @@ exports.PushPaymentUrgePaymentToCargoUser = function (payment,amount,shipping,ca
 				objectId:cargo.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_CARGO,
-				action:PF_PUSH_MESSAGE_ACTION
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
 			}
 		}, {
 			success: function () {
