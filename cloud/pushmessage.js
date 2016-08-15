@@ -2001,7 +2001,7 @@ exports.PushPaymentUrgePaymentToCargoUser = function (payment,amount,shipping,ca
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
-	var content = "您的包裹["+cargo.get("type")+"]已经寄出，请及时付运费¥"+amount+"给代运人，谢谢";
+	var content = "您的包裹["+cargo.get("type")+"]已经寄出，请及时付运费给代运人，谢谢";
 	
 	//add message history
 	var History = AV.Object.extend(classnameModule.GetHistoryClass());
