@@ -108,3 +108,22 @@ AV.Cloud.afterUpdate(classnameModule.GetShippingClass(), function(request) {
 	  });
   }
 });
+
+AV.Cloud.afterUpdate(classnameModule.GetUserClass(), function(request) {
+  var User = AV.Object.extend(classnameModule.GetUserClass());
+  var userQuery = new AV.Query(User);
+  
+   if(request.object.get("forzenMoney") != null && request.object.get("forzenMoney") < 0)
+   {
+	  userQuery.get(request.object.id, {
+		success: function(user) {	  
+		  console.log("Hook function: reset User frozen balance because Frozen Money less than 0: user Id->" + request.object.id + ", Frozen Money->: "+ request.object.get("forzenMoney"));
+		  user.set("forzenMoney",0);
+		  user.save();
+		},
+		error: function(error) {
+		   console.log('Got an error ' + error.code + ' : ' + error.message);
+		}
+	  });
+  }
+});
