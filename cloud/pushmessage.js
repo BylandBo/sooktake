@@ -2008,7 +2008,7 @@ exports.PushPaymentUrgePaymentToCargoUser = function (payment,amount,shipping,ca
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
 	historyRecord.set("text", content);
-	historyRecord.set("referenceId", payment.id);
+	historyRecord.set("referenceId", shipping.id);
 	historyRecord.save().then(
 		function (history){
 			var messageQuery = new AV.Query(PushMessage);
@@ -2065,7 +2065,7 @@ exports.PushPaymentUrgePaymentToCargoUser = function (payment,amount,shipping,ca
 			}
 		}, {
 			success: function () {
-				console.log("PushPaymentUrgePaymentToCargoUser message: Payment " + payment.id +" Cargo: " + cargo.id);
+				console.log("PushPaymentUrgePaymentToCargoUser message: Shipping " + shipping.id +" Cargo: " + cargo.id);
 				// Push was successful
 			},
 			error: function (error) {
