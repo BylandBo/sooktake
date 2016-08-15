@@ -1313,6 +1313,7 @@ AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
 	shippingQuery.include("payment");
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
+	var compareDate = new Date(new Date().getTime()-(1*60*60*1000));
 	shippingQuery.get(shippingId).then(function(shipping){
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
@@ -1320,8 +1321,15 @@ AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
 			
 			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
 			   response.error({code: 110, message: "寄货人已经付款"});
+			else if(shipping.get("pokePaymentTime") != null && compareDate < shipping.get("pokePaymentTime"))
+			{
+			   response.error({code: 138, message: "发送时间太频繁"});
+			}
 		    else
 			{
+			   shipping.set("pokePaymentTime",new Date());
+			   shipping.save();
+			   
 			   cargo.fetch({include: "owner"},
 				   {
 					   success: function(cargoObj) {
