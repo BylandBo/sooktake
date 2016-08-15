@@ -1326,6 +1326,7 @@ AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
 				   {
 					   success: function(cargoObj) {
 						 var cargoUser = cargoObj.get("owner");
+						 var totalAmount = payment.get("total");
 						 pushModule.PushPaymentUrgePaymentToCargoUser(payment,totalAmount,shipping,cargoUser);
 						},
 					   error: function(message, error) {
