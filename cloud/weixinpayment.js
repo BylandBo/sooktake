@@ -260,7 +260,10 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  }
 					  if(shippings[j].get("payment") != null && shippings[j].get("payment") != "")
 					  {
-						isFirstTimePayment = false;
+					    if(shipping[j].get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL())//if previous payment cancelled, then still need to frozen the money again.
+						  isFirstTimePayment = false;
+						 else
+						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is cancelled, so need to frozen money again.");
 					  }  
 				  }
 				  if(isDuplicatePayment)
@@ -840,12 +843,12 @@ AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) 
 							   success: function(cargoObj) {
 							     var cargoUser = cargoObj.get("owner");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
-								 console.log("Payment - PaymentApproveRefundRequest: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
+								 console.log("Payment - PaymentChargeShippingListCancel: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
 									var totalAmount = payment.get("total");
 									pushModule.PushPaymentChargeShippingListCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
-									pushModule.PushPaymentChargeShippingListCancelToFlightUser(payment,totalAmount,shipping,flight.get("owner"));
+									//pushModule.PushPaymentChargeShippingListCancelToFlightUser(payment,totalAmount,shipping,flight.get("owner"));
 								 });
 								},
 							   error: function(message, error) {
