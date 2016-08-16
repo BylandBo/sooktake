@@ -170,6 +170,7 @@ AV.Cloud.define("PaymentWithdrawToWechat", function (request, response) {
 						 console.log("Payment - WithdrawToWechat: charge creation error, order_no->" + order_no );
 						//release user frozen money
 						var FrozenMoney2 = user.get("forzenMoney") - (amount/100);
+						console.log("Payment - WithdrawToWechat: User Id->"+ user.id +" error happen and release frozenMoney: before->" + user.get("forzenMoney") + ", after->" + FrozenMoney2 + ", withdrawAmount->" + (amount/100)); 
 						user.set("forzenMoney",FrozenMoney2);
 						user.save();
 						
@@ -453,6 +454,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("total");
 								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
 								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" totalMoney: before->" + cargoUser.get("totalMoney") + ", after->" + newTotalMoney);
+								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
 								 cargoUser.set("totalMoney",newTotalMoney);
 								 cargoUser.set("forzenMoney",newForzenMoney);
 								 cargoUser.save().then(function(user){
