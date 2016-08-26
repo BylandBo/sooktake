@@ -3,11 +3,13 @@ var classnameModule = require('./classname');
 var messageModule = require('./message');
 var AV = require('leanengine');
 
-AV.Cloud.afterSave(classnameModule.GetShippingClass(), function(request) {
-  var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
-  var cargoQuery = new AV.Query(Cargo);
+var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
+var Flight = AV.Object.extend(classnameModule.GetFlightClass());
+var User = AV.Object.extend(classnameModule.GetUserClass());
   
-  var Flight = AV.Object.extend(classnameModule.GetFlightClass());
+AV.Cloud.afterSave(classnameModule.GetShippingClass(), function(request) {
+
+  var cargoQuery = new AV.Query(Cargo);
   var flightQuery = new AV.Query(Flight);
 	
   console.log("Hook function: shipping after save update Cargo: " + request.object.get('cargo').id);
@@ -71,10 +73,7 @@ AV.Cloud.afterSave(classnameModule.GetPushMessageClass(), function(request) {
 });
 
 AV.Cloud.afterUpdate(classnameModule.GetShippingClass(), function(request) {
-  var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
   var cargoQuery = new AV.Query(Cargo);
-  
-  var Flight = AV.Object.extend(classnameModule.GetFlightClass());
   var flightQuery = new AV.Query(Flight);
   
    if(request.object.get("status") == messageModule.ShippingStatus_Received())
@@ -110,7 +109,6 @@ AV.Cloud.afterUpdate(classnameModule.GetShippingClass(), function(request) {
 });
 
 AV.Cloud.afterUpdate(classnameModule.GetUserClass(), function(request) {
-  var User = AV.Object.extend(classnameModule.GetUserClass());
   var userQuery = new AV.Query(User);
   
    if(request.object.get("forzenMoney") != null && request.object.get("forzenMoney") < 0)
