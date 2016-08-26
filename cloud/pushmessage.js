@@ -24,13 +24,15 @@ var PF_PUSH_MESSAGE_TYPE_REFUND = "refund"
 
 var PF_PUSH_MESSAGE_ACTION    ="com.soontake.PUSH"
 
+var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
+var History = AV.Object.extend(classnameModule.GetHistoryClass());
+
 exports.PushCargoAssigned = function (cargo, flight, shipping) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
+
     var myPushMessage = new PushMessage();
     var content = "亲，您的包裹["+cargo.get("type")+"]被预定，请自行约定包裹交接，在此以前请不要打包以便开箱验视，感谢您的支持！";   
 
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 	historyRecord.set("text", content);
@@ -124,13 +126,11 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 
 
 exports.PushFlightAssigned = function (cargo, flight, shipping) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var content = "亲，您收到一个包裹["+cargo.get("type")+"], 请自行约定包裹交接，请当面开箱验视，感谢您的支持！";
 	
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
 	historyRecord.set("text", content);
@@ -225,7 +225,6 @@ exports.PushFlightAssigned = function (cargo, flight, shipping) {
 }
 
 exports.PushUserDetailVerifyStatus = function (userDetail) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var message = '';
@@ -276,7 +275,6 @@ exports.PushUserDetailVerifyStatus = function (userDetail) {
 }
 
 exports.PushShippingStatusUpdateToUser = function (shipping) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var flight = shipping.get("flight");
@@ -294,7 +292,6 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 	}
 	
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 	historyRecord.set("text", content);
@@ -370,13 +367,11 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 
 
 exports.PushShippingCancelToUser = function (cargo, reasonCode) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var content = "亲，您的包裹["+cargo.get("type")+"]已被取消，请重新等待代运人，感谢您的支持！";   
 	
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CARGO);
 	historyRecord.set("text", content);
@@ -449,13 +444,11 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 }
 
 exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var content = "亲，您代运的包裹["+cargo.get("type")+"]已被取消，感谢您的支持！";   
 	
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
 	historyRecord.set("text", content);
@@ -528,7 +521,6 @@ exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
 }
 
 exports.PushPaymentTopupSucceedToUser = function (payment,amount,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
     var content = "成功充值¥"+amount+"到您的Soontake帐号";
@@ -572,7 +564,6 @@ exports.PushPaymentTopupSucceedToUser = function (payment,amount,user) {
 }
 
 exports.PushWithdrawSucceedToUser = function (payment,amount,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
     var content = "成功从您的Soontake帐号取款¥"+amount+"到您的微信账号";
@@ -617,7 +608,6 @@ exports.PushWithdrawSucceedToUser = function (payment,amount,user) {
 
 
 exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
@@ -631,7 +621,6 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 		    var content = "成功支付¥"+amount+"给顺带君"+flight.get("owner").get("fullname")+"，包裹成功寄出以后，这笔钱将打入顺带君的账户(在此之前这笔钱将被冻结)";
 	
 			//add message history
-			var History = AV.Object.extend(classnameModule.GetHistoryClass());
 			var historyRecord = new History();
 			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
 			historyRecord.set("text", content);
@@ -706,7 +695,6 @@ exports.PushChargeShippingListSucceedToCargoUser = function (payment,amount,ship
 }
 
 exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var cargo = shipping.get("cargo");
@@ -715,7 +703,6 @@ exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shi
     var content = "包裹["+cargo.get("type")+"]的运费¥"+amount+"已成功转入平台, 完成任务后，运费将到账您的账户";
 		
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
 	historyRecord.set("text", content);
@@ -809,7 +796,6 @@ exports.PushChargeShippingListSucceedToFlightUser = function (payment,amount,shi
 }
 
 exports.PushPaymentTransferToSenderSucceedToFlightUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var cargo = shipping.get("cargo");
@@ -818,7 +804,6 @@ exports.PushPaymentTransferToSenderSucceedToFlightUser = function (payment,amoun
     var content = "包裹["+cargo.get("type")+"]的运费¥"+amount+"已成功转入您的账户";
 		
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_TRANSFER);
 	historyRecord.set("text", content);
@@ -912,7 +897,6 @@ exports.PushPaymentTransferToSenderSucceedToFlightUser = function (payment,amoun
 }
 
 exports.PushPaymentTransferToSenderSucceedToCargoUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
@@ -926,7 +910,6 @@ exports.PushPaymentTransferToSenderSucceedToCargoUser = function (payment,amount
 		    var content = "已经成功支付¥"+amount+"给顺带君"+flight.get("owner").get("fullname");
 	
 			//add message history
-			var History = AV.Object.extend(classnameModule.GetHistoryClass());
 			var historyRecord = new History();
 			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_TRANSFER);
 			historyRecord.set("text", content);
@@ -1001,7 +984,6 @@ exports.PushPaymentTransferToSenderSucceedToCargoUser = function (payment,amount
 }
 
 exports.PushPaymentRefundToCargotUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
@@ -1015,7 +997,6 @@ exports.PushPaymentRefundToCargotUser = function (payment,amount,shipping,user) 
 		    var content = "已经向顺带君"+flight.get("owner").get("fullname")+"申请退款¥"+amount;
 	
 			//add message history
-			var History = AV.Object.extend(classnameModule.GetHistoryClass());
 			var historyRecord = new History();
 			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 			historyRecord.set("text", content);
@@ -1090,7 +1071,6 @@ exports.PushPaymentRefundToCargotUser = function (payment,amount,shipping,user) 
 }
 
 exports.PushPaymentRefundToFlightUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var cargo = shipping.get("cargo");
@@ -1099,7 +1079,6 @@ exports.PushPaymentRefundToFlightUser = function (payment,amount,shipping,user) 
     var content = "包裹["+cargo.get("type")+"]的客户申请退款运费¥"+amount;
 		
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 	historyRecord.set("text", content);
@@ -1193,7 +1172,6 @@ exports.PushPaymentRefundToFlightUser = function (payment,amount,shipping,user) 
 }
 
 exports.PushPaymentRefundRejectToFlightUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var cargo = shipping.get("cargo");
@@ -1202,7 +1180,6 @@ exports.PushPaymentRefundRejectToFlightUser = function (payment,amount,shipping,
     var content = "包裹["+cargo.get("type")+"]的客户退款被拒绝";
 		
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 	historyRecord.set("text", content);
@@ -1296,7 +1273,6 @@ exports.PushPaymentRefundRejectToFlightUser = function (payment,amount,shipping,
 }
 
 exports.PushPaymentRefundRejectToCargotUser = function (payment,amount,shipping,cargoUser) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
@@ -1310,7 +1286,6 @@ exports.PushPaymentRefundRejectToCargotUser = function (payment,amount,shipping,
 		    var content = "顺带君"+flight.get("owner").get("fullname")+ "已经拒绝您的退款申请¥"+amount;
 	
 			//add message history
-			var History = AV.Object.extend(classnameModule.GetHistoryClass());
 			var historyRecord = new History();
 			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 			historyRecord.set("text", content);
@@ -1385,7 +1360,6 @@ exports.PushPaymentRefundRejectToCargotUser = function (payment,amount,shipping,
 }
 
 exports.PushPaymentRefundApproveToCargotUser = function (payment,amount,shipping,cargoUser) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
@@ -1399,7 +1373,6 @@ exports.PushPaymentRefundApproveToCargotUser = function (payment,amount,shipping
 		    var content = "顺带君"+flight.get("owner").get("fullname")+"已经批准您的退款申请¥"+amount;
 	
 			//add message history
-			var History = AV.Object.extend(classnameModule.GetHistoryClass());
 			var historyRecord = new History();
 			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 			historyRecord.set("text", content);
@@ -1474,7 +1447,6 @@ exports.PushPaymentRefundApproveToCargotUser = function (payment,amount,shipping
 }
 
 exports.PushPaymentRefundApproveToFlightUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var cargo = shipping.get("cargo");
@@ -1483,7 +1455,6 @@ exports.PushPaymentRefundApproveToFlightUser = function (payment,amount,shipping
     var content = "包裹["+cargo.get("type")+"]的客户退款申请运费¥"+amount+ "已经被您批准";
 		
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 	historyRecord.set("text", content);
@@ -1577,7 +1548,6 @@ exports.PushPaymentRefundApproveToFlightUser = function (payment,amount,shipping
 }
 
 exports.PushPaymentChargeShippingListCancelToFlightUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var cargo = shipping.get("cargo");
@@ -1586,7 +1556,6 @@ exports.PushPaymentChargeShippingListCancelToFlightUser = function (payment,amou
     var content = "包裹["+cargo.get("type")+"]的客户付款运费¥"+amount+ "被取消";
 		
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
 	historyRecord.set("text", content);
@@ -1680,7 +1649,6 @@ exports.PushPaymentChargeShippingListCancelToFlightUser = function (payment,amou
 }
 
 exports.PushPaymentChargeShippingListCancelToCargoUser = function (payment,amount,shipping,cargoUser) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
@@ -1694,7 +1662,6 @@ exports.PushPaymentChargeShippingListCancelToCargoUser = function (payment,amoun
 		    var content = "您已经取消包裹["+cargo.get("type")+"]的客户付款运费¥"+amount;
 	
 			//add message history
-			var History = AV.Object.extend(classnameModule.GetHistoryClass());
 			var historyRecord = new History();
 			historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
 			historyRecord.set("text", content);
@@ -1769,7 +1736,6 @@ exports.PushPaymentChargeShippingListCancelToCargoUser = function (payment,amoun
 }
 
 exports.PushPaymentTopupCancelToCargoUser = function (payment,amount,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var content = "您已经取消充值¥"+amount+"到您的Soontake帐号"
@@ -1812,7 +1778,6 @@ exports.PushPaymentTopupCancelToCargoUser = function (payment,amount,user) {
 }
 
 exports.PushPaymentRefundCancelToFlightUser = function (payment,amount,shipping,user) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
 
     var cargo = shipping.get("cargo");
@@ -1821,7 +1786,6 @@ exports.PushPaymentRefundCancelToFlightUser = function (payment,amount,shipping,
     var content = "包裹["+cargo.get("type")+"]的客户退款申请运费¥"+amount+ "已经被取消";
 		
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 	historyRecord.set("text", content);
@@ -1915,7 +1879,6 @@ exports.PushPaymentRefundCancelToFlightUser = function (payment,amount,shipping,
 }
 
 exports.PushPaymentRefundCancelToCargoUser = function (payment,amount,shipping,cargoUser) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
@@ -1924,7 +1887,6 @@ exports.PushPaymentRefundCancelToCargoUser = function (payment,amount,shipping,c
 	var content = "包裹["+cargo.get("type")+"]的退款申请运费¥"+amount+ "已经被您取消";
 	
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_REFUND);
 	historyRecord.set("text", content);
@@ -1997,14 +1959,12 @@ exports.PushPaymentRefundCancelToCargoUser = function (payment,amount,shipping,c
 }
 
 exports.PushPaymentUrgePaymentToCargoUser = function (payment,amount,shipping,cargoUser) {
-    var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
     
 	var cargo = shipping.get("cargo");
 	var content = "您的包裹["+cargo.get("type")+"]已经寄出，请及时付运费给代运人，谢谢";
 	
 	//add message history
-	var History = AV.Object.extend(classnameModule.GetHistoryClass());
 	var historyRecord = new History();
 	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_CHARGE);
 	historyRecord.set("text", content);

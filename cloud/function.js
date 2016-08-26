@@ -10,7 +10,12 @@ var AV = require('leanengine');
 var twilio = require("twilio")("AC05051a3183e935f8a6d2a2c94da971dd", "8668f086109349d554688600c3ff8e90");
 //twilio.initialize("AC05051a3183e935f8a6d2a2c94da971dd","8668f086109349d554688600c3ff8e90");
 
-
+var Flight = AV.Object.extend(classnameModule.GetFlightClass());
+var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
+var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
+var UserDetails = AV.Object.extend(classnameModule.GetUserDetailsClass());
+var Config = AV.Object.extend(classnameModule.GetConfigClass());
 /*
 AssignCargoToFlight
 Input:
@@ -30,10 +35,8 @@ AV.Cloud.define("AssignCargosToFlight", function (request, response) {
 });
 
 var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response) {
-    var Flight = AV.Object.extend(classnameModule.GetFlightClass());
     var flightQuery = new AV.Query(Flight);
-
-    var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
+	
 	succeedAssignCount = 0;
 	AssignTotalWeight = 0;
 	succeedAssignCount = cargoIds.length;
@@ -68,7 +71,6 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response
 };
 
 var UpdateFlightInfo = function (cargoId, flightId, weight, assignBy, response) {
-    var Flight = AV.Object.extend(classnameModule.GetFlightClass());
     var flightQuery = new AV.Query(Flight);
 
     flightQuery.get(flightId).then(function (flight){
@@ -84,7 +86,6 @@ var UpdateFlightInfo = function (cargoId, flightId, weight, assignBy, response) 
 };
 
 var UpdateCargoInfo = function (cargoId, flightId,weight, assignBy, response) {
-    var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
     var cargoQuery = new AV.Query(Cargo);
 
     cargoQuery.get(cargoId).then(function(cargo){
@@ -114,13 +115,9 @@ var UpdateCargoInfo = function (cargoId, flightId,weight, assignBy, response) {
 
 
 var CreateShippingInfo = function (cargoId, flightId, weight, assignBy, response) {
-    var Flight = AV.Object.extend(classnameModule.GetFlightClass());
     var flightQuery = new AV.Query(Flight);
-
-    var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
     var cargoQuery = new AV.Query(Cargo);
-
-    var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+	
     var myShipping = new Shipping();
 
 	console.log("Create Cargo-Flight Shipping-> Weight:"+weight);
@@ -180,7 +177,6 @@ var CreateShippingInfo = function (cargoId, flightId, weight, assignBy, response
 
 
 AV.Cloud.define("CancelShipping", function(request, response) {
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
     var shippingId = request.params.shipping; 
@@ -245,7 +241,6 @@ Output:
 succeed or error msg
 */
 AV.Cloud.define("UpdateShippingStatus", function (request, response) {
-    var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
     var shippingId = request.params.shipping;
     var status = request.params.status;
@@ -308,7 +303,6 @@ succeed or error msg
 var CheckUpdateCargoAndFlight = function (shipping, response) {
 	var cargo = shipping.get("cargo");
 	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
 	shippingQuery.equalTo("cargo", cargo);
@@ -359,7 +353,6 @@ succeed or error msg
 var CheckUpdateFlight = function (shipping, response) {
     var flight = shipping.get("flight");
 	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
 	shippingQuery.equalTo("flight", flight);
@@ -516,7 +509,6 @@ AV.Cloud.define("StartNewConversition", function (request, response) {
 	var userSendToQuery = new AV.Query(AV.User);
 	var userSendFromQuery = new AV.Query(AV.User);
 	
-	var PushMessage = AV.Object.extend(classnameModule.GetPushMessageClass());
     var myPushMessage = new PushMessage();
   
     userSendToQuery.equalTo("objectId", sendTo);
@@ -578,7 +570,6 @@ Output:
 user list
 */
 AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
-    var UserDetails = AV.Object.extend(classnameModule.GetUserDetailsClass());
     var userDetailsQuery = new AV.Query(UserDetails);
     var status = request.params.status;
 
@@ -596,7 +587,6 @@ AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
 
 
 AV.Cloud.define("CheckUpdateFlightJob", function(request, response) {
-  var Flight = AV.Object.extend(classnameModule.GetFlightClass());
   var flightQuery = new AV.Query(Flight);
 	
   flightQuery.lessThan("time", new Date());
@@ -638,7 +628,6 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
     var returnResults ={};
 	var currentVersion = request.params.currentVersion;
 	var platform = request.params.platform;
-	var Config = AV.Object.extend(classnameModule.GetConfigClass());
     var configQuery = new AV.Query(Config);
 	var currentUserId = null;
 	if(AV.User.current()!=null)
@@ -690,7 +679,6 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 
 AV.Cloud.define("SearchCargoInfo", function(request, response) {
 	var orderId = request.params.cargoId;
-	var Cargo = AV.Object.extend(classnameModule.GetCargoClass());
     var cargoQuery = new AV.Query(Cargo);
 	var cargoQuery2 = new AV.Query(Cargo);
 
