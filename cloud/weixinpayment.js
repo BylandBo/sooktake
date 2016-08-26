@@ -23,6 +23,9 @@ var wxpay = WXPay({
     pfx: fs.readFileSync('/home/leanengine/app/weixinpaykeys/apiclient_cert.p12'), //微信商户平台证书
 });
 
+var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
+var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
+
 //******Functions Definition******//
 AV.Cloud.define("PaymentTopup", function (request, response) {
     var amount = request.params.amount;
@@ -81,7 +84,6 @@ AV.Cloud.define("PaymentTopup", function (request, response) {
 AV.Cloud.define("PaymentTopupCancel", function (request, response) {
     var prepayId = request.params.prepayId;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
 	
 	console.log("Payment - PaymentTopupCancel: prepayId->" + prepayId); 
@@ -395,10 +397,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 AV.Cloud.define("PaymentTransferToSender", function (request, response) {
     var shippingId = request.params.shippingId;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
 	var order_no = crypto.createHash('md5')
@@ -481,10 +480,7 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
 	var order_no = crypto.createHash('md5')
@@ -578,10 +574,7 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 
 		
@@ -650,10 +643,7 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 
 		
@@ -737,10 +727,7 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 	var reasonCode = request.params.reasonCode;
 	var reason = request.params.reason;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 
 		
@@ -816,10 +803,7 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) {
     var shippingList = request.params.shippingList;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
     for(var s=0; s <shippingList.length; s++)
@@ -885,7 +869,6 @@ AV.Cloud.define("QueryWXOrder", function (request, response) {
 
 var CreateTopupPayment = function (user, wxObj,params,type, response) {
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
 	
 	myPayment.set("paymentChannel", params.channel);
@@ -937,7 +920,6 @@ var topupCallback = function(payment,data){
 /*Withdraw*/
 var CreateWithDrawPayment = function (user, wxObj,params,type, response) {
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
 	
 	myPayment.set("paymentChannel", params.channel);
@@ -994,9 +976,7 @@ var withdrawCallback = function(payment,data){
 /*shipping payment*/
 var CreateShippingPayment = function (newpayment, wxObj, shippings, response) {
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
 	
 	myPayment.set("paymentChannel", newpayment.channel);
 	myPayment.set("total", (newpayment.amount/100));
@@ -1038,7 +1018,6 @@ var CreateShippingPayment = function (newpayment, wxObj, shippings, response) {
 };
 
 var shippingChargeCallback = function(payment,data){
-    var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 			
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
@@ -1081,9 +1060,7 @@ var shippingChargeCallback = function(payment,data){
 /*shipping charge with balance*/
 var CreateShippingPaymentWithBalance = function (newpayment, shippings, response) {
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var myPayment = new Payment();
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
 	
 	myPayment.set("paymentChannel", newpayment.channel);
 	myPayment.set("total", (newpayment.amount/100));
@@ -1128,7 +1105,6 @@ var CreateShippingPaymentWithBalance = function (newpayment, shippings, response
 
 /*Common function*/
 var paymentCallback = function(order){
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
 	
 	paymentQuery.equalTo("orderNo", order.out_trade_no);
@@ -1185,10 +1161,7 @@ var newAPPReturnObj = function (wxObj,out_trade_no){
 }
 
 AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
-    var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
 	var cql = "select include payment,* from "+ classnameModule.GetShippingClass()+" where status = '"+messageModule.ShippingStatus_Received()+"' AND transferPaymentStatus in ('" + messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() + "','" + messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND() + "') AND paymentStatus='" + messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() + "'";
@@ -1239,10 +1212,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 });
 
 AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
-    var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
     var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
 	shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
@@ -1304,10 +1274,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
     var shippingList = request.params.shippingList;
 	
-	var Payment = AV.Object.extend(classnameModule.GetPaymentClass());
 	var paymentQuery = new AV.Query(Payment);
-	
-	var Shipping = AV.Object.extend(classnameModule.GetShippingClass());
     var shippingQuery = new AV.Query(Shipping);
 	
     for(var s=0; s <shippingList.length; s++)
