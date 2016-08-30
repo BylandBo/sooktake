@@ -279,6 +279,8 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 			{
 			 shipping.set("sendingTime",new Date());
 			 if(shipping.get("status") != messageModule.ShippingStatus_Pending())
+			  isValidStatus = 2;
+			 if(shipping.get("status") != messageModule.ShippingStatus_Sending())
 			  isValidStatus = 1;
 			}
 			if(status == messageModule.ShippingStatus_Received())
@@ -295,7 +297,9 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 				}
 		      
 			  if(shipping.get("status") != messageModule.ShippingStatus_Sending())
-			  isValidStatus = 2;
+			   isValidStatus = 2;
+			  if(shipping.get("status") != messageModule.ShippingStatus_Received())
+			   isValidStatus = 1;
 			}
 			shipping.set("status",status);
 			if(isValidStatus != 0)
