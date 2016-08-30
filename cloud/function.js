@@ -300,7 +300,7 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 			shipping.set("status",status);
 			if(isValidStatus != 0)
 			{
-			   if(isValidStatus == 2)
+			   if(isValidStatus == 1)
 			     response.error({code: 101, message: "重复调用，包裹已经拿到/寄出了"});
 			   else 
 			     response.error({code: 102, message: "状态不对"});
