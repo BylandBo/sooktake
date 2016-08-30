@@ -293,9 +293,16 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 	   if(shipping.get("cargo").get("payMethod") == messageModule.PF_PAYMENT_METHOD_SOONTAKE())
 		{
 		  if(cargo.get("expressType") == messageModule.expressPost())
-		    paymentTypeInfo = "(货主确认寄出包裹后运费将从平台转入您账户中；如果货主没确认，7天后系统将自动完成转账,请联系货主让Ta付款)，";
+		  {
+		      paymentTypeInfo = "(货主确认寄出包裹后运费将从平台转入您账户中；如果货主没确认，7天后系统将自动完成转账,请联系货主让Ta付款)，";
+		  }
 		  else
-		    paymentTypeInfo = "(点’确认寄出包裹’后运费将从平台转入顺带君账户中，自此7天后系统将自动完成转账,请及时付款)，";
+		  {
+		    if(shipping.get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			  paymentTypeInfo = "(请及时付款)，";
+			else
+		      paymentTypeInfo = "(点'确认寄出包裹'后运费将从平台转入顺带君账户中，自此7天后系统将自动完成转账,请及时付款)，";
+		  }
 		}
 	   if(cargo.get("expressType") == messageModule.expressPost())
 		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已寄出，"+paymentTypeInfo+"感谢您的支持！";

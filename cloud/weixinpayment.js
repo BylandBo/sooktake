@@ -256,6 +256,8 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 				  
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
+				      //if(shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
+					  
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
 					  {
 					    isDuplicatePayment = true;
@@ -270,7 +272,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  }  
 				  }
 				  if(isDuplicatePayment)
-				     response.error({code: 100, message: "duplicate payment"});
+				     response.error({code: 101, message: "重复调用，包裹已经付款过了"});
 				  else
 				  {
 					var user = users[0];
