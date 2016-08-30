@@ -30,7 +30,10 @@ var History = AV.Object.extend(classnameModule.GetHistoryClass());
 exports.PushCargoAssigned = function (cargo, flight, shipping) {
 
     var myPushMessage = new PushMessage();
-    var content = "亲，您的包裹["+cargo.get("type")+"]被分配，请联系顺带君约定包裹交接，在此以前请不要打包以便开箱验视，感谢您的支持！";   
+	var paymentTypeInfo = "";
+	if(cargo.get("payMethod") == messageModule.PF_PAYMENT_METHOD_SOONTAKE())
+	  paymentTypeInfo = "(顺带君接受价格并拿到包裹以后付款) ";
+    var content = "亲，您的包裹["+cargo.get("type")+"]被分配，请联系顺带君约定包裹交接，在此以前请不要打包以便开箱验视,"+paymentTypeInfo+"感谢您的支持！";   
 
 	//add message history
 	var historyRecord = new History();
@@ -281,14 +284,23 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 	var cargo = shipping.get("cargo");
 	var status = shipping.get("status");
     var content = "";
+	
 	if(status == messageModule.ShippingStatus_Sending())
-		content = "顺带君拿到了您的包裹["+shipping.get("cargo").get("type")+"],请及时付款。如果遇到问题请联系我们的小秘书~"; 
+		content = "顺带君拿到了您的包裹["+shipping.get("cargo").get("type")+"]，请及时付款。如果遇到问题请联系我们的小秘书~"; 
 	if(status == messageModule.ShippingStatus_Received())
 	{
+	   var paymentTypeInfo = "";
+	   if(shipping.get("cargo").get("payMethod") == messageModule.PF_PAYMENT_METHOD_SOONTAKE())
+		{
+		  if(cargo.get("expressType") == messageModule.expressPost())
+		    paymentTypeInfo = "(货主确认寄出包裹后运费将从平台转入您账户中；如果货主没确认，7天后系统将自动完成转账,请联系货主让Ta付款)，";
+		  else
+		    paymentTypeInfo = "(点’确认寄出包裹’后运费将从平台转入顺带君账户中，自此7天后系统将自动完成转账,请及时付款)，";
+		}
 	   if(cargo.get("expressType") == messageModule.expressPost())
-		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已寄出，感谢您的支持！";
+		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已寄出，"+paymentTypeInfo+"感谢您的支持！";
 	   else
-		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达,请查询快递单号以确认,感谢您的支持！";
+		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达，请查询快递单号以确认，"+paymentTypeInfo+"感谢您的支持！";
 	}
 	
 	//add message history
