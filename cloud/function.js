@@ -46,12 +46,10 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response
 		cargoQuery.get(cargoIds[i]).then(
 			  function(cargo) {
 			    var shipping = cargo.get("shipping");
-				if(shipping != null)
+				console.log("shipping status: " + shipping != null?shipping.get("status"):"no shipping");
+				if(shipping != null && shipping.get("status") != messageModule.ShippingStatus_Cancel())
 				{
-				  if(shipping.get("status") != messageModule.ShippingStatus_Cancel())
-				  {
 					response.error({code: 101, message: "重复调用，包裹已经分配过了"});
-				  }
 				}
 				else
 				{
