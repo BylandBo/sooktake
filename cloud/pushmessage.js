@@ -381,7 +381,7 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 exports.PushShippingCancelToUser = function (cargo, reasonCode) {
     var myPushMessage = new PushMessage();
 
-    var content = "亲，您的包裹["+cargo.get("type")+"]已被取消，请重新等待代运人，感谢您的支持！";   
+    var content = "已取消分配，包裹["+cargo.get("type")+"]重新发布在平台上";   
 	
 	//add message history
 	var historyRecord = new History();
@@ -458,7 +458,7 @@ exports.PushShippingCancelToUser = function (cargo, reasonCode) {
 exports.PushShippingCancelToFlightUser = function (cargo, flight, reasonCode) {
     var myPushMessage = new PushMessage();
 
-    var content = "亲，您代运的包裹["+cargo.get("type")+"]已被取消，感谢您的支持！";   
+    var content = "包裹["+cargo.get("type")+"]已取消分配";   
 	
 	//add message history
 	var historyRecord = new History();
