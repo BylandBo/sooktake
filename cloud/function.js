@@ -280,7 +280,7 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 			 shipping.set("sendingTime",new Date());
 			 if(shipping.get("status") != messageModule.ShippingStatus_Pending())
 			  isValidStatus = 2;
-			 if(shipping.get("status") != messageModule.ShippingStatus_Sending())
+			 if(shipping.get("status") == messageModule.ShippingStatus_Sending())
 			  isValidStatus = 1;
 			}
 			if(status == messageModule.ShippingStatus_Received())
@@ -298,12 +298,13 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 		      
 			  if(shipping.get("status") != messageModule.ShippingStatus_Sending())
 			   isValidStatus = 2;
-			  if(shipping.get("status") != messageModule.ShippingStatus_Received())
+			  if(shipping.get("status") == messageModule.ShippingStatus_Received())
 			   isValidStatus = 1;
 			}
 			shipping.set("status",status);
 			if(isValidStatus != 0)
 			{
+			   console.log("UpdateShippingStatus-> shippingId: "+ shippingId + ", invalid status check: " + isValidStatus);
 			   if(isValidStatus == 1)
 			     response.error({code: 101, message: "重复调用，包裹已经拿到/寄出了"});
 			   else 
