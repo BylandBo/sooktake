@@ -274,12 +274,12 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
     shippingQuery.get(shippingId, {
         success: function (shipping) {
             // The object was retrieved successfully.
-			var isValidStatus = true;
+			var isValidStatus = 0;
 			if(status == messageModule.ShippingStatus_Sending())
 			{
 			 shipping.set("sendingTime",new Date());
 			 if(shipping.get("status") != messageModule.ShippingStatus_Pending())
-			  isValidStatus = false;
+			  isValidStatus = 1;
 			}
 			if(status == messageModule.ShippingStatus_Received())
 			{
@@ -295,12 +295,15 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 				}
 		      
 			  if(shipping.get("status") != messageModule.ShippingStatus_Sending())
-			  isValidStatus = false;
+			  isValidStatus = 2;
 			}
 			shipping.set("status",status);
-			if(!isValidStatus)
+			if(isValidStatus != 0)
 			{
-			   response.error({code: 102, message: "状态不对"});
+			   if(isValidStatus == 2)
+			     response.error({code: 101, message: "重复调用，包裹已经拿到/寄出了"});
+			   else 
+			     response.error({code: 102, message: "状态不对"});
 			}
 			else if(flightNotReady)
 			{
