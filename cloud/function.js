@@ -45,24 +45,35 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response
 		var cargoQuery = new AV.Query(Cargo);
 		cargoQuery.get(cargoIds[i]).then(
 			  function(cargo) {
-				var lastestLeftWeight = cargo.get("leftWeight");
-				AssignTotalWeight += lastestLeftWeight;
-				console.log("Cargo " +cargo.id + " weight: " + lastestLeftWeight);
-				if (lastestLeftWeight === 0)
-					response.error(messageModule.cargoProcessing());
+			    var shipping = cargo.get("shipping");
+				if(shipping != null)
+				{
+				  if(shipping.get("status") != messageModule.ShippingStatus_Cancel())
+				  {
+					response.error({code: 101, message: "重复调用，包裹已经分配过了"});
+				  }
+				}
+				else
+				{
+					var lastestLeftWeight = cargo.get("leftWeight");
+					AssignTotalWeight += lastestLeftWeight;
+					console.log("Cargo " +cargo.id + " weight: " + lastestLeftWeight);
+					if (lastestLeftWeight === 0)
+						response.error(messageModule.cargoProcessing());
 
-				flightQuery.get(flightId).then(
-					function(flight) {
-						var lastestLeftSpace = flight.get("leftSpace");
-						if (lastestLeftSpace === 0 || lastestLeftSpace < lastestLeftWeight)
+					flightQuery.get(flightId).then(
+						function(flight) {
+							var lastestLeftSpace = flight.get("leftSpace");
+							if (lastestLeftSpace === 0 || lastestLeftSpace < lastestLeftWeight)
+								response.error(messageModule.errorMsg());
+							console.log("Flight " + flightId + " space: " + lastestLeftSpace);
+							//all valid, then start to update
+							UpdateFlightInfo(cargo.id, flightId, lastestLeftWeight, assignBy, response);
+						}, function (error){
+							console.log(error.message);
 							response.error(messageModule.errorMsg());
-						console.log("Flight " + flightId + " space: " + lastestLeftSpace);
-						//all valid, then start to update
-						UpdateFlightInfo(cargo.id, flightId, lastestLeftWeight, assignBy, response);
-					}, function (error){
-						console.log(error.message);
-						response.error(messageModule.errorMsg());
-					});
+						});
+				}
 			}, function (error){
 						console.log(error.message);
 						//response.error(messageModule.errorMsg());
@@ -191,37 +202,48 @@ AV.Cloud.define("CancelShipping", function(request, response) {
     shippingQuery.get(shippingId, {
         success: function (shipping) {
             // The object was retrieved successfully.
-			var flight = shipping.get("flight");
-			var cargo = shipping.get("cargo");
-			console.log("Flight:" + flight.id +" Cargo:"+cargo.id);
-			var addSpace = shipping.get("weight");
-			
-			 flight.set("leftSpace",flight.get("leftSpace") + addSpace);
-			 if(flight.get("status") == messageModule.FlightStatus_Full())
-				flight.set("status",messageModule.FlightStatus_Pending());
-			 flight.remove("shippingList",shipping);
-			 flight.save().then(function(f){
-				    cargo.set("status",messageModule.CargoStatus_Pending());
-					cargo.set("leftWeight",cargo.get("leftWeight") + addSpace);
-					cargo.set("shipping",null);
-					cargo.save().then(function(result){
-						//shipping.set("flight",null);
-						//shipping.set("cargo",null);
-						shipping.set("status",messageModule.ShippingStatus_Cancel());
-						shipping.set("isCancelByCargoOwner",isCancelByCargoOwner);
-						shipping.save().then(function(s){
-						    pushModule.PushShippingCancelToUser(result,reasonCode);
-						    pushModule.PushShippingCancelToFlightUser(result,flight,reasonCode);
-							response.success(s);
-						},function (error) {
-							console.log(error.message);
-							response.error(messageModule.errorMsg());
+			if(shipping.get("status") != messageModule.ShippingStatus_Pending())
+			{
+			  response.error({code: 102, message: "状态不对"});
+			}
+			else if(shipping.get("status") == messageModule.ShippingStatus_Cancel())
+			{
+			  response.error({code: 101, message: "重复调用，包裹已经取消分配过了"});
+			}
+			else
+			{
+				var flight = shipping.get("flight");
+				var cargo = shipping.get("cargo");
+				console.log("Flight:" + flight.id +" Cargo:"+cargo.id);
+				var addSpace = shipping.get("weight");
+				
+				 flight.set("leftSpace",flight.get("leftSpace") + addSpace);
+				 if(flight.get("status") == messageModule.FlightStatus_Full())
+					flight.set("status",messageModule.FlightStatus_Pending());
+				 flight.remove("shippingList",shipping);
+				 flight.save().then(function(f){
+						cargo.set("status",messageModule.CargoStatus_Pending());
+						cargo.set("leftWeight",cargo.get("leftWeight") + addSpace);
+						cargo.set("shipping",null);
+						cargo.save().then(function(result){
+							//shipping.set("flight",null);
+							//shipping.set("cargo",null);
+							shipping.set("status",messageModule.ShippingStatus_Cancel());
+							shipping.set("isCancelByCargoOwner",isCancelByCargoOwner);
+							shipping.save().then(function(s){
+								pushModule.PushShippingCancelToUser(result,reasonCode);
+								pushModule.PushShippingCancelToFlightUser(result,flight,reasonCode);
+								response.success(s);
+							},function (error) {
+								console.log(error.message);
+								response.error(messageModule.errorMsg());
+							});
 						});
-					});
-				},function (error) {
-				console.log(error.message);
-				response.error(messageModule.errorMsg());
-			});
+					},function (error) {
+					console.log(error.message);
+					response.error(messageModule.errorMsg());
+				});
+			}
         },
         error: function (error) {
             // The object was not retrieved successfully.
@@ -252,9 +274,13 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
     shippingQuery.get(shippingId, {
         success: function (shipping) {
             // The object was retrieved successfully.
-            shipping.set("status",status);
+			var isValidStatus = true;
 			if(status == messageModule.ShippingStatus_Sending())
+			{
 			 shipping.set("sendingTime",new Date());
+			 if(shipping.get("status") != messageModule.ShippingStatus_Pending())
+			  isValidStatus = false;
+			}
 			if(status == messageModule.ShippingStatus_Received())
 			{
 				shipping.set("receivedTime",new Date());
@@ -267,9 +293,16 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 					flightNotReady = true;
 				  }
 				}
+		      
+			  if(shipping.get("status") != messageModule.ShippingStatus_Sending())
+			  isValidStatus = false;
 			}
-			
-			if(flightNotReady)
+			shipping.set("status",status);
+			if(!isValidStatus)
+			{
+			   response.error({code: 102, message: "状态不对"});
+			}
+			else if(flightNotReady)
 			{
 			   response.error({code: 406, message: 'flight not take off yet'});
 			}
