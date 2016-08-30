@@ -43,11 +43,15 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response
     for(var i=0; i<cargoIds.length; i++)
 	{
 		var cargoQuery = new AV.Query(Cargo);
+		cargoQuery.include("shipping");
 		cargoQuery.get(cargoIds[i]).then(
 			  function(cargo) {
 			    var shipping = cargo.get("shipping");
-				console.log("shipping status: " + shipping != null?shipping.get("status"):"no shipping");
-				if(shipping != null && shipping.get("status") != messageModule.ShippingStatus_Cancel())
+				var shippingStatus = "";
+				if(shipping != null)
+				   shippingStatus = shipping.get("status");
+				console.log("shipping status: " + shippingStatus);
+				if(shipping != null && shippingStatus != messageModule.ShippingStatus_Cancel())
 				{
 					response.error({code: 101, message: "重复调用，包裹已经分配过了"});
 				}
