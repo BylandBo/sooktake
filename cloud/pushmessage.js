@@ -30,7 +30,7 @@ var History = AV.Object.extend(classnameModule.GetHistoryClass());
 exports.PushCargoAssigned = function (cargo, flight, shipping) {
 
     var myPushMessage = new PushMessage();
-    var content = "亲，您的包裹["+cargo.get("type")+"]被预定，请自行约定包裹交接，在此以前请不要打包以便开箱验视，感谢您的支持！";   
+    var content = "亲，您的包裹["+cargo.get("type")+"]被分配，请联系顺带君约定包裹交接，在此以前请不要打包以便开箱验视，感谢您的支持！";   
 
 	//add message history
 	var historyRecord = new History();
@@ -128,7 +128,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 exports.PushFlightAssigned = function (cargo, flight, shipping) {
     var myPushMessage = new PushMessage();
 
-    var content = "亲，您收到一个包裹["+cargo.get("type")+"], 请自行约定包裹交接，请当面开箱验视，感谢您的支持！";
+    var content = "您收到一个包裹请求["+cargo.get("type")+"],请联系货主约定包裹交接，当面开箱验视确认无违禁品,拿到包裹以后请更新包裹状态(首页点’我是顺带君’，第三步包裹交接里查看包裹, 点拿到包裹)";
 	
 	//add message history
 	var historyRecord = new History();
@@ -282,13 +282,13 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 	var status = shipping.get("status");
     var content = "";
 	if(status == messageModule.ShippingStatus_Sending())
-		content = "亲，代运人拿到了您的包裹["+shipping.get("cargo").get("type")+"]."; 
+		content = "顺带君拿到了您的包裹["+shipping.get("cargo").get("type")+"],请及时付款。如果遇到问题请联系我们的小秘书~"; 
 	if(status == messageModule.ShippingStatus_Received())
 	{
 	   if(cargo.get("expressType") == messageModule.expressPost())
 		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已寄出，感谢您的支持！";
 	   else
-		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达，感谢您的支持！";
+		content = "亲，您的包裹["+shipping.get("cargo").get("type")+"]已送达,请查询快递单号以确认,感谢您的支持！";
 	}
 	
 	//add message history
