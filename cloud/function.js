@@ -59,7 +59,7 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response
 				{
 					var lastestLeftWeight = cargo.get("leftWeight");
 					AssignTotalWeight += lastestLeftWeight;
-					console.log("Cargo " +cargo.id + " weight: " + lastestLeftWeight);
+					console.log("AssignCargosToFlight - Cargo " +cargo.id + " weight: " + lastestLeftWeight);
 					if (lastestLeftWeight === 0)
 						response.error(messageModule.cargoProcessing());
 
@@ -216,7 +216,7 @@ AV.Cloud.define("CancelShipping", function(request, response) {
 			{
 				var flight = shipping.get("flight");
 				var cargo = shipping.get("cargo");
-				console.log("Flight:" + flight.id +" Cargo:"+cargo.id);
+				console.log("CancelShipping - Flight:" + flight.id +" Cargo:"+cargo.id);
 				var addSpace = shipping.get("weight");
 				
 				 flight.set("leftSpace",flight.get("leftSpace") + addSpace);
