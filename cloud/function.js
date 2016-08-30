@@ -47,6 +47,7 @@ var ValidationCargoAssignInfo = function (cargoIds, flightId, assignBy, response
 			  function(cargo) {
 				if(cargo.get("status") != messageModule.CargoStatus_Pending())
 				{
+				    console.log("AssignCargosToFlight - Cargo:" +cargo.id + ", cargo status(wrong):"+cargo.get("status"));
 				    if(cargo.get("status") == messageModule.CargoStatus_Processing())
 					  response.error({code: 101, message: "重复调用，包裹已经分配过了"});
 					else

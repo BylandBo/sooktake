@@ -131,7 +131,7 @@ exports.PushCargoAssigned = function (cargo, flight, shipping) {
 exports.PushFlightAssigned = function (cargo, flight, shipping) {
     var myPushMessage = new PushMessage();
 
-    var content = "您收到一个包裹请求["+cargo.get("type")+"],请联系货主约定包裹交接，当面开箱验视确认无违禁品,拿到包裹以后请更新包裹状态(首页点’我是顺带君’，第三步包裹交接里查看包裹, 点拿到包裹)";
+    var content = "您收到一个包裹请求["+cargo.get("type")+"],请联系货主约定包裹交接，当面开箱验视确认无违禁品,拿到包裹以后请更新包裹状态(首页点'我是顺带君'，包裹交接里查看包裹, 点拿到包裹)";
 	
 	//add message history
 	var historyRecord = new History();
