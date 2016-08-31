@@ -436,7 +436,7 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
-			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() && (shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() || shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND())
+			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() && (shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() || shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND()))
 			{				  
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 			shipping.save();
