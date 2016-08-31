@@ -319,6 +319,7 @@ AV.Cloud.define("UpdateShippingStatus", function (request, response) {
 				shipping.save().then(function(result){
 					CheckUpdateCargoAndFlight(result,response);
 					pushModule.PushShippingStatusUpdateToUser(result);
+					pushModule.PushShippingStatusUpdateToFlighter(result);
 				},function (error) {
 					console.log(error.message);
 					response.error(messageModule.errorMsg());

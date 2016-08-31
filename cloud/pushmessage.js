@@ -385,6 +385,98 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 }
 
 
+exports.PushShippingStatusUpdateToFlighter = function (shipping) {
+    var myPushMessage = new PushMessage();
+    
+	var flight = shipping.get("flight");
+	var cargo = shipping.get("cargo");
+	var status = shipping.get("status");
+    var content = "";
+	
+	if(status == messageModule.ShippingStatus_Sending())
+		content = "确认拿到包裹["+shipping.get("cargo").get("type")+"]"; 
+	if(status == messageModule.ShippingStatus_Received())
+	{
+	   if(cargo.get("expressType") == messageModule.expressPost())
+		content = "包裹["+shipping.get("cargo").get("type")+"]已寄出";
+	   else
+		content = "包裹["+shipping.get("cargo").get("type")+"]已送达";
+	}
+	
+	//add message history
+	var historyRecord = new History();
+	historyRecord.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+	historyRecord.set("text", content);
+	historyRecord.set("referenceId", flight.id);
+	historyRecord.save().then(
+		function (history){
+		    var messageQuery = new AV.Query(PushMessage);
+			messageQuery.equalTo("groupId", flight.id);
+			messageQuery.equalTo("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+			messageQuery.find().then(function (message) {
+						if(message == null || message.length <= 0)
+						{
+							myPushMessage.set("groupId", flight.id);
+							myPushMessage.add("dataList",shipping);
+							myPushMessage.set("text", content);
+							myPushMessage.set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							myPushMessage.set("type", PF_PUSH_MESSAGE_TYPE_FLIGHT);
+							myPushMessage.set("sendFrom", cargo.get("owner"));
+							myPushMessage.set("sendTo", flight.get("owner"));
+							myPushMessage.set("counter", 1);
+							myPushMessage.add("historyList",history);
+							myPushMessage.set("lastShipping",shipping);
+							myPushMessage.save();
+						}
+						else{
+							message[0].set("text", content);
+							message[0].set("counter", message[0].get("counter")+1);
+							message[0].set("status", PF_PUSH_MESSAGE_STATUS_SENT);
+							message[0].set("lastShipping", shipping);
+							message[0].add("historyList",history);
+							message[0].save();
+						}
+					},function (error) {
+							console.log(error.message);
+			});
+		},
+		function(error) {
+		   console.log(error.message);
+	   }
+	);	
+
+    var pushQuery = new AV.Query(AV.Installation);
+    var flightUser = flight.get("owner");
+
+    pushQuery.equalTo("user", flightUser);
+    //pushQuery.equalTo("appIdentifier", messageModule.appName());
+
+	if(flightUser != null && flightUser != "" && typeof flightUser !== 'undefined' )
+	{
+		AV.Push.send({
+			where: pushQuery, // Set our Installation query
+			data: {
+				alert:content,
+				body:content,
+				objectId:shipping.id,
+				sound:'default',
+				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
+				action:PF_PUSH_MESSAGE_ACTION,
+				badge: "Increment"
+			}
+		}, {
+			success: function () {
+				// Push was successful
+				console.log("PushShippingStatusUpdateToUser message: Cargo: " + cargo.id + " to User: " + flight.get("owner").id);
+			},
+			error: function (error) {
+				// Handle error
+				console.log(error.message);
+			}
+		});
+	}
+}
+
 exports.PushShippingCancelToUser = function (cargo, reasonCode) {
     var myPushMessage = new PushMessage();
 
