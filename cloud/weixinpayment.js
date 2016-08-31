@@ -436,6 +436,8 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
+			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() && (shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() || shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND())
+			{				  
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 			shipping.save();
 		
@@ -491,6 +493,12 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 				    response.success(myPayment);
 				});
 			});
+			}
+			else
+			{
+			  console.log("Payment - PaymentTransferToSender: ShippingId->" + shipping.id + " wrong status： " + shipping.get("paymentStatus"));
+		      response.error({code: 102, message: "状态不对"});
+			}
 		}, function (error) {
 			console.log(error.message);
 			response.error(messageModule.errorMsg());
@@ -841,31 +849,36 @@ AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) 
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
-			shipping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
-			shipping.save();
-		
-			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
-			payment.save().then(function (py){
-			    cargo.fetch({include: "owner"},
-						   {
-							   success: function(cargoObj) {
-							     var cargoUser = cargoObj.get("owner");
-								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
-								 console.log("Payment - PaymentChargeShippingListCancel: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
-								 cargoUser.set("forzenMoney",newForzenMoney);
-								 cargoUser.save().then(function(user){
-									var totalAmount = payment.get("total");
-									pushModule.PushPaymentChargeShippingListCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
-									//pushModule.PushPaymentChargeShippingListCancelToFlightUser(payment,totalAmount,shipping,flight.get("owner"));
-								 });
-								},
-							   error: function(message, error) {
-								 console.log(error.message);
-								 response.error(messageModule.errorMsg());
-							    }
-						   });
-				response.success(payment);
-			});
+		    if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL())
+				response.error({code: 101, message: "重复调用，已经取消过了"});
+			else
+			{
+				shipping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+				shipping.save();
+			
+				payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+				payment.save().then(function (py){
+					cargo.fetch({include: "owner"},
+							   {
+								   success: function(cargoObj) {
+									 var cargoUser = cargoObj.get("owner");
+									 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+									 console.log("Payment - PaymentChargeShippingListCancel: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
+									 cargoUser.set("forzenMoney",newForzenMoney);
+									 cargoUser.save().then(function(user){
+										var totalAmount = payment.get("total");
+										pushModule.PushPaymentChargeShippingListCancelToCargoUser(payment,totalAmount,shipping,cargoUser);
+										//pushModule.PushPaymentChargeShippingListCancelToFlightUser(payment,totalAmount,shipping,flight.get("owner"));
+									 });
+									},
+								   error: function(message, error) {
+									 console.log(error.message);
+									 response.error(messageModule.errorMsg());
+									}
+							   });
+					response.success(payment);
+				});
+			}
 		}, function (error) {
 			console.log(error.message);
 			response.error(messageModule.errorMsg());
