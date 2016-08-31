@@ -294,7 +294,7 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 		{
 		  if(cargo.get("expressType") == messageModule.expressPost())
 		  {
-		      paymentTypeInfo = "(货主确认寄出包裹后运费将从平台转入您账户中；如果货主没确认，7天后系统将自动完成转账,请联系货主让Ta付款)，";
+		      paymentTypeInfo = "";
 		  }
 		  else
 		  {
@@ -398,7 +398,7 @@ exports.PushShippingStatusUpdateToFlighter = function (shipping) {
 	if(status == messageModule.ShippingStatus_Received())
 	{
 	   if(cargo.get("expressType") == messageModule.expressPost())
-		content = "包裹["+shipping.get("cargo").get("type")+"]已寄出";
+		content = "包裹["+shipping.get("cargo").get("type")+"]已寄出,(货主确认寄出包裹后运费将从平台转入您账户中；如果货主没确认，7天后系统将自动完成转账,请联系货主让Ta付款)，感谢您的支持！";
 	   else
 		content = "包裹["+shipping.get("cargo").get("type")+"]已送达";
 	}
