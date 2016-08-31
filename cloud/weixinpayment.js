@@ -375,8 +375,17 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			console.log("cql->" + cql);
 			AV.Query.doCloudQuery(cql).then(function (result) {
 			      var isDuplicatePayment = false;
+				  var isWrongStatus = false;
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
+				      if(shippings[j].get("paymentStatus") != "" && shippings[j].get("paymentStatus") != null)
+					  {
+					    if(shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL() && shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
+						{
+						  isWrongStatus = true;
+						  console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " wrong status： " + shippings[j].get("paymentStatus"));
+						}
+					  }
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
 					  {
 					    isDuplicatePayment = true;
@@ -384,7 +393,9 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					  }
 				  }
 				  if(isDuplicatePayment)
-				   response.error({code: 100, message: "duplicate payment"});
+				   response.error({code: 101, message: "duplicate payment"});
+				  else if(isWrongStatus)
+				   response.error({code: 102, message: "状态不对"});
 				  else
 				  {
 					var user = users[0];
