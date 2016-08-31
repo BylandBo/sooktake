@@ -358,7 +358,7 @@ exports.PushShippingStatusUpdateToUser = function (shipping) {
 			data: {
 				alert:content,
 				body:content,
-				objectId:shipping.id,
+				objectId:cargo.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_CARGO,
 				action:PF_PUSH_MESSAGE_ACTION,
@@ -460,7 +460,7 @@ exports.PushShippingStatusUpdateToFlighter = function (shipping) {
 			data: {
 				alert:content,
 				body:content,
-				objectId:shipping.id,
+				objectId:flight.id,
 				sound:'default',
 				type:PF_PUSH_MESSAGE_TYPE_FLIGHT,
 				action:PF_PUSH_MESSAGE_ACTION,
