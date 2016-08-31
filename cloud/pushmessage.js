@@ -400,9 +400,9 @@ exports.PushShippingStatusUpdateToFlighter = function (shipping) {
 		}
 		
 	   if(cargo.get("expressType") == messageModule.expressPost())
-		content = "包裹["+shipping.get("cargo").get("type")+"]已寄出，"+ paymentTypeInfo +"，感谢您的支持！";
+		content = "包裹["+shipping.get("cargo").get("type")+"]已寄出，"+ paymentTypeInfo +"感谢您的支持！";
 	   else
-		content = "包裹["+shipping.get("cargo").get("type")+"]已送达，"+ paymentTypeInfo +"，感谢您的支持！";
+		content = "包裹["+shipping.get("cargo").get("type")+"]已送达，"+ paymentTypeInfo +"感谢您的支持！";
 	}
 	
 	//add message history
