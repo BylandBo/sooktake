@@ -841,8 +841,8 @@ AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) 
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
-			// shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
-			// shipping.save();
+			shipping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
+			shipping.save();
 		
 			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
 			payment.save().then(function (py){
