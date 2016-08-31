@@ -257,12 +257,12 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 				  
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
-				      if(shippings[j].get("paymentStatus") != "" || shippings[j].get("paymentStatus") != null)
+				      if(shippings[j].get("paymentStatus") != "" && shippings[j].get("paymentStatus") != null)
 					  {
 					    if(shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL() && shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
 						{
 						  isWrongStatus = true;
-						  console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " wrong status");
+						  console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " wrong status： " + shippings[j].get("paymentStatus"));
 						}
 					  }
 					  if(shippings[j].get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
