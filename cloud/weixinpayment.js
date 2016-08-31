@@ -1313,7 +1313,7 @@ AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
 			var cargo = shipping.get("cargo");
 			var flight = shipping.get("flight");
 			
-			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
+			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 			   response.error({code: 110, message: "寄货人已经付款"});
 			else if(shipping.get("pokePaymentTime") != null && compareDate < shipping.get("pokePaymentTime"))
 			{
