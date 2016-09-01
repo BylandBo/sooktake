@@ -259,7 +259,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 				  for (var j=0; j<shippings.length; j++) {
 				      if(shippings[j].get("paymentStatus") != "" && shippings[j].get("paymentStatus") != null)
 					  {
-					    if(shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL() && shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
+					    if(shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL() && shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED() && shippings[j].get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
 						{
 						  isWrongStatus = true;
 						  console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " wrong status： " + shippings[j].get("paymentStatus"));
