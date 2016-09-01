@@ -364,6 +364,13 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 		}
 		else
 		{	
+		    if((users[0].get("totalMoney") - users[0].get("forzenMoney")) < (amount/100))
+			{
+				 console.log("Payment - PaymentChargeShippingListWithBalance: user balance not enough, order_no->" + order_no );
+				 response.error({code: 135, message: "user balance not enough"});//135: user balance not enough
+			}
+			else
+			{
 			var cql = "select include payment,include cargo,include flight,* from "+ classnameModule.GetShippingClass()+" where objectId in (";
 			for(var i=0; i<shippingList.length;i++)
 			{
@@ -412,6 +419,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 			 }, function (error) {
 				console.log(error.message);
 			});
+		   }
 		}
 	});
 });
