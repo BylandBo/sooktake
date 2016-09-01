@@ -395,7 +395,7 @@ exports.PushShippingStatusUpdateToFlighter = function (shipping) {
 		{
 		    if(shipping.get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
 			  paymentTypeInfo = "请联系货主让Ta付款，";
-			else
+			else if(shipping.get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
 		      paymentTypeInfo = "货主确认寄出包裹后运费将从平台转入您账户中；如果货主没确认，7天后系统将自动完成转账,请联系货主让Ta付款，";
 		}
 		
