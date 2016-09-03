@@ -274,8 +274,14 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  {
 					    if(shippings[j].get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL())//if previous payment cancelled, then still need to frozen the money again.
 						  isFirstTimePayment = false;
-						 else
+						else
 						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is cancelled, so need to frozen money again.");
+						   
+						if(shippings[j].get("payment").get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
+						{
+						   isFirstTimePayment = false;
+						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is till pending");
+						}
 					  }  
 				  }
 				  if(isDuplicatePayment)
@@ -287,8 +293,8 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					var user = users[0];
 					if(isFirstTimePayment)//if first time payment, froze the user balance amount
 					{
-					  var newforzenMoney = user.get("forzenMoney") + (amount/100);
-					  console.log("Payment - PaymentChargeShippingList: User Id->"+ user.id +" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + newforzenMoney + ", Amount->" + (amount/100)); 
+					  var newforzenMoney = user.get("forzenMoney") + (usingBalance/100);
+					  console.log("Payment - PaymentChargeShippingList: User Id->"+ user.id +" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + newforzenMoney + ", Amount->" + (usingBalance/100)); 
 					  user.set("forzenMoney",newforzenMoney);
 					}
 					else
@@ -940,23 +946,30 @@ var CreateTopupPayment = function (user, wxObj,params,type, response) {
 };
 
 var topupCallback = function(payment,data){
-	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-	payment.set("transactionId",data.transaction_id);
-	payment.save().then(function(result){
-	    var user = payment.get("user");
-		var amount = (parseInt(data.total_fee))/100;
-	    var balance = user.get("totalMoney") + amount;
-		console.log("paymentCallback: Payment - Topup: User->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + balance); 
-		user.set("totalMoney",balance);
-		user.save().then(function(result){
-			console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
-			pushModule.PushPaymentTopupSucceedToUser(payment,amount,user);
+    if(payment.get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+	{
+		console.log("topupCallback: topup call back duplicated with payment->" + payment.id);
+	}
+	else
+	{
+		payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+		payment.set("transactionId",data.transaction_id);
+		payment.save().then(function(result){
+			var user = payment.get("user");
+			var amount = (parseInt(data.total_fee))/100;
+			var balance = user.get("totalMoney") + amount;
+			console.log("paymentCallback: Payment - Topup: User->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + balance); 
+			user.set("totalMoney",balance);
+			user.save().then(function(result){
+				console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
+				pushModule.PushPaymentTopupSucceedToUser(payment,amount,user);
+			},function (error) {
+				console.log(error.message);
+			});
 		},function (error) {
 			console.log(error.message);
 		});
-	},function (error) {
-		console.log(error.message);
-	});
+	}
 }
 
 
@@ -1068,8 +1081,10 @@ var shippingChargeCallback = function(payment,data){
 	payment.save().then(function(result){
 	    var user = payment.get("user");
 		var totalMoney = user.get("totalMoney") + (payment.get("total") - payment.get("usingBalance")); 
-		console.log("shippingChargeCallback: Payment - PaymentChargeShippingList: User Id->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + totalMoney + ", payment Id->" + payment.id); 
+		var forzenMoney = user.set('forzenMoney') + (payment.get("total") - payment.get("usingBalance"));
+		console.log("shippingChargeCallback: Payment - PaymentChargeShippingList: User Id->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + totalMoney + ", forzenMoney: before->"+user.get("forzenMoney") + ", after->"+forzenMoney+" payment Id->" + payment.id); 
 		user.set('totalMoney',totalMoney);
+		user.set('forzenMoney',forzenMoney);
 		user.save().then(function(result){
 			console.log("shippingChargeCallback: Payment - PaymentChargeShippingList success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
 			shippingQuery.equalTo("payment", payment);
