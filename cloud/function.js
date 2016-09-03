@@ -671,6 +671,7 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 	var currentVersion = request.params.currentVersion;
 	var platform = request.params.platform;
     var configQuery = new AV.Query(Config);
+	var configQuery2 = new AV.Query(Config);
 	var currentUserId = null;
 	if(AV.User.current()!=null)
 		currentUserId = AV.User.current().id;
@@ -679,39 +680,59 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 	{
 	    console.log("Check ios version");
 		configQuery.equalTo("key", "latestIOSAppVersion");
+		configQuery2.equalTo("key", "supportIOSAppVersion");
 	}
 	else
 	{
 		console.log("Check android version");
 		configQuery.equalTo("key", "latestAndroidAppVersion");
+		configQuery2.equalTo("key", "supportAndroidAppVersion");
 	}
     configQuery.find().then(function (config) {
 	    if(config.length <= 0)
 			response.error(messageModule.ConfigNotFound());
 		else
 		{
-		    var newversion = Math.floor(config[0].get("value"));
-			var oldversion = Math.floor(currentVersion);
-			returnResults["latestVersion"] = config[0].get("value");
-			
-			console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + "; needUpdate->" + (newversion > oldversion?'Yes':'No'));
-			if(newversion > oldversion)
-			{
-				//then return the download url
-				returnResults["isMustUpdate"] = "YES";
-				if(platform.toLowerCase() == 'ios')
-					configQuery.equalTo("key", "appleStoreDownloadURL");
+		    configQuery2.find().then(function (config2) {
+				var lowestVersion = parseFloat(config2[0].get("value"));
+											
+				var newversion = Math.floor(config[0].get("value"));
+				var oldversion = Math.floor(currentVersion);
+				returnResults["latestVersion"] = config[0].get("value");
+				
+				console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + ";lowestVersion->"+lowestVersion+" ; needUpdate->" + (newversion > oldversion &&  parseFloat(currentVersion) < lowestVersion ?'Yes':'No'));
+				if(parseFloat(currentVersion) < lowestVersion)
+				{
+					//then return the download url
+					returnResults["isMustUpdate"] = "YES";
+					if(platform.toLowerCase() == 'ios')
+						configQuery.equalTo("key", "appleStoreDownloadURL");
+					else
+						configQuery.equalTo("key", "androidStoreDownloadURL");
+					configQuery.find().then(function (config) {
+						returnResults["downloadURL"] = config[0].get("value")
+				 });
+				}
+				else if(newversion > oldversion)
+				{
+				   returnResults["isMustUpdate"] = "NO";
+					if(platform.toLowerCase() == 'ios')
+						configQuery.equalTo("key", "appleStoreDownloadURL");
+					else
+						configQuery.equalTo("key", "androidStoreDownloadURL");
+					configQuery.find().then(function (config) {
+						returnResults["downloadURL"] = config[0].get("value")
+				   });
+				}
 				else
-				    configQuery.equalTo("key", "androidStoreDownloadURL");
-				configQuery.find().then(function (config) {
-					returnResults["downloadURL"] = config[0].get("value")
-			 });
-			}
-			else
-			{
-			 returnResults["isMustUpdate"] = "NO";
-			}
-			response.success(returnResults);
+				{
+				 returnResults["isMustUpdate"] = "NO";
+				}
+				response.success(returnResults);
+			}, function (error){
+				console.log(error.message);
+				response.error(messageModule.errorMsg());
+			});
 		}
 	},function (error) {
             console.log(error.message);
