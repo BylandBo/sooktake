@@ -561,6 +561,11 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			   console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" paymentStatus not correct"); 
 				response.error({code: 102, message: "状态不对"});
 			}
+			else if(shipping.get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() || shipping.get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND())
+			{
+			     console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" paymentStatus not correct"); 
+				response.error({code: 102, message: "状态不对"});
+			}
 			else
 			{
 			myPayment.set("paymentChannel", "soontake");
