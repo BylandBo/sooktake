@@ -508,6 +508,11 @@ AV.Cloud.define("PaymentTransferToSender", function (request, response) {
 				});
 			});
 			}
+			else if(shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			{
+			   console.log("Payment - PaymentTransferToSender: ShippingId->" + shipping.id + " duplicate transferPayment： " + shipping.get("paymentStatus"));
+		       response.error({code: 101, message: "重复调用，运费已经转账过了"});
+			}
 			else
 			{
 			  console.log("Payment - PaymentTransferToSender: ShippingId->" + shipping.id + " wrong status： " + shipping.get("paymentStatus"));
