@@ -700,9 +700,9 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 				var oldversion = Math.floor(currentVersion);
 				returnResults["latestVersion"] = config[0].get("value");
 				
-				console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + ";lowestVersion->"+lowestVersion+" ; needUpdate->" + (newversion > oldversion &&  parseFloat(currentVersion) < lowestVersion ?'Yes':'No'));
 				if(parseFloat(currentVersion) < lowestVersion)
 				{
+					console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + ";lowestVersion->"+lowestVersion+" ; needUpdate->Yes");
 					//then return the download url
 					returnResults["isMustUpdate"] = "YES";
 					if(platform.toLowerCase() == 'ios')
@@ -715,6 +715,7 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 				}
 				else if(newversion > oldversion)
 				{
+				   console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + ";lowestVersion->"+lowestVersion+" ; needUpdate->NO");
 				   returnResults["isMustUpdate"] = "NO";
 					if(platform.toLowerCase() == 'ios')
 						configQuery.equalTo("key", "appleStoreDownloadURL");
@@ -726,7 +727,8 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 				}
 				else
 				{
-				 returnResults["isMustUpdate"] = "NO";
+				  console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + ";lowestVersion->"+lowestVersion+" ; needUpdate->NO");
+				  returnResults["isMustUpdate"] = "NO";
 				}
 				response.success(returnResults);
 			}, function (error){
