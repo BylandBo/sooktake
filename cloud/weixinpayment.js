@@ -1081,7 +1081,7 @@ var shippingChargeCallback = function(payment,data){
 	payment.save().then(function(result){
 	    var user = payment.get("user");
 		var totalMoney = user.get("totalMoney") + (payment.get("total") - payment.get("usingBalance")); 
-		var forzenMoney = user.set('forzenMoney') + (payment.get("total") - payment.get("usingBalance"));
+		var forzenMoney = user.get('forzenMoney') + (payment.get("total") - payment.get("usingBalance"));
 		console.log("shippingChargeCallback: Payment - PaymentChargeShippingList: User Id->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + totalMoney + ", forzenMoney: before->"+user.get("forzenMoney") + ", after->"+forzenMoney+" payment Id->" + payment.id); 
 		user.set('totalMoney',totalMoney);
 		user.set('forzenMoney',forzenMoney);
