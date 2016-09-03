@@ -653,6 +653,14 @@ AV.Cloud.define("PaymentRejectRefundRequest", function (request, response) {
 			{
 			    response.error({code: 111, message: "货主已经取消退款请求"});
 			}
+			else if(shipping.get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND())
+			{
+				response.error({code: 101, message: "退款申请已经被拒绝"});
+			}
+			else if(shipping.get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() || shipping.get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND())
+			{
+				response.error({code: 102, message: "状态不对"});
+			}
 			else
 			{
 				shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND());
