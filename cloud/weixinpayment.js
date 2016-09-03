@@ -820,7 +820,11 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 			var refundPayment = shipping.get("refundPayment");
 			if( shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
 			{
-				response.error({code: 101, message: "退款申请已经批准"});
+				response.error({code: 102, message: "退款申请已经批准"});
+			}
+			else if(shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCELREFUND())
+			{
+				response.error({code: 101, message: "退款已经取消过了"});
 			}
 			else if(shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND())
 			{
