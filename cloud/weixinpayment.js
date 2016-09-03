@@ -556,6 +556,11 @@ AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
 			    console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" already requested"); 
 				response.error({code: 102, message: "退款申请已经发出，请等待"});
 			}
+			else if(shipping.get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			{
+			   console.log("Payment - PaymentSendRefundRequest: refund error: shippingId->" + shippingId +" paymentStatus not correct"); 
+				response.error({code: 102, message: "状态不对"});
+			}
 			else
 			{
 			myPayment.set("paymentChannel", "soontake");
@@ -719,6 +724,10 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 			{
 			    response.error({code: 111, message: "货主已经取消退款请求"});
 			}
+			else if(shipping.get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			{
+			   response.error({code: 102, message: "状态不对"});
+			}
 			else
 			{
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND());
@@ -803,6 +812,10 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 			else if(shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND())
 			{
 				response.error({code: 109, message: "退款申请已经拒绝"});
+			}
+			else if(shipping.get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			{
+			    response.error({code: 102, message: "状态不对"});
 			}
 			else
 			{
