@@ -741,6 +741,10 @@ AV.Cloud.define("PaymentApproveRefundRequest", function (request, response) {
 			{
 			   response.error({code: 102, message: "状态不对"});
 			}
+			else if(shipping.get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND())
+			{
+			   response.error({code: 102, message: "状态不对"});
+			}
 			else
 			{
 			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND());
@@ -831,6 +835,10 @@ AV.Cloud.define("PaymentCancelRefundRequest", function (request, response) {
 				response.error({code: 109, message: "退款申请已经拒绝"});
 			}
 			else if(shipping.get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			{
+			    response.error({code: 102, message: "状态不对"});
+			}
+			else if(shipping.get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND())
 			{
 			    response.error({code: 102, message: "状态不对"});
 			}
