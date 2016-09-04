@@ -1430,11 +1430,3 @@ AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
 	});
    }
 });
-
-AV.Cloud.define("WebCallFromWeiXin", function (request, response) {	
-    wxpay.useWXCallback(request.params.body, function(err,msg){
-		console.log(msg);
-	});
-	var paymentQuery = new AV.Query(Payment);
-
-});
