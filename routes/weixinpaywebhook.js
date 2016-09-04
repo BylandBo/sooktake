@@ -12,7 +12,7 @@ router.post('/', function(request, response, body) {
 		var xml = data.toString('utf8');
 		util.parseXML(xml, function(err, msg){
 			request.wxmessage = msg;	
-            console.log("Weixinpay Webhook received: " + msg);			
+            console.log("Weixinpay Webhook received: " + JSON.stringify(msg));			
 		});
   });
   AV.Cloud.run('WebCallFromWeiXin', { body: request }, {
