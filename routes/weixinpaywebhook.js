@@ -2,9 +2,9 @@ var router = require('express').Router();
 
 router.post('/', function(request, response, body) {
   request.setEncoding('utf8'); 
-  console.log("Weixinpay Webhook: hello" + body); 
+  console.log("Weixinpay Webhook: " + request); 
   
-  AV.Cloud.run('WebCallFromWeiXin', { body: body }, {
+  AV.Cloud.run('WebCallFromWeiXin', { body: request }, {
 							success: function (paymentResult) {
 								
 							},
