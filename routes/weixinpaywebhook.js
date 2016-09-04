@@ -13,7 +13,7 @@ router.post('/', function(request, response, body) {
 		var xml = data.toString('utf8');
 		util.parseXML(xml, function(err, msg){
 			request.wxmessage = msg;	
-            console.log("Weixinpay Webhook received: " + JSON.stringify(msg));
+            console.log("Weixinpay Webhook received: out_trade_no-> " + msg.out_trade_no));
 			AV.Cloud.run('QueryWXOrder', { outTradeNo:  msg.out_trade_no}, {
 									success: function (success) {},
 									error: function (error) {}
