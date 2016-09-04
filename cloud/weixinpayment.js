@@ -1001,10 +1001,10 @@ var topupCallback = function(payment,data){
 			var user = payment.get("user");
 			var amount = (parseInt(data.total_fee))/100;
 			var balance = user.get("totalMoney") + amount;
-			console.log("paymentCallback: Payment - Topup: User->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + balance); 
+			console.log("topupCallback: Payment - Topup: User->"+user.id+" totalMoney: before->" + user.get("totalMoney") + ", after->" + balance); 
 			user.set("totalMoney",balance);
 			user.save().then(function(result){
-				console.log("paymentCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
+				console.log("topupCallback: Payment - Topup success for user->" + user.id + " with transactionId-> " + data.transaction_id + " with amount->" + amount);
 				pushModule.PushPaymentTopupSucceedToUser(payment,amount,user);
 			},function (error) {
 				console.log(error.message);
@@ -1118,7 +1118,13 @@ var CreateShippingPayment = function (newpayment, wxObj, shippings, response) {
 
 var shippingChargeCallback = function(payment,data){
     var shippingQuery = new AV.Query(Shipping);
-			
+		
+    if(payment.get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
+	{
+	  console.log("shippingChargeCallback: Payment - PaymentChargeShippingList already updated(duplicate call) for user->" + user.id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
+	}
+   else
+   {	
 	payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING());
 	payment.set("transactionId",data.transaction_id);
 	payment.save().then(function(result){
@@ -1156,6 +1162,7 @@ var shippingChargeCallback = function(payment,data){
 	},function (error) {
 		console.log(error.message);
 	});
+   }
 }
 
 /*shipping charge with balance*/
@@ -1422,4 +1429,12 @@ AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
 			response.error(messageModule.errorMsg());
 	});
    }
+});
+
+AV.Cloud.define("WebCallFromWeiXin", function (request, response) {	
+    wxpay.useWXCallback(request.params.body, function(err,msg){
+		console.log(msg);
+	});
+	var paymentQuery = new AV.Query(Payment);
+
 });
