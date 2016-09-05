@@ -908,6 +908,10 @@ AV.Cloud.define("PaymentChargeShippingListCancel", function (request, response) 
 			
 		    if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL())
 				response.error({code: 101, message: "重复调用，已经取消过了"});
+			else if(payment == null)
+			{
+			    response.error({code: 102, message: "状态不对"});
+			}
 			else
 			{
 				shipping.set("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL());
