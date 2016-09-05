@@ -1121,7 +1121,7 @@ var shippingChargeCallback = function(payment,data){
 		
     if(payment.get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PROCESSING())
 	{
-	  console.log("shippingChargeCallback: Payment - PaymentChargeShippingList already updated(duplicate call) for user->" + user.id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
+	  console.log("shippingChargeCallback: Payment - PaymentChargeShippingList already updated(duplicate call) for user->" + payment.get("user").id + " with transactionId-> " + data.transaction_id + " with total amount->" + payment.get("total") + " and using soontake balance->" + payment.get("usingBalance"));
 	}
    else
    {	
