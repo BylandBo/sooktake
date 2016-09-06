@@ -296,7 +296,6 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  var newforzenMoney = user.get("forzenMoney") + (usingBalance/100);
 					  console.log("Payment - PaymentChargeShippingList: User Id->"+ user.id +" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + newforzenMoney + ", usingBalance->" + (usingBalance/100)); 
 					  user.set("forzenMoney",newforzenMoney);
-					  user.save();
 					}
 					else
 					{
