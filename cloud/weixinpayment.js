@@ -254,6 +254,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 			      var isDuplicatePayment = false;
 				  var isFirstTimePayment = true;
 				  var isWrongStatus = false;
+				  var isEnoughBalance = true;
 				  
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
@@ -282,12 +283,20 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 						   isFirstTimePayment = false;
 						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is till pending");
 						}
-					  }  
+					  }
+					  if(users[0].get("totalMoney") - user[0].get("forzenMoney") < (usingBalance/100))
+					  {
+					    isEnoughBalance = false;
+					  }
 				  }
 				  if(isDuplicatePayment)
 				     response.error({code: 101, message: "重复调用，包裹已经付款过了"});
 				  else if(isWrongStatus)
 				     response.error({code: 102, message: "状态不对"});
+				  else if(!isEnoughBalance)
+				  {
+				     response.error({code: 135, message: "用户余额不足"});
+				  }
 				  else
 				  {
 					var user = users[0];
