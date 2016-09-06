@@ -256,6 +256,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 				  var isWrongStatus = false;
 				  var isEnoughBalance = true;
 				  
+				  var user = users[0];
 				  var shippings = result.results;
 				  for (var j=0; j<shippings.length; j++) {
 				      if(shippings[j].get("paymentStatus") != "" && shippings[j].get("paymentStatus") != null)
@@ -284,7 +285,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is till pending");
 						}
 					  }
-					  if(users[0].get("totalMoney") - user[0].get("forzenMoney") < (usingBalance/100))
+					  if((user.get("totalMoney") - user.get("forzenMoney")) < (usingBalance/100))
 					  {
 					    isEnoughBalance = false;
 					  }
@@ -299,7 +300,6 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 				  }
 				  else
 				  {
-					var user = users[0];
 					if(isFirstTimePayment)//if first time payment, froze the user balance amount
 					{
 					  var newforzenMoney = user.get("forzenMoney") + (usingBalance/100);
