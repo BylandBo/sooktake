@@ -1379,8 +1379,8 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 				 var refundPayment = shipping.get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
-						//var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-						var compareDate = new Date(new Date().getTime()-(2*60*1000));
+						var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+						//var compareDate = new Date(new Date().getTime()-(2*60*1000));
 						if(refundPayment.get("type") == messageModule.PF_SHIPPING_PAYMENT_REFUND() && (compareDate >= refundPayment.getCreatedAt()))
 						{
 						  console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id);
@@ -1433,7 +1433,7 @@ AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
 	shippingQuery.include("payment");
 	shippingQuery.include("cargo");
 	shippingQuery.include("flight");
-	var compareDate = new Date(new Date().getTime()-(1*60*60*1000));
+	var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
 	shippingQuery.get(shippingId).then(function(shipping){
 	        var payment = shipping.get("payment");
 			var cargo = shipping.get("cargo");
