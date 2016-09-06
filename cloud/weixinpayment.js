@@ -8,7 +8,7 @@ var crypto = require('crypto');
 var WXPay = require('./wxpay');
 var fs  = require('fs');
 var async = require("async");
-var sleep = require('sleep');
+var sleep = require('system-sleep');
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -1323,7 +1323,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 						}
 					  });
 					}
-					sleep.sleep(10); // sleep for ten seconds
+					sleep(5000); // sleep for five seconds
 				}
 				}, function(err) {
 					// if any of the file processing produced an error, err would equal that error
@@ -1381,7 +1381,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 							}
 						  });
 						}
-						sleep.sleep(10); // sleep for ten seconds
+						sleep(5000); // sleep for five seconds
 					}
 				}, function(err) {
 					// if any of the file processing produced an error, err would equal that error
