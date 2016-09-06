@@ -403,7 +403,7 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 				  for (var j=0; j<shippings.length; j++) {
 				      if(shippings[j].get("paymentStatus") != "" && shippings[j].get("paymentStatus") != null)
 					  {
-					    if(shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL() && shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED())
+						if(shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL() && shippings[j].get("paymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_FAILED() && shippings[j].get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_APPROVEREFUND())
 						{
 						  isWrongStatus = true;
 						  console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " wrong status： " + shippings[j].get("paymentStatus"));
@@ -413,6 +413,19 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 					  {
 					    isDuplicatePayment = true;
 						console.log("Payment - PaymentChargeShippingListWithBalance: ShippingId->" + shippings[j].id + " already be paid");
+					  }
+					  if(shippings[j].get("payment") != null && shippings[j].get("payment") != "")
+					  {
+					    if(shippings[j].get("payment").get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL())//if previous payment cancelled, then still need to frozen the money again.
+						{
+						  isFirstTimePayment = true;
+						  console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is cancelled, so need to frozen money again.");
+						}
+						else if(shippings[j].get("payment").get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
+						{
+						   isFirstTimePayment = false;
+						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is till pending");
+						}
 					  }
 				  }
 				  if(isDuplicatePayment)
