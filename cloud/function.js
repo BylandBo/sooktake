@@ -700,7 +700,7 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 				var oldversion = parseFloat(currentVersion);
 				returnResults["latestVersion"] = config[0].get("value");
 				
-				if(parseFloat(currentVersion) < lowestVersion)
+				if(oldversion < lowestVersion)
 				{
 					console.log("Get latest version: current version->"+oldversion+ "; latestVersion->"+newversion + ";lowestVersion->"+lowestVersion+" ; needUpdate->Yes");
 					//then return the download url
