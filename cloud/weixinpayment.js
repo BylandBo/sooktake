@@ -1331,7 +1331,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
     var paymentQuery = new AV.Query(Payment);
     var shippingQuery = new AV.Query(Shipping);
 	
-	shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
+	//shippingQuery.equalTo("status", messageModule.ShippingStatus_Received());
 	shippingQuery.equalTo("transferPaymentStatus", messageModule.PF_SHIPPING_PAYMENT_STATUS_REQUESTREFUND());
 	shippingQuery.equalTo("paymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
 	shippingQuery.include("payment");
