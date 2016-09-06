@@ -272,12 +272,12 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  }
 					  if(shippings[j].get("payment") != null && shippings[j].get("payment") != "")
 					  {
-					    if(shippings[j].get("transferPaymentStatus") != messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL())//if previous payment cancelled, then still need to frozen the money again.
-						  isFirstTimePayment = false;
-						else
-						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is cancelled, so need to frozen money again.");
-						   
-						if(shippings[j].get("payment").get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
+					    if(shippings[j].get("payment").get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_CANCEL())//if previous payment cancelled, then still need to frozen the money again.
+						{
+						  isFirstTimePayment = true;
+						  console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is cancelled, so need to frozen money again.");
+						}
+						else if(shippings[j].get("payment").get("status") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING())
 						{
 						   isFirstTimePayment = false;
 						   console.log("Payment - PaymentChargeShippingList: ShippingId->" + shippings[j].id + " previous payment is till pending");
