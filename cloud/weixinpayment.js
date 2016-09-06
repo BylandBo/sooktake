@@ -288,6 +288,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  if((user.get("totalMoney") - user.get("forzenMoney")) < (usingBalance/100))
 					  {
 					    isEnoughBalance = false;
+						console.log("Payment - PaymentChargeShippingList: user balance not enough ->ShippingId->" + shippings[j].id);
 					  }
 				  }
 				  if(isDuplicatePayment)
@@ -1301,7 +1302,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 	      else
 			 {
 			    console.log("AutoPaymentAfterPackageSentJob list: " + shippings.length);
-				async.eachSeries(shippings, function(shipping, callback) {
+				async.forEach(shippings, function(shipping, callback) {
 				var payment = shipping.get("payment");
 				if(payment != null && payment !='')
 				{
@@ -1358,7 +1359,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 			 else
 			 {
 			    console.log("AutoPaymentRefundJob list: " + shippings.length);
-				async.eachSeries(shippings, function(shipping, callback) {
+				async.forEach(shippings, function(shipping, callback) {
 				 var refundPayment = shipping.get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
 					{
@@ -1371,6 +1372,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 						  AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shipping.id,reasonCode:'',reason:''}, {
 							success: function (paymentResult) {
 								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
+								callback();
 							},
 							error: function (error) {
 								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
