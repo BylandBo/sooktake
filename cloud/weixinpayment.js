@@ -1315,7 +1315,9 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					  AV.Cloud.run('PaymentTransferToSender', { shippingId: shipping.id}, {
 						success: function (paymentResult) {
 							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
-							callback();
+							setTimeout(function() {
+									callback();
+								}, 5000);
 						},
 						error: function (error) {
 							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
@@ -1372,7 +1374,9 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 						  AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shipping.id,reasonCode:'',reason:''}, {
 							success: function (paymentResult) {
 								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
-								callback();
+								setTimeout(function() {
+									callback();
+								}, 5000);
 							},
 							error: function (error) {
 								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
