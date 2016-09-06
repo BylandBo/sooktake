@@ -8,6 +8,7 @@ var crypto = require('crypto');
 var WXPay = require('./wxpay');
 var fs  = require('fs');
 var async = require("async");
+var sleep = require('sleep');
 
 /*Weixinpay API*/
 var MERCHANT_ID = "1355707002" //微信商户号
@@ -1315,15 +1316,14 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					  AV.Cloud.run('PaymentTransferToSender', { shippingId: shipping.id}, {
 						success: function (paymentResult) {
 							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
-							setTimeout(function() {
-									callback();
-								}, 5000);
+							callback();
 						},
 						error: function (error) {
 							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
 						}
 					  });
 					}
+					sleep.sleep(10); // sleep for ten seconds
 				}
 				}, function(err) {
 					// if any of the file processing produced an error, err would equal that error
@@ -1374,15 +1374,14 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 						  AV.Cloud.run('PaymentApproveRefundRequest', { shippingId: shipping.id,reasonCode:'',reason:''}, {
 							success: function (paymentResult) {
 								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " succeed.");
-								setTimeout(function() {
-									callback();
-								}, 5000);
+								callback();
 							},
 							error: function (error) {
 								console.log("AutoPaymentRefundJob: refund payment->" + refundPayment.id + " failed.");
 							}
 						  });
 						}
+						sleep.sleep(10); // sleep for ten seconds
 					}
 				}, function(err) {
 					// if any of the file processing produced an error, err would equal that error
