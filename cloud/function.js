@@ -696,8 +696,8 @@ AV.Cloud.define("GetLatestAppVersion", function(request, response) {
 		    configQuery2.find().then(function (config2) {
 				var lowestVersion = parseFloat(config2[0].get("value"));
 											
-				var newversion = Math.floor(config[0].get("value"));
-				var oldversion = Math.floor(currentVersion);
+				var newversion = parseFloat(config[0].get("value"));
+				var oldversion = parseFloat(currentVersion);
 				returnResults["latestVersion"] = config[0].get("value");
 				
 				if(parseFloat(currentVersion) < lowestVersion)
