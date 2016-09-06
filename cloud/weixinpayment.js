@@ -296,6 +296,7 @@ AV.Cloud.define("PaymentChargeShippingList", function (request, response) {
 					  var newforzenMoney = user.get("forzenMoney") + (usingBalance/100);
 					  console.log("Payment - PaymentChargeShippingList: User Id->"+ user.id +" frozenMoney: before->" + user.get("forzenMoney") + ", after->" + newforzenMoney + ", usingBalance->" + (usingBalance/100)); 
 					  user.set("forzenMoney",newforzenMoney);
+					  user.save();
 					}
 					else
 					{
@@ -1291,6 +1292,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 			 }
 	      else
 			 {
+			    console.log("AutoPaymentAfterPackageSentJob list: " + shippings.length);
 				async.eachSeries(shippings, function(shipping, callback) {
 				var payment = shipping.get("payment");
 				if(payment != null && payment !='')
@@ -1347,6 +1349,7 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
 			 }
 			 else
 			 {
+			    console.log("AutoPaymentRefundJob list: " + shippings.length);
 				async.eachSeries(shippings, function(shipping, callback) {
 				 var refundPayment = shipping.get("refundPayment");
 					if(refundPayment != null && refundPayment !='')
