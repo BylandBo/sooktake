@@ -454,97 +454,8 @@ AV.Cloud.define("PaymentChargeShippingListWithBalance", function (request, respo
 });
 
 AV.Cloud.define("PaymentTransferToSender", function (request, response) {
-    var shippingId = request.params.shippingId;
-	
-	var paymentQuery = new AV.Query(Payment);
-    var shippingQuery = new AV.Query(Shipping);
-	
-	var order_no = crypto.createHash('md5')
-        .update(new Date().getTime().toString())
-        .digest('hex').substr(0, 16);
-		
-	console.log("Payment - PaymentTransferToSender: transfer creation: order_no->" + order_no + ", shippingId->" + shippingId); 
-	
-	shippingQuery.include("payment");
-	shippingQuery.include("cargo");
-	shippingQuery.include("flight");
-	shippingQuery.get(shippingId).then(function(shipping){
-	        var payment = shipping.get("payment");
-			var cargo = shipping.get("cargo");
-			var flight = shipping.get("flight");
-			
-			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() && (shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() || shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND()))
-			{				  
-			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-			shipping.save();
-		
-			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-			payment.save().then(function (py){
-				var myPayment = new Payment();
-				myPayment.set("paymentChannel", "soontake");
-				myPayment.set("total", py.get("total"));
-				myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
-				myPayment.set("type", "transfer");
-				myPayment.set("user",cargo.get("owner"));//cargo user
-				myPayment.set("orderNo",order_no);
-				myPayment.save().then(function (tp){
-					flight.fetch({include: "owner"},
-						   {
-							   success: function(flightObj) {
-							     var flightUser = flightObj.get("owner");
-								 var paymentRelation = flightUser.relation('paymentHistory');
-								 paymentRelation.add(tp);
-								 var newTotalMoney = flightUser.get("totalMoney") + payment.get("total");
-								 console.log("Payment - PaymentTransferToSender: flightUser totalMoney: before->" + flightUser.get("totalMoney") + ", after->" + newTotalMoney); 
-								 flightUser.set("totalMoney",newTotalMoney);
-								 flightUser.save().then(function(user){
-								    var totalAmount = payment.get("total");
-								    pushModule.PushPaymentTransferToSenderSucceedToFlightUser(payment,totalAmount,shipping,flightUser);
-								 });
-								},
-							   error: function(message, error) {
-								 console.log(error.message);
-								 response.error(messageModule.errorMsg());
-							    }
-						   });
-					cargo.fetch({include: "owner"},
-						   {
-							   success: function(cargoObj) {
-							     var cargoUser = cargoObj.get("owner");
-								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("total");
-								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
-								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" totalMoney: before->" + cargoUser.get("totalMoney") + ", after->" + newTotalMoney);
-								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
-								 cargoUser.set("totalMoney",newTotalMoney);
-								 cargoUser.set("forzenMoney",newForzenMoney);
-								 cargoUser.save().then(function(user){
-									var totalAmount = payment.get("total");
-									pushModule.PushPaymentTransferToSenderSucceedToCargoUser(payment,totalAmount,shipping,cargoUser);
-								 });
-								},
-							   error: function(message, error) {
-								 console.log(error.message);
-								 response.error(messageModule.errorMsg());
-							    }
-						   });
-				    response.success(myPayment);
-				});
-			});
-			}
-			else if(shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
-			{
-			   console.log("Payment - PaymentTransferToSender: ShippingId->" + shipping.id + " duplicate transferPayment： " + shipping.get("paymentStatus"));
-		       response.error({code: 101, message: "重复调用，运费已经转账过了"});
-			}
-			else
-			{
-			  console.log("Payment - PaymentTransferToSender: ShippingId->" + shipping.id + " wrong status： " + shipping.get("paymentStatus"));
-		      response.error({code: 102, message: "状态不对"});
-			}
-		}, function (error) {
-			console.log(error.message);
-			response.error(messageModule.errorMsg());
-	});
+	var shippingId = request.params.shippingId;
+    paymentTransferToSender(shippingId,response);
 });
 
 AV.Cloud.define("PaymentSendRefundRequest", function (request, response) {
@@ -990,6 +901,58 @@ AV.Cloud.define("QueryWXOrder", function (request, response) {
 	});
 });
 
+AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
+    var shippingList = request.params.shippingList;
+	
+	var paymentQuery = new AV.Query(Payment);
+    var shippingQuery = new AV.Query(Shipping);
+	
+    for(var s=0; s <shippingList.length; s++)
+    {	
+	var shippingId = shippingList[s];
+	console.log("Payment - PaymentUrgePaymentToSender: shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			   response.error({code: 110, message: "寄货人已经付款"});
+			else if(shipping.get("pokePaymentTime") != null && compareDate < shipping.get("pokePaymentTime"))
+			{
+			   response.error({code: 138, message: "发送时间太频繁"});
+			}
+		    else
+			{
+			   shipping.set("pokePaymentTime",new Date());
+			   shipping.save();
+			   
+			   cargo.fetch({include: "owner"},
+				   {
+					   success: function(cargoObj) {
+						 var cargoUser = cargoObj.get("owner");
+						 //var totalAmount = payment.get("total");
+						 pushModule.PushPaymentUrgePaymentToCargoUser(payment,0,shipping,cargoUser);
+						},
+					   error: function(message, error) {
+						 console.log(error.message);
+						 response.error(messageModule.errorMsg());
+						}
+				   });
+		       response.success(payment);
+			}
+		}, function (error) {
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+	});
+   }
+});
+
 var CreateTopupPayment = function (user, wxObj,params,type, response) {
 	
     var myPayment = new Payment();
@@ -1299,6 +1262,107 @@ var newAPPReturnObj = function (wxObj,out_trade_no){
 	return newObj;
 }
 
+var paymentTransferToSender = function (shippingId, response) {
+	
+	var paymentQuery = new AV.Query(Payment);
+    var shippingQuery = new AV.Query(Shipping);
+	
+	var order_no = crypto.createHash('md5')
+        .update(new Date().getTime().toString())
+        .digest('hex').substr(0, 16);
+		
+	console.log("Payment - PaymentTransferToSender: transfer creation: order_no->" + order_no + ", shippingId->" + shippingId); 
+	
+	shippingQuery.include("payment");
+	shippingQuery.include("cargo");
+	shippingQuery.include("flight");
+	shippingQuery.get(shippingId).then(function(shipping){
+	        var payment = shipping.get("payment");
+			var cargo = shipping.get("cargo");
+			var flight = shipping.get("flight");
+			
+			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS() && (shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_PENDING() || shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_REJECTREFUND()))
+			{				  
+			shipping.set("transferPaymentStatus",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			shipping.save();
+		
+			payment.set("status",messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+			payment.save().then(function (py){
+				var myPayment = new Payment();
+				myPayment.set("paymentChannel", "soontake");
+				myPayment.set("total", py.get("total"));
+				myPayment.set("status", messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS());
+				myPayment.set("type", "transfer");
+				myPayment.set("user",cargo.get("owner"));//cargo user
+				myPayment.set("orderNo",order_no);
+				myPayment.save().then(function (tp){
+					flight.fetch({include: "owner"},
+						   {
+							   success: function(flightObj) {
+							     var flightUser = flightObj.get("owner");
+								 var paymentRelation = flightUser.relation('paymentHistory');
+								 paymentRelation.add(tp);
+								 var newTotalMoney = flightUser.get("totalMoney") + payment.get("total");
+								 console.log("Payment - PaymentTransferToSender: flightUser totalMoney: before->" + flightUser.get("totalMoney") + ", after->" + newTotalMoney); 
+								 flightUser.set("totalMoney",newTotalMoney);
+								 flightUser.save().then(function(user){
+								    var totalAmount = payment.get("total");
+								    pushModule.PushPaymentTransferToSenderSucceedToFlightUser(payment,totalAmount,shipping,flightUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 if(response != null)
+									response.error(messageModule.errorMsg());
+							    }
+						   });
+					cargo.fetch({include: "owner"},
+						   {
+							   success: function(cargoObj) {
+							     var cargoUser = cargoObj.get("owner");
+								 var newTotalMoney = cargoUser.get("totalMoney") - payment.get("total");
+								 var newForzenMoney = cargoUser.get("forzenMoney") - payment.get("total");
+								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" totalMoney: before->" + cargoUser.get("totalMoney") + ", after->" + newTotalMoney);
+								 console.log("Payment - PaymentTransferToSender: cargoUser->"+cargoUser.id+" frozenMoney: before->" + cargoUser.get("forzenMoney") + ", after->" + newForzenMoney);
+								 cargoUser.set("totalMoney",newTotalMoney);
+								 cargoUser.set("forzenMoney",newForzenMoney);
+								 cargoUser.save().then(function(user){
+									var totalAmount = payment.get("total");
+									pushModule.PushPaymentTransferToSenderSucceedToCargoUser(payment,totalAmount,shipping,cargoUser);
+								 });
+								},
+							   error: function(message, error) {
+								 console.log(error.message);
+								 if(response != null)
+									response.error(messageModule.errorMsg());
+							    }
+						   });
+					if(response != null)
+						response.success(myPayment);
+				});
+			});
+			}
+			else if(shipping.get("transferPaymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
+			{
+			   console.log("Payment - PaymentTransferToSender: ShippingId->" + shipping.id + " duplicate transferPayment： " + shipping.get("paymentStatus"));
+			   if(response != null)
+					response.error({code: 101, message: "重复调用，运费已经转账过了"});
+			}
+			else
+			{
+			  console.log("Payment - PaymentTransferToSender: ShippingId->" + shipping.id + " wrong status： " + shipping.get("paymentStatus"));
+			  if(response != null)
+				response.error({code: 102, message: "状态不对"});
+			}
+		}, function (error) {
+			console.log(error.message);
+			if(response != null)
+				response.error(messageModule.errorMsg());
+	});
+};
+/*Common function end*/
+
+/*Auto job run by batchjob*/
 AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
     var paymentQuery = new AV.Query(Payment);
     var shippingQuery = new AV.Query(Shipping);
@@ -1325,15 +1389,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					{
 					  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
 					  //call transfer to sender method
-					  AV.Cloud.run('PaymentTransferToSender', { shippingId: shipping.id}, {
-						success: function (paymentResult) {
-							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " succeed.");
-							callback();
-						},
-						error: function (error) {
-							console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id + " failed.");
-						}
-					  });
+					  paymentTransferToSender(shippingId,null);
 					}
 					setTimeout(function () {
 						console.log("AutoPaymentAfterPackageSentJob: Waiting 5 seconds");
@@ -1418,55 +1474,4 @@ AV.Cloud.define("AutoPaymentRefundJob", function(request, response) {
         }
     });
 });
-
-AV.Cloud.define("PaymentUrgePaymentToSender", function (request, response) {
-    var shippingList = request.params.shippingList;
-	
-	var paymentQuery = new AV.Query(Payment);
-    var shippingQuery = new AV.Query(Shipping);
-	
-    for(var s=0; s <shippingList.length; s++)
-    {	
-	var shippingId = shippingList[s];
-	console.log("Payment - PaymentUrgePaymentToSender: shippingId->" + shippingId); 
-	
-	shippingQuery.include("payment");
-	shippingQuery.include("cargo");
-	shippingQuery.include("flight");
-	var compareDate = new Date(new Date().getTime()-(7*24*60*60*1000));
-	shippingQuery.get(shippingId).then(function(shipping){
-	        var payment = shipping.get("payment");
-			var cargo = shipping.get("cargo");
-			var flight = shipping.get("flight");
-			
-			if(shipping.get("paymentStatus") == messageModule.PF_SHIPPING_PAYMENT_STATUS_SUCCESS())
-			   response.error({code: 110, message: "寄货人已经付款"});
-			else if(shipping.get("pokePaymentTime") != null && compareDate < shipping.get("pokePaymentTime"))
-			{
-			   response.error({code: 138, message: "发送时间太频繁"});
-			}
-		    else
-			{
-			   shipping.set("pokePaymentTime",new Date());
-			   shipping.save();
-			   
-			   cargo.fetch({include: "owner"},
-				   {
-					   success: function(cargoObj) {
-						 var cargoUser = cargoObj.get("owner");
-						 //var totalAmount = payment.get("total");
-						 pushModule.PushPaymentUrgePaymentToCargoUser(payment,0,shipping,cargoUser);
-						},
-					   error: function(message, error) {
-						 console.log(error.message);
-						 response.error(messageModule.errorMsg());
-						}
-				   });
-		       response.success(payment);
-			}
-		}, function (error) {
-			console.log(error.message);
-			response.error(messageModule.errorMsg());
-	});
-   }
-});
+/*Auto job end*/
