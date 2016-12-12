@@ -1389,7 +1389,7 @@ AV.Cloud.define("AutoPaymentAfterPackageSentJob", function(request, response) {
 					{
 					  console.log("AutoPaymentAfterPackageSentJob: payment->" + payment.id);
 					  //call transfer to sender method
-					  paymentTransferToSender(shippingId,null);
+					  paymentTransferToSender(shipping.id,null);
 					}
 					setTimeout(function () {
 						console.log("AutoPaymentAfterPackageSentJob: Waiting 5 seconds");
