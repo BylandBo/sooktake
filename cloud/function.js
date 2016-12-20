@@ -664,10 +664,14 @@ AV.Cloud.define("GetShuikeUserExpiryList", function (request, response) {
 	var userDetailsQuery2 = new AV.Query(UserDetails);
 
 	console.log("GetShuikeUserExpiryList");
-    userDetailsQuery.equalTo("expiryDate", null);
-	userDetailsQuery.include("owner");
+    userDetailsQuery.lessThan("expiryDate", new Date());
 	
-    userDetailsQuery.find().then(function(results){
+	userDetailsQuery2.equalTo("expiryDate", null);
+
+    var query = AV.Query.and(userDetailsQuery, userDetailsQuery2);
+	query.include("owner");
+	
+    query.find().then(function(results){
 			   response.success(results);
 			},function (error) {
 				console.log(error.message);
