@@ -439,6 +439,7 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
     var userdetailId = request.params.userdetailId;
     var isApprove = request.params.isApprove;
     var reason = request.params.reason;
+	var expiryDate = request.params.expiryDate;
     
     userDetailQuery.equalTo("objectId", userdetailId);
     userDetailQuery.include("owner");
@@ -447,12 +448,18 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		var userDetail = userDetails[0];
 		var currentUser = userDetail.get("owner");
         // At this time myUser is filled with an Object containing type _pointer, objectid, etc.
-        if (isApprove == 'true'){
+		userDetail.set("expiryDate",expiryDate);
+        if (isApprove == '1'){
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_APPROVED());
 			currentUser.set("isVerify",messageModule.YES());
 		}
-        else {
+        else if(isApprove == '2') {
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_REJECTED());
+            userDetail.set("reject_msg", reason);
+        }
+		else
+		{
+            userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_CANCELLED());
             userDetail.set("reject_msg", reason);
         }
 		console.log("Save user now: " + currentUser.id + "; Status: "+ currentUser.get("isVerify") + "; detail: "+ userDetail.get("status"));
@@ -464,10 +471,35 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 				 message = "恭喜您通过了soontake的实名认证，请重新登录,赶快上传行程赚点路费吧.";
 			else if (userDetail.get("status") == messageModule.PF_USERDETAILS_STATUS_REJECTED())
 				message = "您目前未通过soontake实名认证，原因'" + userDetail.get("reject_msg") + "',我们期待您完善资料.";
-		    SMSInformation("+"+currentUser.get("username"),message);
 			
-			//push message to user
-			pushModule.PushUserDetailVerifyStatus(userDetail);
+			if(userDetail.get("status") != messageModule.PF_USERDETAILS_STATUS_CANCELLED())
+			{
+				SMSInformation("+"+currentUser.get("username"),message);			
+				//push message to user
+				pushModule.PushUserDetailVerifyStatus(userDetail);
+			}
+			response.success(messageModule.succeedMsg());
+		});
+		}, function (error) {
+			// The object was not retrieved successfully.
+			console.log(error.message);
+			response.error(messageModule.errorMsg());
+		});
+})
+
+AV.Cloud.define("UpdateShuikeUser", function (request, response) {
+	var userDetailQuery = new AV.Query(classnameModule.GetUserDetailsClass());
+    var userdetailId = request.params.userdetailId;
+	var expiryDate = request.params.expiryDate;
+    
+    userDetailQuery.equalTo("objectId", userdetailId);
+	AV.Cloud.useMasterKey();
+    userDetailQuery.find().then(function (userDetails) {
+		var userDetail = userDetails[0];
+		userDetail.set("expiryDate",expiryDate);
+        
+        userDetail.save(null).then(function (updatedUser){
+			console.log("Save user succeed.");
 			response.success(messageModule.succeedMsg());
 		});
 		}, function (error) {
@@ -618,6 +650,21 @@ AV.Cloud.define("GetShuikeRegistrationList", function (request, response) {
 	console.log("GetShuikeRegistrationList-> status:" + status);
     userDetailsQuery.include("owner");
     userDetailsQuery.equalTo("status", status);
+	
+    userDetailsQuery.find().then(function(results){
+			   response.success(results);
+			},function (error) {
+				console.log(error.message);
+				response.error(messageModule.errorMsg());
+			});
+});
+
+AV.Cloud.define("GetShuikeUserExpiryList", function (request, response) {
+    var userDetailsQuery = new AV.Query(UserDetails);
+
+	console.log("GetShuikeUserExpiryList");
+    userDetailsQuery.include("owner");
+    userDetailsQuery.lessThan("expiryDate", new Date());
 	
     userDetailsQuery.find().then(function(results){
 			   response.success(results);

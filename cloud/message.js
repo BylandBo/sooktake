@@ -45,6 +45,7 @@ var FlightStatus_Full = "full";
 var PF_USERDETAILS_STATUS_APPROVED = "approved";
 var PF_USERDETAILS_STATUS_REJECTED = "rejected";
 var PF_USERDETAILS_STATUS_PENDING = "pending";
+var PF_USERDETAILS_STATUS_CANCELLED = "cancelled";
 
 //assign type
 
