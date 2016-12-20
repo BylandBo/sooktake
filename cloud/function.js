@@ -667,12 +667,6 @@ AV.Cloud.define("GetShuikeUserExpiryList", function (request, response) {
     userDetailsQuery.lessThan("expiryDate", new Date());
 	userDetailsQuery.include("owner");
 	
-    userDetailsQuery2.equalTo('expiryDate', '');
-	userDetailsQuery2.include("owner");
-
-    //var query = AV.Query.or(userDetailsQuery, userDetailsQuery2);
-    //query.include("owner");
-	
     userDetailsQuery.find().then(function(results){
 			   response.success(results);
 			},function (error) {
