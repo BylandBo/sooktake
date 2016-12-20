@@ -664,7 +664,7 @@ AV.Cloud.define("GetShuikeUserExpiryList", function (request, response) {
 	var userDetailsQuery2 = new AV.Query(UserDetails);
 
 	console.log("GetShuikeUserExpiryList");
-    userDetailsQuery.lessThan("expiryDate", new Date());
+    userDetailsQuery.equalTo("expiryDate", null);
 	userDetailsQuery.include("owner");
 	
     userDetailsQuery.find().then(function(results){
