@@ -460,7 +460,7 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		else
 		{
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_CANCELED());
-            userDetail.set("reject_msg", "");
+            userDetail.set("reject_msg", reason);
         }
 		console.log("Save user now: " + currentUser.id + "; Status: "+ currentUser.get("isVerify") + "; detail: "+ userDetail.get("status"));
         userDetail.save(null).then(function (updatedUser){

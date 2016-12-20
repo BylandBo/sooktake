@@ -219,6 +219,10 @@ exports.PF_USERDETAILS_STATUS_PENDING = function () {
     return PF_USERDETAILS_STATUS_PENDING;
 }
 
+exports.PF_USERDETAILS_STATUS_CANCELED = function () {
+    return PF_USERDETAILS_STATUS_CANCELED;
+}
+
 exports.cargoLookupFailed = function () {
     return cargoLookupFailed;
 }
