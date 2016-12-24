@@ -463,8 +463,9 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
             userDetail.set("reject_msg", reason);
         }
 		console.log("ApproveShuikeRegistration: Save user now: " + currentUser.id + "; Status: "+ currentUser.get("isVerify") + "; detail: "+ userDetail.get("status"));
-        userDetail.save(null).then(function (updatedUser){
-			console.log("Save user succeed.");
+        AV.Cloud.useMasterKey();
+		userDetail.save().then(function (updatedUser){
+			console.log("ApproveShuikeRegistration: Save user succeed.");
 			//sms to user
 			var message = '';
 			if (userDetail.get("status") == messageModule.PF_USERDETAILS_STATUS_APPROVED())
