@@ -450,9 +450,10 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		var userDetail = userDetails[0];
 		var currentUser = userDetail.get("owner");
         // At this time myUser is filled with an Object containing type _pointer, objectid, etc.
+		userDetail.set("isRecorded","YES");
 		if(expiryDate != '' && expiryDate != null)
 		{
-			userDetail.set("expiryDate",moment(expiryDate).format('DD-MM-YYYY'));
+			userDetail.set("expiryDate",moment(expiryDate).format('YYYY-MM-DD'));
 		}
         if (isApprove == '1'){
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_APPROVED());
