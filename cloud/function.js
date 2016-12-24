@@ -453,7 +453,7 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		userDetail.set("isRecorded","YES");
 		if(expiryDate != '' && expiryDate != null)
 		{
-			userDetail.set("expiryDate",new Date(moment(expiryDate).format('YYYY-MM-DD')));
+			userDetail.set("expiryDate",new Date(moment(expiryDate).format('DD-MM-YYYY')));
 		}
         if (isApprove == '1'){
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_APPROVED());
