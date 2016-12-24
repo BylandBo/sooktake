@@ -448,7 +448,7 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		var userDetail = userDetails[0];
 		var currentUser = userDetail.get("owner");
         // At this time myUser is filled with an Object containing type _pointer, objectid, etc.
-		//userDetail.set("expiryDate",expiryDate);
+		userDetail.set("expiryDate",expiryDate);
         if (isApprove == '1'){
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_APPROVED());
 			currentUser.set("isVerify",messageModule.YES());
@@ -472,7 +472,7 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 			else if (userDetail.get("status") == messageModule.PF_USERDETAILS_STATUS_REJECTED())
 				message = "您目前未通过soontake实名认证，原因'" + userDetail.get("reject_msg") + "',我们期待您完善资料.";
 			
-			if(userDetail.get("status") != messageModule.PF_USERDETAILS_STATUS_CANCELLED())
+			if(userDetail.get("status") != messageModule.PF_USERDETAILS_STATUS_CANCELED())
 			{
 				SMSInformation("+"+currentUser.get("username"),message);			
 				//push message to user
