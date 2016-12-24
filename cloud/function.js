@@ -462,8 +462,7 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_CANCELED());
             userDetail.set("reject_msg", reason);
         }
-		console.log("ApproveShuikeRegistration: Save user now: " + currentUser.id + "; Status: "+ currentUser.get("isVerify") + "; detail: "+ userDetail.get("status"));
-        AV.Cloud.useMasterKey();
+		console.log("ApproveShuikeRegistration: Save user now: " + currentUser.id + "; Status: "+ currentUser.get("isVerify") + "; detail: "+ userDetail.get("status") +"; ExpiryDate:" + userDetail.get("expiryDate"));
 		userDetail.save().then(function (updatedUser){
 			console.log("ApproveShuikeRegistration: Save user succeed.");
 			//sms to user
