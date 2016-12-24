@@ -473,9 +473,9 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_APPROVED());
 			currentUser.set("isVerify",messageModule.YES());
 			userDetail.set("occupition",occupition);
-			userDetail.set("employer",employer)
-			userDetail.set("passType",passType)
-			userDetail.set("sex",sex)
+			userDetail.set("employer",employer);
+			userDetail.set("passType",passType);
+			userDetail.set("sex",sex);
 		}
         else if(isApprove == '2') {
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_REJECTED());
@@ -515,12 +515,33 @@ AV.Cloud.define("UpdateShuikeUser", function (request, response) {
 	var userDetailQuery = new AV.Query(classnameModule.GetUserDetailsClass());
     var userdetailId = request.params.userdetailId;
 	var expiryDate = request.params.expiryDate;
+	var issueDate = request.params.issueDate;
+    var occupition = request.params.occupition;
+	var sex = request.params.sex;
+	var birthday = request.params.birthday;
+	var employer = request.params.employer;
+	var passType = request.params.passType;
     
     userDetailQuery.equalTo("objectId", userdetailId);
 	AV.Cloud.useMasterKey();
     userDetailQuery.find().then(function (userDetails) {
 		var userDetail = userDetails[0];
-		userDetail.set("expiryDate",expiryDate);
+		if(expiryDate != '' && expiryDate != null)
+		{
+			userDetail.set("expiryDate",new Date(expiryDate));
+		}
+		if(issueDate != '' && issueDate != null)
+		{
+			userDetail.set("issueDate",new Date(issueDate));
+		}
+		if(birthday != '' && birthday != null)
+		{
+			userDetail.set("birthday",new Date(birthday));
+		}
+        userDetail.set("occupition",occupition);
+		userDetail.set("employer",employer);
+		userDetail.set("passType",passType);
+		userDetail.set("sex",sex);
         
         userDetail.save(null).then(function (updatedUser){
 			console.log("Save user succeed.");
