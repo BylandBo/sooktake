@@ -442,7 +442,13 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
     var isApprove = request.params.isApprove;
     var reason = request.params.reason;
 	var expiryDate = request.params.expiryDate;
-    
+	var issueDate = request.params.issueDate;
+    var occupition = request.params.occupition;
+	var sex = request.params.sex;
+	var birthday = request.params.birthday;
+	var employer = request.params.employer;
+	var passType = request.params.passType;
+	
     userDetailQuery.equalTo("objectId", userdetailId);
     userDetailQuery.include("owner");
 	AV.Cloud.useMasterKey();
@@ -455,9 +461,21 @@ AV.Cloud.define("ApproveShuikeRegistration", function (request, response) {
 		{
 			userDetail.set("expiryDate",new Date(expiryDate));
 		}
+		if(issueDate != '' && issueDate != null)
+		{
+			userDetail.set("issueDate",new Date(issueDate));
+		}
+		if(birthday != '' && birthday != null)
+		{
+			userDetail.set("birthday",new Date(birthday));
+		}
         if (isApprove == '1'){
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_APPROVED());
 			currentUser.set("isVerify",messageModule.YES());
+			userDetail.set("occupition",occupition);
+			userDetail.set("employer",employer)
+			userDetail.set("passType",passType)
+			userDetail.set("sex",sex)
 		}
         else if(isApprove == '2') {
             userDetail.set("status", messageModule.PF_USERDETAILS_STATUS_REJECTED());
