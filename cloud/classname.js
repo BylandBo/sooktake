@@ -9,6 +9,7 @@ var UserClass = "_User";
 var HistoryClass = "History";
 var PaymentClass = "Payment";
 
+var test ="";
 
 exports.GetCargoClass = function(){
     return CargoClass;
