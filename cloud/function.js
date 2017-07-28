@@ -721,6 +721,8 @@ AV.Cloud.define("GetShuikeUserExpiryList", function (request, response) {
 	
 	var query2 = AV.Query.and(query, userDetailsQuery3);
 	query2.include("owner");
+	query2.limit(100);
+	query2.descending('createdAt');
 	
     query2.find().then(function(results){
 			   response.success(results);
